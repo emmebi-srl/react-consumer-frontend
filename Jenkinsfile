@@ -10,6 +10,14 @@ pipeline {
             }
         }
 
+        stage('Print Info'){
+            steps {
+                sh 'echo "JENKINS_HOME: $JENKINS_HOME"'
+            }
+        }
+
+        $JENKINS_HOME/var/www/html/
+
         stage('🚫 Remove last build directories'){
             steps {
                 dir ('node_modules') {
@@ -57,7 +65,7 @@ pipeline {
                             sourceFiles: "build/**/*.*",
                             removePrefix: "build",
                             remoteDirectory: "/var/www/html",
-                            execCommand: "mv /var/www/html/* $JENKINS_HOME/var/www/html"
+                            execCommand: "rm -rf /var/www/html/* cp -R $JENKINS_HOME/var/www/html/ /var/www/html/*"
                             )
                         ])
                 ])
