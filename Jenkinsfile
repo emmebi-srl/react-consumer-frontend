@@ -8,6 +8,7 @@ node('master') {
     stage 'Load profiles'
         sh '. ~/.nvm/nvm.sh'
         sh '. ~/.bash_profile'
+        sh '. ~/.bashrc'
 
     stage '🇧🇿 Build env version'
         sh 'nvm install 10'
