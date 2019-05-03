@@ -11,8 +11,7 @@ node('master') {
         sh '. ~/.bashrc'
         sh 'set +ex'
         sh 'export NVM_DIR="$HOME/.nvm"'
-        sh '. ~/.nvm/nvm.sh '
-        sh 'nvm current'
+        sh '. ~/.nvm/nvm.sh && nvm current'
         sh 'set -ex'
 
     stage '🇧🇿 Build env version'
