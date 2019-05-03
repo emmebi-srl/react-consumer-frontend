@@ -5,8 +5,11 @@ node('master') {
     stage 'Checkout'
         checkout scm
 
-    stage 'Nvm installation'
-        sh 'nvm current || echo "NVM is being installed" &&  touch ~/.profile && curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh -o install_nvm.sh && bash install_nvm.sh && source ~/.profile'
+    stage 'NVM installation'
+        sh 'nvm current || echo "NVM is being installed" &&  touch ~/.profile && curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh -o install_nvm.sh && bash install_nvm.sh'
+        sh 'export NVM_DIR="$HOME/.nvm'
+        sh '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm'
+        sh '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
 
     stage 'Load profiles'
         sh '. ~/.nvm/nvm.sh'
