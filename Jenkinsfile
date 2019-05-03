@@ -57,6 +57,7 @@ pipeline {
                             sourceFiles: "build/**/*.*",
                             removePrefix: "build",
                             remoteDirectory: "/var/www/html",
+                            execCommand: "mv /var/www/html/* $JENKINS_HOME/var/www/html"
                             )
                         ])
                 ])
