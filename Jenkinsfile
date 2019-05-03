@@ -57,7 +57,6 @@ pipeline {
                             sourceFiles: "build/**/*.*",
                             removePrefix: "build",
                             remoteDirectory: "/var/www/html",
-                            execCommand: "chmod 777 /var/www/html/*"
                             )
                         ])
                 ])
