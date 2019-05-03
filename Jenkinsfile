@@ -21,4 +21,18 @@ node('master') {
                 sh 'npm install'
             }
         
+    stage '🚧 Build app' 
+        nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
+            nvmIoJsOrgMirror: 'https://iojs.org/dist',
+            nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
+            version: '12.1.0') {
+                sh 'npm run build:prod'
+            }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'build/**/*.*', onlyIfSuccessful: true
+        }
+    }  
+
 }
