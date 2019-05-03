@@ -9,6 +9,7 @@ const mapStateToProps = (state) => {
       isLoading: !!(state.checklists.detail.loading || !data),
       activeParagraphIndex: (data || {}).activeParagraphIndex,
       isGeneralInfoActive: (data || {}).isGeneralInfoActive,
+      checklist: data,
     }
   }
 }

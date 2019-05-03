@@ -29,6 +29,7 @@ instance.interceptors.request.use(function (req) {
 });
 
 instance.interceptors.response.use(function (resp) {
+  if (resp.headers && resp.headers['content-type'] === 'application/pdf') return resp;
   return apiObjToJsonObj(resp.data, ['nameValuePairs']);
 }, function (error) {
   const originalRequest = error.config;

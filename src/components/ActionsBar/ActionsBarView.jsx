@@ -57,7 +57,7 @@ const LeftContainer = styled.div`
 `
 
 const TypedButton = ({caption, icon, animated, primary, secondary, 
-  ButtonWrapper, onClick}) => {
+  ButtonWrapper, onClick, isLoading}) => {
 
   const attr = {};
 
@@ -69,6 +69,8 @@ const TypedButton = ({caption, icon, animated, primary, secondary,
     isAnimated = true;
     attr.animated = animated;
   }
+
+  if(isLoading) attr.loading = true;
   
   let MyButton;
   if(!isAnimated){

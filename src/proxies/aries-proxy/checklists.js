@@ -15,7 +15,12 @@ module.exports.init = function(axios) {
     })
   }
 
-
+  const getPdf = ({ id }) => axios.get(`checklist/${id}/pdf`, {
+      responseType: 'blob',
+      headers: {
+        'Accept': 'application/pdf'
+      }
+  });
 
   const update = ({id, checklist}) => {
     return axios.put(`checklist/${id}`, checklist)
@@ -31,5 +36,6 @@ module.exports.init = function(axios) {
     getById,
     update, 
     createSystemLink,
+    getPdf,
   }
 }
