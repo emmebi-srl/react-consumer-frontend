@@ -1,6 +1,10 @@
 #!/usr/bin/env groovy
 
 node('master') {
+
+    stage 'Checkout'
+        checkout scm
+        
     stage 'Load profiles'
         sh '. ~/.nvm/nvm.sh'
         sh '. ~/.profile'
