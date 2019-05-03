@@ -1,0 +1,2 @@
+import ChecklistsDetailsGeneralCustomer from './ChecklistsDetailsGeneralCustomerContainer'
+export default ChecklistsDetailsGeneralCustomer

@@ -1,0 +1,2 @@
+import ChecklistsDetailsParagraph from './ChecklistsDetailsParagraphContainer'
+export default ChecklistsDetailsParagraph

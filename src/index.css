@@ -1,0 +1,89 @@
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 900;
+  src: url('./assets/fonts/roboto/roboto-blackitalic-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 900;
+  src: url('./assets/fonts/roboto/roboto-black-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 700;
+  src:  url('./assets/fonts/roboto/roboto-bolditalic-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url('./assets/fonts/roboto/roboto-bold-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 300;
+  src: url('./assets/fonts/roboto/roboto-lightitalic-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: url('./assets/fonts/roboto/roboto-light-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 500;
+  src: url('./assets/fonts/roboto/roboto-mediumitalic-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  src: url('./assets/fonts/roboto/roboto-italic-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./assets/fonts/roboto/roboto-regular-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 100;
+  src: url('./assets/fonts/roboto/roboto-thinitalic-webfont.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100;
+  src: url('./assets/fonts/roboto/roboto-thin-webfont.ttf') format('truetype');
+}
+
+body {
+  margin: 0;
+  padding: 0 5%;
+  font-family: sans-serif;
+  color: #303030; 
+  font-family: 'Roboto', sans-serif;
+}
+
+html, body, #root {
+  width:100%;
+  height:100%;
+}

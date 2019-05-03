@@ -1,0 +1,2 @@
+import InfoAndPrecautionsRowView from './InfoAndPrecautionsRowView'
+export default InfoAndPrecautionsRowView

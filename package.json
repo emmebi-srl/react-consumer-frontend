@@ -1,0 +1,70 @@
+{
+  "name": "aries-web-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.18.0",
+    "moment": "^2.22.1",
+    "ramda": "^0.25.0",
+    "react": "^16.3.2",
+    "react-device-detect": "^1.0.1",
+    "react-dom": "^16.3.2",
+    "react-intl": "^2.4.0",
+    "react-redux": "^5.0.7",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.1.4",
+    "redux": "^3.7.2",
+    "redux-form": "^7.3.0",
+    "redux-logger": "^3.0.6",
+    "redux-saga": "^0.16.0",
+    "semantic-ui-css": "^2.3.1",
+    "semantic-ui-react": "^0.80.0",
+    "styled-components": "^3.2.6",
+    "when": "^3.7.8"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^3.4.4",
+    "@storybook/addon-links": "^3.4.4",
+    "@storybook/addons": "^3.4.4",
+    "@storybook/react": "^3.4.4",
+    "babel-core": "^6.26.3",
+    "babel-jest": "^23.0.0-alpha.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-template-literals": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-runtime": "^6.26.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme-to-json": "^3.3.3",
+    "jest": "^22.4.2",
+    "pre-commit": "^1.2.2",
+    "react-test-renderer": "^16.2.0",
+    "storybook-addon-jsx": "^5.3.0"
+  },
+  "scripts": {
+    "start": "sh -ac '. ./local.env; react-scripts start'",
+    "build": "sh -ac '. ./${REACT_APP_ENV}.env; react-scripts build'",
+    "build:dev": "REACT_APP_ENV=dev npm run build",
+    "build:prod": "REACT_APP_ENV=prod npm run build",
+    "test": "NODE_ENV=testing jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "eject": "react-scripts eject",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
+  },
+  "jest": {
+    "setupFiles": [
+      "./tests/jestsetup.js"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/assetsTransformer.js"
+    }
+  }
+}

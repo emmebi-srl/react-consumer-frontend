@@ -1,0 +1,2 @@
+import ChecklistsDetailsGeneralSystem from './ChecklistsDetailsGeneralSystemContainer'
+export default ChecklistsDetailsGeneralSystem

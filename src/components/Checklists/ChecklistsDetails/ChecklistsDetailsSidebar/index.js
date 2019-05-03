@@ -1,0 +1,2 @@
+import ChecklistsDetailsSidebar from './ChecklistsDetailsSidebarContainer'
+export default ChecklistsDetailsSidebar
