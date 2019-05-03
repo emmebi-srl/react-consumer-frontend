@@ -8,6 +8,7 @@ node('master') {
     stage 'Load profiles'
         sh '. ~/.nvm/nvm.sh'
         sh '. ~/.bash_profile'
+        sh 'echo $NVM_DIR'
 
     stage 'Stage 1'
         sh 'echo $NVM_DIR'
