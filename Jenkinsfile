@@ -16,8 +16,6 @@ pipeline {
             }
         }
 
-        $JENKINS_HOME/var/www/html/
-
         stage('🚫 Remove last build directories'){
             steps {
                 dir ('node_modules') {
