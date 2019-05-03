@@ -1,34 +1,37 @@
 #!/usr/bin/env groovy
 
-node('master') {
-    stage 'Checkout'
-        checkout scm
+pipeline {
+    agent any
 
-    stage '🚫 Remove last build directories'
-        dir ('node_modules') {
-            deleteDir()
-        }
-        dir ('build') {
-            deleteDir()
-        }
+    stages {
+        stage 'Checkout'
+            checkout scm
 
-    stage '🇧🇿 Install packages' 
-        nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
-            nvmIoJsOrgMirror: 'https://iojs.org/dist',
-            nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
-            version: '12.1.0') {
-                sh 'npm install -g react-scripts'
-                sh 'npm install'
+        stage '🚫 Remove last build directories'
+            dir ('node_modules') {
+                deleteDir()
             }
-        
-    stage '🚧 Build app' 
-        nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
-            nvmIoJsOrgMirror: 'https://iojs.org/dist',
-            nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
-            version: '12.1.0') {
-                sh 'npm run build:prod'
+            dir ('build') {
+                deleteDir()
             }
 
+        stage '🇧🇿 Install packages' 
+            nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
+                nvmIoJsOrgMirror: 'https://iojs.org/dist',
+                nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
+                version: '12.1.0') {
+                    sh 'npm install -g react-scripts'
+                    sh 'npm install'
+                }
+            
+        stage '🚧 Build app' 
+            nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
+                nvmIoJsOrgMirror: 'https://iojs.org/dist',
+                nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
+                version: '12.1.0') {
+                    sh 'npm run build:prod'
+                }
+    }
     post {
         always {
             archiveArtifacts artifacts: 'build/**/*.*', onlyIfSuccessful: true
