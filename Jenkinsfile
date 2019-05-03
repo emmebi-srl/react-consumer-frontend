@@ -6,7 +6,7 @@ node('master') {
         checkout scm
 
     stage 'Nvm installation'
-        sh 'nvm current || echo "SSH NVM is being installed" &&  touch ~/.profile && curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh -o install_nvm.sh && bash install_nvm.sh && source ~/.profile'
+        sh 'nvm current || echo "NVM is being installed" &&  touch ~/.profile && curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh -o install_nvm.sh && bash install_nvm.sh && source ~/.profile'
 
     stage 'Load profiles'
         sh '. ~/.nvm/nvm.sh'
