@@ -1,20 +1,20 @@
 #!/usr/bin/env groovy
 
 node('master') {
+    stages {
+        stage 'Checkout'
+            checkout scm
 
-    stage 'Checkout'
-        checkout scm
-
-    stage 'Load profiles'
-        sh '. ~/.nvm/nvm.sh'
-        sh '. ~/.bash_profile'
-        sh '. ~/.bashrc'
-        sh 'set +ex'
-        sh 'export NVM_DIR="$HOME/.nvm"'
-        sh '. ~/.nvm/nvm.sh && nvm current'
-        sh 'set -ex'
-
-    stage '🇧🇿 Build env version'
-        sh 'nvm install 10'
-        sh 'nvm use 10'
+        stage '🇧🇿 Install packages' {
+            nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
+                nvmIoJsOrgMirror: 'https://iojs.org/dist',
+                nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
+                version: '8.1.2') {
+                    sh "npm install"
+                    echo "Build main site distribution"
+                    sh "npm run build:dist"
+                }
+           }
+        }
+    }
 }
