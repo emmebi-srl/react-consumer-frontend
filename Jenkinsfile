@@ -14,7 +14,7 @@ node('master') {
                     echo "Build main site distribution"
                     sh "npm run build:dist"
                 }
-           }
+           
         }
     }
 }
