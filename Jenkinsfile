@@ -10,9 +10,7 @@ node('master') {
         sh '. ~/.bash_profile'
 
     stage '\u2776 Stage 1'
-        echo "\u2600 lol"
+        echo $NVM_DIR
         sh "ls -la"
-        sh '. ~/.nvm/nvm.sh'
-        sh '. ~/.bash_profile'
         sh "nvm --version"
 }
