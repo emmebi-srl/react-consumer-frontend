@@ -4,10 +4,10 @@ node('master') {
 
     stage 'Checkout'
         checkout scm
-        
+
     stage 'Load profiles'
         sh '. ~/.nvm/nvm.sh'
-        sh '. ~/.profile'
+        sh '. ~/.bash_profile'
         sh '. ~/.bashrc'
 
     stage '\u2776 Stage 1'
