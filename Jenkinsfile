@@ -24,7 +24,6 @@ pipeline {
                 dir ('build') {
                     deleteDir()
                 }
-                sh 'rm -rf $JENKINS_HOME/tmp/*'
             }
         }
 
@@ -64,7 +63,7 @@ pipeline {
                             sourceFiles: "build/**/*.*",
                             removePrefix: "build",
                             remoteDirectory: "/tmp",
-                            execCommand: "rm -rf /var/www/html/* && cp -R $JENKINS_HOME/tmp/* /var/www/html/"
+                            execCommand: "rm -rf /var/www/html/* && cp -R /home/mirco/tmp/* /var/www/html/ && rm -rf /home/mirco/tmp/*"
                             )
                         ])
                 ])
