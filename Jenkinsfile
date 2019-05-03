@@ -43,6 +43,26 @@ pipeline {
                     }
             }
         }
+
+        stage('🚀 SSH transfer') {
+            steps {
+                sshPublisher(
+                    continueOnError: false, failOnError: true,
+                    publishers: [
+                        sshPublisherDesc(
+                        configName: "aries-web-app",
+                        verbose: true,
+                        transfers: [
+                        sshTransfer(
+                            sourceFiles: "build/**/*.*",
+                            removePrefix: "build",
+                            remoteDirectory: "/var/www/html",
+                            execCommand: "chmod 777 /var/www/html/*"
+                            )
+                        ])
+                ])
+            }
+        }
     }
     post {
         always {
