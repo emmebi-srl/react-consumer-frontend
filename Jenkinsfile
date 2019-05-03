@@ -4,18 +4,20 @@ pipeline {
     agent any
 
     stages {
-        stage 'Checkout'
+        stage('Checkout'){
             checkout scm
+        }
 
-        stage '🚫 Remove last build directories'
+        stage('🚫 Remove last build directories'){
             dir ('node_modules') {
                 deleteDir()
             }
             dir ('build') {
                 deleteDir()
             }
+        }
 
-        stage '🇧🇿 Install packages' 
+        stage('🇧🇿 Install packages'){
             nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
                 nvmIoJsOrgMirror: 'https://iojs.org/dist',
                 nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
@@ -23,14 +25,16 @@ pipeline {
                     sh 'npm install -g react-scripts'
                     sh 'npm install'
                 }
+        }
             
-        stage '🚧 Build app' 
+        stage('🚧 Build app') {
             nvm(nvmInstallURL: 'https://raw.githubusercontent.com/creationix/nvm/master/install.sh', 
                 nvmIoJsOrgMirror: 'https://iojs.org/dist',
                 nvmNodeJsOrgMirror: 'https://nodejs.org/dist', 
                 version: '12.1.0') {
                     sh 'npm run build:prod'
                 }
+        }
     }
     post {
         always {
