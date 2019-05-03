@@ -10,7 +10,7 @@ node('master') {
         sh '. ~/.bash_profile'
 
     stage 'Stage 1'
-        echo '$NVM_DIR'
+        sh 'echo $NVM_DIR'
         sh "ls -la"
         sh "nvm --version"
 }
