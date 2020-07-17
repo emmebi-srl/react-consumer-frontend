@@ -15,9 +15,14 @@ export const createRoutes = store => ({
       component: asyncComponent(() => import('./Checklists').then(module => module.default(store))),
     }),
     createRouteObj({
-      path: '/clients',
+      path: '/customers',
       exact: false,
-      component: asyncComponent(() => import('./Clients').then(module => module.default(store))),
+      component: asyncComponent(() => import('./Customers').then(module => module.default(store))),
+    }),
+    createRouteObj({
+      path: '/interventions',
+      exact: false,
+      component: asyncComponent(() => import('./Interventions').then(module => module.default(store))),
     }),
   ],
 })

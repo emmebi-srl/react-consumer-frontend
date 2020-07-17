@@ -4,7 +4,7 @@ import { genActions, createRequestTypes } from '../../../store/actions'
 // Constants
 // ======================================================
 export const actionTypes = {
-  ...createRequestTypes('CLIENTS_GET'),
+  ...createRequestTypes('CUSTOMERS_GET'),
 }
 
 
@@ -12,4 +12,4 @@ export const actionTypes = {
 // ACTIONS
 // ======================================================
 const createActions = genActions(actionTypes)
-export const getClients = createActions('CLIENTS_GET');
+export const getCustomers = createActions('CUSTOMERS_GET');

@@ -13,7 +13,7 @@ const ChecklistListRow = ({data, history, match}) => {
             <AriesDate unixTimestamp={data.executionDate}/>
         </Table.Cell>
         <Table.Cell>{data.customer.companyName}</Table.Cell>
-        <Table.Cell>{data.system.description}</Table.Cell>
+        <Table.Cell>{data.system && data.system.description}</Table.Cell>
         <Table.Cell>{data.checklistType}</Table.Cell>
     </Table.Row>
   )

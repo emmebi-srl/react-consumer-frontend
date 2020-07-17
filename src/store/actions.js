@@ -1,5 +1,3 @@
-import * as sessionActions from './session/actions'
-
 const REQUEST = 'REQUEST'
 const SUCCESS = 'SUCCESS'
 const FAILURE = 'FAILURE'
@@ -17,7 +15,3 @@ export const genActions = actionTypes => name => ({
   success: payload => createAction(actionTypes[`${name}_${SUCCESS}`], { payload }),
   failure: payload => createAction(actionTypes[`${name}_${FAILURE}`], { payload }),
 })
-
-export default { 
-    ...sessionActions,
-};

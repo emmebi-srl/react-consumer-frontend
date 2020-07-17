@@ -1,6 +1,5 @@
 import React from 'react'
 import { Button, Modal } from '../../UI'
-import when from 'when'
 import styled from '../../../../node_modules/styled-components'
 import { CenterVerticallyRelative } from '../../../styles'
 import { injectIntl, defineMessages } from 'react-intl'
@@ -31,7 +30,7 @@ class ConfirmationModal extends React.Component {
     const {open} = this.state;
 
     const clickHandler = (value) => {
-      return when.resolve()
+      return Promise.resolve()
         .then(_ => onClick(value))
         .then(_ => this.close())
         .catch((err) => console.log('Error', err))

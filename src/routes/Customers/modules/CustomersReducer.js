@@ -1,4 +1,4 @@
-import { actionTypes } from './ClientsActions'
+import { actionTypes } from './CustomersActions'
 import createReducer from '../../../store/create-reducers'
 
 const initialState = {}

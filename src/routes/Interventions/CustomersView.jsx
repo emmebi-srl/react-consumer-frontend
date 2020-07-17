@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import {Switch, Route} from 'react-router-dom'
 
 
-class ChecklistsView extends React.PureComponent {
+class InterventionsView extends React.PureComponent {
   render () {
     const { match } = this.props
     return (
@@ -14,8 +14,8 @@ class ChecklistsView extends React.PureComponent {
   }
 }
 
-ChecklistsView.propTypes = {
+InterventionsView.propTypes = {
   match: PropTypes.object.isRequired,
 }
 
-export default ChecklistsView
+export default InterventionsView;
