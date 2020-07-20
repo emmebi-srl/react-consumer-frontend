@@ -109,7 +109,7 @@ class ActionsBar extends React.PureComponent {
     window.onscroll = null;
   }
   handleScrolling = () => {
-    if(this.mainRef){
+    if(this.mainRef && this.mainRef.current){
       if (window.pageYOffset >= 90) {
         this.mainRef.current.classList.add("sticky-action-bar")
       } else {

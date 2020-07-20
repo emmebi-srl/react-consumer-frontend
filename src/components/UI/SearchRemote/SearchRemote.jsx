@@ -4,11 +4,13 @@ import escapeRegExp from 'lodash/escapeRegExp';
 import debounce from 'lodash/debounce';
 
 
-export default class SearchExampleStandard extends PureComponent {
-  constructor (props) {
-    this.state = { isLoading: false, results: [], value: '' };
+const resultRenderer = ({ title }) => <span>title</span>
+
+export default class SearchRemote extends Component {
+  componentWillMount() {
+    this.resetComponent()
   }
-  
+
   resetComponent = () => this.setState({ isLoading: false, results: [], value: '' })
 
   handleResultSelect = (e, { result }) => this.setState({ value: result.title })
@@ -24,7 +26,7 @@ export default class SearchExampleStandard extends PureComponent {
 
       this.setState({
         isLoading: false,
-        results: source.filter(isMatch),
+        results: [].filter(isMatch),
       })
     }, 300)
   }
@@ -36,6 +38,7 @@ export default class SearchExampleStandard extends PureComponent {
         <Search
             loading={isLoading}
             onResultSelect={this.handleResultSelect}
+            resultRenderer={resultRenderer}
             onSearchChange={debounce(this.handleSearchChange, 500, { leading: true })}
             results={results}
             value={value}
