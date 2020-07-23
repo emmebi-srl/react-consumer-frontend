@@ -2,6 +2,7 @@ import axios from 'axios'
 import {authenticate, refreshAuthentication} from './authenticator'
 import checklists from './checklists'
 import users from './users'
+import systems from './systems'
 import { isObject } from '../../utils/is-object';
 import { apiObjToJsonObj, jsonObjToApiObj } from '../../utils/obj-mapper';
 import { getLocalStorageItem } from '../../utils/local-storage';
@@ -52,4 +53,5 @@ export default {
   refreshAuthentication: refreshAuthentication,
   checklists: checklists.init(instance), 
   users: users.init(instance),
+  systems: systems.init(instance),
 }

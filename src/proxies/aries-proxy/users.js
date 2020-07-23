@@ -1,4 +1,4 @@
-module.exports.init = function(axios) {
+const init = function(axios) {
   const getMe = () => {
     return axios.get('users/me');
   };
@@ -11,4 +11,8 @@ module.exports.init = function(axios) {
     getMe,
     logout,
   }
-}
+};
+
+export default {
+  init,
+};

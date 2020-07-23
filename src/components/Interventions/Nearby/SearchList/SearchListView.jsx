@@ -1,10 +1,9 @@
 import React from 'react';
 import { Input, Form } from '../../../UI';
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 import { media, FormCard, CardPadding } from '../../../../styles';
 import messages from './messages';
 import { FormattedMessage } from 'react-intl';
-import SearchRemote from '../../../UI/SearchRemote';
 import PrimaryButton from '../../../UI/PrimaryButton';
 
 const StyledFormCard = styled(FormCard)`
@@ -30,32 +29,9 @@ const FormField = styled(Form.Field)`
 
 `
 
-const SearchField = styled.div`
-  ${CardPadding}
-  label {
-    display: inline-block;
-    font-weight: 700;
-    margin-right: 25px;
-    margin-bottom: 4px;
-  }
-  .aries-full {
-    ${media.tablet`
-      display: inline-block;
-    `}
-    .input {
-      width: 100%;
-    }
-  }
-`;
 
 const SearchListView = () => {
-  return (
-    <div>      
-    <SearchField>
-        <label><FormattedMessage {...messages.system} /></label>
-        <SearchRemote className="aries-full"></SearchRemote>
-    </SearchField>
-
+  return (<div>
       <StyledFormCard>
         <FormField>
           <label><FormattedMessage {...messages.address} /></label>

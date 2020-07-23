@@ -14,7 +14,7 @@ const MainContainer = styled.div`
 const Content = styled.div`
   padding: 0px;
   width: 100%;
-  overflow: hidden;
+  height: calc(100vh - 90px);
 `
 const PrivateArea = ({routes}) => {
   return (
