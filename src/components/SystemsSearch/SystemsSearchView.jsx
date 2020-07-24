@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
@@ -36,29 +37,44 @@ const OtherInfo = styled.div`
   font-size: 12px;
 `;
 
-const SystemsSearchView = ({ ariesProxy }) => {
+const ResultRender = (props) => <ItemWrapper>
+  <CustomerName>{props.companyName}</CustomerName>
+  <OtherInfo>{props.id} - {props.description}</OtherInfo>
+  {
+    props.destination
+      ? <OtherInfo>{props.destination.municipality} ({props.destination.province}) - {props.destination.street}</OtherInfo>
+      : null
+  }
+</ItemWrapper>;
 
-  const getRemoteData = async (value) => {
+class SystemsSearchView extends PureComponent {
+
+  static propTypes = {
+    onSystemSelect: PropTypes.func.isRequired,
+  }
+
+  handleSystemChange = (system) => this.props.onSystemSelect(system);
+
+  getRemoteData = async (value) => {
+    const { ariesProxy } = this.props;
     const { systems } = await ariesProxy.systems.search(value);
     return systems;
   };
 
-  return <SearchField>
-    <label><FormattedMessage {...messages.system} /></label>
-    <SearchRemote className="aries-full"
-      getRemoteData={getRemoteData}
-      onResultSelect={console.log}
-      resultRenderer={(item) => <ItemWrapper>
-        <CustomerName>{item.companyName}</CustomerName>
-        <OtherInfo>{item.id} - {item.description}</OtherInfo>
-        {
-          item.destination
-            ? <OtherInfo>{item.destination.municipality} ({item.destination.province}) - {item.destination.street}</OtherInfo>
-            : null
-        }
-      </ItemWrapper>}
-    ></SearchRemote>
-  </SearchField>;
+  getSelectedDisplayValue = system => `${system.companyName} - ${system.description}`
+
+
+  render () {
+    return <SearchField>
+      <label><FormattedMessage {...messages.system} /></label>
+      <SearchRemote className="aries-full"
+        getRemoteData={this.getRemoteData}
+        getSelectedDisplayValue={this.getSelectedDisplayValue}
+        onResultSelect={this.handleSystemChange}
+        resultRenderer={ResultRender}
+      ></SearchRemote>
+    </SearchField>;
+  }
 };
 
 export default WithAriesProxy(SystemsSearchView);
