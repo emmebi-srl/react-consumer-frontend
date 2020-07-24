@@ -35,7 +35,7 @@ export const reducer  = {
       searchForm: {
         ...state.searchForm,
         system,
-        address: destination.street ? `${destination.street}, ${destination.streetNumber || ''}` : '',
+        address: destination.street ? `${destination.street}, ${destination.houseNumber || ''}` : '',
         city: destination.municipality || '',
         postalCode: destination.postalCode || '',
       }
