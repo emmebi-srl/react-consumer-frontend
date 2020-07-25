@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types'
-import { Input, Form } from '../../../UI';
+import { Input, Form, Dropdown } from '../../../UI';
 import styled from 'styled-components';
 import { media, FormCard } from '../../../../styles';
 import messages from './messages';
@@ -8,6 +8,14 @@ import { FormattedMessage } from 'react-intl';
 import PrimaryButton from '../../../UI/PrimaryButton';
 import SystemsSearchView from '../../../SystemsSearch';
 import SearchFormContainer from './SearchFormContainer';
+
+const KM_RANGES = [
+  5,
+  10,
+  25,
+  50,
+  100,
+];
 
 const StyledFormCard = styled(FormCard)`
   display: flex;
@@ -29,15 +37,16 @@ const FormField = styled(Form.Field)`
       padding-right: 0px;
     }
   `}
-
 `
 
-const SearchFormView = ({ searchForm: { address, city, postalCode }, setSystem, setSearchFormValue }) => {
+const SearchFormView = ({ searchForm: { address, city, postalCode, rangeKm },
+  setSystem, setSearchFormValue, getInterventions }) => {
 
+  const onSubmit = () => getInterventions({ address, city, postalCode, rangeKm });
   return (
     <div>      
       <SystemsSearchView onSystemSelect={setSystem}></SystemsSearchView>
-      <StyledFormCard>
+      <StyledFormCard onSubmit={onSubmit}>
         <FormField>
           <label><FormattedMessage {...messages.address} /></label>
           <Input readOnly={false}               
@@ -61,6 +70,18 @@ const SearchFormView = ({ searchForm: { address, city, postalCode }, setSystem, 
         </FormField>
 
         <FormField>
+          <label><FormattedMessage {...messages.range} /></label>
+          <Dropdown readOnly={false}               
+            value={rangeKm}
+            options={KM_RANGES.map((value) => ({
+              key: `key_${value}`,
+              value,
+              text: `${value}km`,
+            }))}
+            onChange={(e, {value}) => setSearchFormValue('rangeKm', value)} />
+        </FormField>
+
+        <FormField>
           <PrimaryButton fluid><FormattedMessage {...messages.search}/> </PrimaryButton>
         </FormField>
 
@@ -77,6 +98,9 @@ SearchFormView.propTypes = {
     city: PropTypes.string,
     postalCode: PropTypes.string,
   }).isRequired,
+  setSystem: PropTypes.func.isRequired,
+  setSearchFormValue: PropTypes.func.isRequired,
+  getInterventions: PropTypes.func.isRequired,
 };
 
 

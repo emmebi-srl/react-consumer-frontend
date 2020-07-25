@@ -1,16 +1,16 @@
 import React from 'react'
-import {Input as SemanticInput} from 'semantic-ui-react'
+import {Dropdown as SemanticDropdown} from 'semantic-ui-react'
 import styled from 'styled-components'
 import { Blue } from '../../../styles'
 
-const StyledInput = styled(SemanticInput)`
-  input {
+const SyledDropdown = styled(SemanticDropdown)`
+  div.text {
     color: ${Blue}!important;
   }
-`
+`;
 
-export const Input = ({size, ...rest}) => {
+export const Dropdown = ({size, ...rest}) => {
   return (
-    <StyledInput {...{...rest, size: size || 'small'}} />
+    <SyledDropdown selection {...{...rest, size: size || 'small'}} />
   )
-}
+};

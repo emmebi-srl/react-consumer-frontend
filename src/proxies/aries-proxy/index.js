@@ -3,6 +3,7 @@ import {authenticate, refreshAuthentication} from './authenticator'
 import checklists from './checklists'
 import users from './users'
 import systems from './systems'
+import works from './works'
 import { isObject } from '../../utils/is-object';
 import { apiObjToJsonObj, jsonObjToApiObj } from '../../utils/obj-mapper';
 import { getLocalStorageItem } from '../../utils/local-storage';
@@ -54,4 +55,5 @@ export default {
   checklists: checklists.init(instance), 
   users: users.init(instance),
   systems: systems.init(instance),
+  works: works.init(instance),
 }

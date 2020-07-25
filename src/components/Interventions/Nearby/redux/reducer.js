@@ -10,7 +10,13 @@ export const initialState = {
     address: '',
     city: '',
     postalCode: '',
+    rangeKm: 10,
   },
+  searchList: {
+    loading: false,
+    results: [],
+    error: null,
+  }
 };
 
 
@@ -38,6 +44,37 @@ export const reducer  = {
         address: destination.street ? `${destination.street}, ${destination.houseNumber || ''}` : '',
         city: destination.municipality || '',
         postalCode: destination.postalCode || '',
+      }
+    };
+  },
+  [actionTypes.GET_INTERVENTIONS]: (state) => {
+    return {
+      ...state,
+      searchList: {
+        ...state.searchList,
+        loading: true,
+      }
+    };
+  },
+  [actionTypes.GET_INTERVENTIONS_SUCCESS]: (state, action) => {
+    const { results } = action.payload;
+    return {
+      ...state,
+      searchList: {
+        ...state.searchList,
+        loading: false,
+        results,
+      }
+    };
+  },
+  [actionTypes.GET_INTERVENTIONS_ERROR]: (state, action) => {
+    const { error } = action.payload;
+    return {
+      ...state,
+      searchList: {
+        ...state.searchList,
+        loading: false,
+        error,
       }
     };
   },

@@ -1,4 +1,4 @@
-import { setSearchFormValue, setSystem } from '../redux/actions';
+import { setSearchFormValue, setSystem, getInterventions } from '../redux/actions';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { selectNearbyState } from '../redux/selectors';
@@ -15,6 +15,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToActions = {
   setSearchFormValue,
   setSystem,
+  getInterventions,
 };
 
 export default connect(mapStateToProps, mapDispatchToActions);

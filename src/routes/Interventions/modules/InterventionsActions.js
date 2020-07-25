@@ -3,13 +3,11 @@ import { genActions, createRequestTypes } from '../../../store/actions'
 // ======================================================
 // Constants
 // ======================================================
-export const actionTypes = {
-  ...createRequestTypes('INTERVENTIONS_GET'),
-}
+export const actionTypes = {}
 
 
 // ======================================================
 // ACTIONS
 // ======================================================
 const createActions = genActions(actionTypes)
-export const getInterventions = createActions('INTERVENTIONS_GET');
+export const getInterventions = createActions('');
