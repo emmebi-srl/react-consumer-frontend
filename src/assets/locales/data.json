@@ -6,6 +6,7 @@
         "USERNAME": "Username", 
         "PASSWORD": "Password", 
         "LOGIN": "Login", 
+        "DISTANCE": "Distanza", 
         "ID": "ID", 
         "SEARCH": "Cerca", 
         "DESCRIPTION": "Descrizione", 
@@ -91,6 +92,8 @@
         "DO_YOU_WANT_CRATE_SYSTEM_CHECKLIST_ASSOCIATION": "Sei sicuro di voler creare un associazione checklist-impianto?",
         "ATTENTION_SYSTEM_ALREADY_LINK_TO_CHECKLIST_REPLACE": "Attenzione, l'impianto è gia associato a una checklist. Sostituirla?",
         "VIEW_PDF": "Vedi PDF",
+        "RESULTS_LIST": "Lista risultati",
+        "NO_DATA_AVAILABLE": "Nessun dato disponibile",
 
 
         "NAVBAR.CHECKLISTS": "Checklists",

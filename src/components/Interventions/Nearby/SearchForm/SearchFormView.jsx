@@ -21,9 +21,14 @@ const StyledFormCard = styled(FormCard)`
   display: flex;
   flex-flow: wrap;
 `;
+
 const FormField = styled(Form.Field)`
   display: inline-block;
   width: 100%;
+
+  &:last-child {
+    padding-top: 16px;
+  }
   
   ${media.tablet`
     padding: 0px 8px;
@@ -37,7 +42,8 @@ const FormField = styled(Form.Field)`
       padding-right: 0px;
     }
   `}
-`
+`;
+  
 
 const SearchFormView = ({ searchForm: { address, city, postalCode, rangeKm },
   setSystem, setSearchFormValue, getInterventions }) => {

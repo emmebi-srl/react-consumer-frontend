@@ -1,9 +1,7 @@
 import { defineMessages } from "react-intl";
 
 export default defineMessages({
-  system: { id: 'SYSTEM' },
-  address: { id: 'ADDRESS' },
-  city: { id: 'CITY' },
-  cap: { id: 'CAP' },
-  search: { id: 'SEARCH' },
+  resultsList: { id: 'RESULTS_LIST' },
+  noDataAvailable: { id: 'NO_DATA_AVAILABLE' },
+  distance: { id: 'DISTANCE' },
 });
