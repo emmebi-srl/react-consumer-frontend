@@ -80,6 +80,7 @@
         "PERIODIC_CHECK": "Controllo periodico", 
         "TECHNICIANS": "Tecnici", 
         "DEPARTMENTS": "Reparti",
+        "TICKET": "Ticket",
         "INVALID_MONTH": "Invalid month", 
         "GENERAL_INFO": "Info generali", 
         "EDIT": "Modifica", 

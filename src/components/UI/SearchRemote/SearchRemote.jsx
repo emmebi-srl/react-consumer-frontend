@@ -24,6 +24,7 @@ export default class SearchRemote extends Component {
     resultRenderer: PropTypes.func.isRequired,
     getSelectedDisplayValue: PropTypes.func,
     width: PropTypes.string,
+    subscribeExternalChange: PropTypes.func,
   };
 
   static defaultProps = {
@@ -33,11 +34,32 @@ export default class SearchRemote extends Component {
 
   constructor(props) {
     super(props);
+    this.unsubscriExternalChange = null;
     this.state = {
       isLoading: false,
       value: '',
       displayValue: null,
       results: [],
+    }
+  }
+
+  componentDidMount = () => {
+    const { subscribeExternalChange } = this.props;
+    if (subscribeExternalChange) {
+      this.unsubscriExternalChange = this.props.subscribeExternalChange((result, value) => {
+        const { getSelectedDisplayValue } = this.props;
+        const displayValue = getSelectedDisplayValue(result);
+        this.setState({
+          displayValue,
+          value: value || '',
+        });
+      });
+    }
+  }
+
+  componentWillUnmount = () => {
+    if (this.unsubscriExternalChange) {
+      this.unsubscriExternalChange();
     }
   }
 
@@ -81,7 +103,7 @@ export default class SearchRemote extends Component {
 
   render() {
     const { isLoading, value, results, displayValue } = this.state
-    const { resultRenderer, width } = this.props;
+    const { resultRenderer, width, forceDisplayValue } = this.props;
 
     return (
         <StyledSearch loading={isLoading}
@@ -92,7 +114,7 @@ export default class SearchRemote extends Component {
           onSearchChange={this.handleValueChange}
           results={results}
           width={width}
-          value={displayValue || value}
+          value={forceDisplayValue || displayValue || value}
       />
     )
   }

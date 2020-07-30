@@ -51,6 +51,7 @@ class SystemsSearchView extends PureComponent {
 
   static propTypes = {
     onSystemSelect: PropTypes.func.isRequired,
+    startingSystemId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }
 
   handleSystemChange = (system) => this.props.onSystemSelect(system);
@@ -63,6 +64,24 @@ class SystemsSearchView extends PureComponent {
 
   getSelectedDisplayValue = system => `${system.companyName} - ${system.description}`
 
+  componentDidMount = async () => {
+    const { startingSystemId } = this.props;
+    const systemId = startingSystemId ? parseInt(startingSystemId) : null;
+
+    if (systemId && !isNaN(systemId)) {
+      const systems = await this.getRemoteData(systemId);
+      const result = (systems || []).find(el => el.id === systemId) || null;
+      await this.handleSystemChange(result);
+      if (this.subscribedExternalChange) {
+        await this.subscribedExternalChange(result, result.id)
+      };
+    }
+  }
+
+  subscribeExternalChange = (fnc) => {
+    this.subscribedExternalChange = fnc;
+    return () => this.subscribedExternalChange = null;
+  }
 
   render () {
     return <SearchField>
@@ -72,6 +91,7 @@ class SystemsSearchView extends PureComponent {
         getSelectedDisplayValue={this.getSelectedDisplayValue}
         onResultSelect={this.handleSystemChange}
         resultRenderer={ResultRender}
+        subscribeExternalChange={this.subscribeExternalChange}
       ></SearchRemote>
     </SearchField>;
   }

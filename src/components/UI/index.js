@@ -24,6 +24,7 @@ export * from './Button'
 export * from './Icon'
 export * from './LocaleNumber'
 export * from './Modal'
+export * from './Popup'
 export const SimpleDivider = mySimpleDiveder
 export const Rail = myRail;
 export const Sticky = mySticky;

@@ -6,3 +6,5 @@ export const DarkGrey = '#404040';
 export const CollapsedGrey = '#555';
 export const LightGrey = '#D3D3D3';
 export const VeryLightGrey = '#f1f1f1';
+export const Red = '#c43b3b';
+export const Yellow = '#ffbf00';

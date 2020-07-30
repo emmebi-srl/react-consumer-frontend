@@ -8,6 +8,7 @@ import { FormattedMessage } from 'react-intl';
 import PrimaryButton from '../../../UI/PrimaryButton';
 import SystemsSearchView from '../../../SystemsSearch';
 import SearchFormContainer from './SearchFormContainer';
+import { withRouter } from 'react-router-dom';
 
 const KM_RANGES = [
   5,
@@ -46,12 +47,13 @@ const FormField = styled(Form.Field)`
   
 
 const SearchFormView = ({ searchForm: { address, city, postalCode, rangeKm },
-  setSystem, setSearchFormValue, getInterventions }) => {
+  setSystem, setSearchFormValue, getInterventions, querystring: { systemId } }) => {
 
   const onSubmit = () => getInterventions({ address, city, postalCode, rangeKm });
   return (
     <div>      
-      <SystemsSearchView onSystemSelect={setSystem}></SystemsSearchView>
+      <SystemsSearchView onSystemSelect={setSystem}
+        startingSystemId={systemId}></SystemsSearchView>
       <StyledFormCard onSubmit={onSubmit}>
         <FormField>
           <label><FormattedMessage {...messages.address} /></label>
@@ -104,10 +106,13 @@ SearchFormView.propTypes = {
     city: PropTypes.string,
     postalCode: PropTypes.string,
   }).isRequired,
+  querystring: PropTypes.shape({
+    systemId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  }),
   setSystem: PropTypes.func.isRequired,
   setSearchFormValue: PropTypes.func.isRequired,
   getInterventions: PropTypes.func.isRequired,
 };
 
 
-export default SearchFormContainer(SearchFormView);
+export default withRouter(SearchFormContainer(SearchFormView));

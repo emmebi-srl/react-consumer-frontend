@@ -1,13 +1,12 @@
 import React from 'react';
-import { Header, Dimmer, Loader, LocaleNumber } from '../../../UI';
+import { Header, Dimmer, Loader, LocaleNumber, Popup } from '../../../UI';
 import styled from 'styled-components';
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 import SearchListContainer from './SearchListContainer';
-import { lightGrey } from '../../../../styles';
+import { lightGrey, Red } from '../../../../styles';
 
 const Wrapper = styled.div`
-  position: relative;
   padding: 10px 20px;
 `;
 
@@ -46,9 +45,19 @@ const SystemInfo = styled.div`
 `;
 
 const Distance = styled.div`
+  font-size: 15px;
   .value {
     font-weight: 600;
   }
+`;
+
+const Maintenance = styled(Distance)`
+  color: ${Red};
+  margin-top: 5px;
+`;
+
+const Tickets = styled(Distance)`
+  margin-top: 5px;
 `;
 
 const SearchListView = ({ loading, results }) => {
@@ -62,7 +71,7 @@ const SearchListView = ({ loading, results }) => {
     {
       results[0]
         ? <div>
-          {results.map((result) => <ListItem key={result.id}>
+          {results.map((result) => <ListItem key={result.systemId}>
             <ListItemLeft>
               <CompanyName>{result.customerId} - {result.companyName}</CompanyName>
               <SystemInfo>{result.systemId} - {result.systemType} - {result.systemDescription}</SystemInfo>
@@ -73,6 +82,20 @@ const SearchListView = ({ loading, results }) => {
                 <FormattedMessage {...messages.distance} />:
                 <span className="value"> <LocaleNumber value={result.distance} radix={2}/>km</span>
               </Distance>
+              { result.items.maintenance ?<Maintenance>
+                <FormattedMessage {...messages.maintenance} />
+              </Maintenance> : null }
+              { result.items.tickets[0] ? <Tickets>
+                <Popup inverted
+                  key={result.systemId}
+                  trigger={<>
+                    <FormattedMessage {...messages.ticket} />:
+                    <span className="value"> {result.items.tickets.length}</span>
+                  </>}
+                  content="asdasdasdasd"
+                >
+                </Popup> 
+              </Tickets>: null }
             </ListItemRight>
           </ListItem>)}
         </div>
