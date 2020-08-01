@@ -10,10 +10,9 @@ import WithAriesProxy from '../../hocs/WithAriesProxy';
 const SearchField = styled.div`
   ${CardPadding}
   label {
-    display: inline-block;
     font-weight: 700;
-    margin-right: 25px;
     margin-bottom: 4px;
+    display: block;
   }
   .aries-full {
     ${media.tablet`

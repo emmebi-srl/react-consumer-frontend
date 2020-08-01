@@ -4,10 +4,14 @@ import styled from 'styled-components';
 import { FormattedMessage } from 'react-intl';
 import messages from './messages';
 import SearchListContainer from './SearchListContainer';
-import { lightGrey, Red } from '../../../../styles';
+import { lightGrey, Red, media } from '../../../../styles';
 
 const Wrapper = styled.div`
-  padding: 10px 20px;
+  padding: 10px;
+
+  ${media.tablet`
+    padding: 10px 20px;
+  `}
 `;
 
 const ListItem = styled.div`
@@ -23,13 +27,24 @@ const ListItem = styled.div`
 
 const ListItemRight = styled.div`
   display: inline-block;
-  width: 200px;
-  text-align: right;
+  width: 100%;
+  text-align: left;
+  margin-top: 16px;
+
+  ${media.tablet`
+    width: 200px;
+    text-align: right;
+    margin-top: 0px;
+  `}
 `;
 
 const ListItemLeft = styled.div`
   float: left;
-  width: calc(100% - 200px);
+  width: 100%;
+
+  ${media.tablet`
+    width: calc(100% - 200px);
+  `}
 `;
 
 const CompanyName = styled.div`
@@ -42,22 +57,34 @@ const SystemInfo = styled.div`
   font-size: 14px;
   display: inline-block;
   width: 100%;
+
+  ${media.tablet`
+    font-size: 14px;
+  `}
 `;
 
 const Distance = styled.div`
-  font-size: 15px;
+  font-size: 14px;
   .value {
     font-weight: 600;
   }
+
+  ${media.tablet`
+    font-size: 15px;
+  `}
 `;
 
 const Maintenance = styled(Distance)`
   color: ${Red};
-  margin-top: 5px;
+  ${media.tablet`
+    margin-top: 5px;
+  `}
 `;
 
 const Tickets = styled(Distance)`
-  margin-top: 5px;
+  ${media.tablet`
+    margin-top: 5px;
+  `}
 `;
 
 const SearchListView = ({ loading, results }) => {

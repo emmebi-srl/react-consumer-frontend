@@ -25,6 +25,7 @@ export default class SearchRemote extends Component {
     getSelectedDisplayValue: PropTypes.func,
     width: PropTypes.string,
     subscribeExternalChange: PropTypes.func,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
@@ -103,7 +104,7 @@ export default class SearchRemote extends Component {
 
   render() {
     const { isLoading, value, results, displayValue } = this.state
-    const { resultRenderer, width, forceDisplayValue } = this.props;
+    const { resultRenderer, width, forceDisplayValue, className } = this.props;
 
     return (
         <StyledSearch loading={isLoading}
@@ -114,6 +115,7 @@ export default class SearchRemote extends Component {
           onSearchChange={this.handleValueChange}
           results={results}
           width={width}
+          className={className }
           value={forceDisplayValue || displayValue || value}
       />
     )
