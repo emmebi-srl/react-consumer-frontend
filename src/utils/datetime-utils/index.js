@@ -1,6 +1,9 @@
 import moment from 'moment'
 
-export const getDateByUnixtimestamp = ({format, unixTimestamp}) => {
+export const getMomentByUnixtimestamp = ({unixTimestamp}) =>
+  moment(unixTimestamp * 1000);
+
+export const getStringDateByUnixtimestamp = ({format, unixTimestamp}) => {
   const mFormat = format || 'L'
-  return (moment(unixTimestamp * 1000).format(mFormat))
+  return getMomentByUnixtimestamp({unixTimestamp}).format(mFormat);
 }

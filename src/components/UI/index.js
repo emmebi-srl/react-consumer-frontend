@@ -25,6 +25,8 @@ export * from './Icon'
 export * from './LocaleNumber'
 export * from './Modal'
 export * from './Popup'
+export * from './Chevron'
+export * from './Table'
 export const SimpleDivider = mySimpleDiveder
 export const Rail = myRail;
 export const Sticky = mySticky;

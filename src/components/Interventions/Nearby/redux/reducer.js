@@ -63,7 +63,10 @@ export const reducer  = {
       searchList: {
         ...state.searchList,
         loading: false,
-        results,
+        results: results.map((result) => {
+          result.isOpen = false;
+          return result;
+        }),
       }
     };
   },
@@ -75,6 +78,25 @@ export const reducer  = {
         ...state.searchList,
         loading: false,
         error,
+      }
+    };
+  },
+
+  [actionTypes.TOGGLE_IS_OPEN]: (state, action) => {
+    const { systemId } = action.payload;
+    return {
+      ...state,
+      searchList: {
+        ...state.searchList,
+        results: state.searchList.results.map((result) => {
+          if (result.systemId === systemId) {
+            return {
+              ...result,
+              isOpen: !result.isOpen,
+            }
+          }
+          return result;
+        }),
       }
     };
   },

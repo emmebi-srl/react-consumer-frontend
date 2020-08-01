@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import {getDateByUnixtimestamp} from '../../../utils/datetime-utils'
+import {getStringDateByUnixtimestamp} from '../../../utils/datetime-utils'
 
 /**
  * Component to format date
@@ -7,8 +7,9 @@ import {getDateByUnixtimestamp} from '../../../utils/datetime-utils'
  * @param {*} param0 
  * @param {number} param0.unixTimestamp - seconds
  */
-const AriesDate = ({format, unixTimestamp}) => {
-  return getDateByUnixtimestamp({format, unixTimestamp})
+export const AriesDate = ({format, unixTimestamp}) => {
+  if (!unixTimestamp) return null;
+  return getStringDateByUnixtimestamp({format, unixTimestamp})
 }
 
 AriesDate.propTypes = {

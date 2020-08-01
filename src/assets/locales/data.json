@@ -12,6 +12,7 @@
         "DESCRIPTION": "Descrizione", 
         "DATE": "Data", 
         "TYPE": "Tipo", 
+        "WORK_TYPE": "Tipo Lavoro", 
         "COMPANY_NAME": "Ragione sociale", 
         "YES": "Si", 
         "NO": "No",
@@ -94,6 +95,7 @@
         "ATTENTION_SYSTEM_ALREADY_LINK_TO_CHECKLIST_REPLACE": "Attenzione, l'impianto è gia associato a una checklist. Sostituirla?",
         "VIEW_PDF": "Vedi PDF",
         "RESULTS_LIST": "Lista risultati",
+        "EXPIRATION_DATE": "Data scadenza",
         "NO_DATA_AVAILABLE": "Nessun dato disponibile",
 
 

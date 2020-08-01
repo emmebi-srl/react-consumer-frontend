@@ -6,7 +6,7 @@ import { Input, Form } from '../../../../UI';
 import CommonRowWrapper from '../CommonRowWrapper';
 import {dataShape, optionsShape} from './prop-types';
 import { media } from '../../../../../styles';
-import { getDateByUnixtimestamp } from '../../../../../utils/datetime-utils';
+import { getStringDateByUnixtimestamp } from '../../../../../utils/datetime-utils';
 
 
 const MainContainer = styled(Form)`
@@ -59,7 +59,7 @@ const DateNoteRow = ({intl, data, onChange, options}) => {
         <FormField>
           <label>{formatMessage(messages.date)}</label>
           <Input            
-            value={getDateByUnixtimestamp(date)}
+            value={getStringDateByUnixtimestamp(date)}
             type='date' 
             onChange={(_, {value}) => onChange({field: 'date', value, type: 'date'})}
             readOnly={!editMode}

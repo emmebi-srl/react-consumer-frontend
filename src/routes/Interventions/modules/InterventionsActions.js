@@ -1,4 +1,4 @@
-import { genActions, createRequestTypes } from '../../../store/actions'
+import { genActions } from '../../../store/actions'
 
 // ======================================================
 // Constants

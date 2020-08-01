@@ -6,4 +6,8 @@ export default defineMessages({
   distance: { id: 'DISTANCE' },
   maintenance: { id: 'PERIODIC_CHECK' },
   ticket: { id: 'TICKET' },
+  id: { id: 'ID' },
+  workType: { id: 'WORK_TYPE' },
+  description: { id: 'DESCRIPTION' },
+  expirationDate: { id: 'EXPIRATION_DATE' },
 });

@@ -8,12 +8,14 @@ import monthUtils from '../../../utils/months-utils'
  * @param {*} param0 
  * @param {number} param0.unixTimestamp - milliseconds
  */
-const MonthName = ({index}) => {
+const MonthName = ({index, mDate}) => {
+  if (mDate) index = mDate.month() + 1;
   return monthUtils.getMonthName(index)
 }
  
 MonthName.propTypes = {
-  index: PropTypes.number.isRequired, 
+  index: PropTypes.number,
+  mDate: PropTypes.object,
 };
 
 export default MonthName

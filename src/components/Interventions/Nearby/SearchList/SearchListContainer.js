@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { selectNearbyState } from '../redux/selectors';
+import { toggleIsOpen } from '../redux/actions';
 
 const WORK_TYPE_MAINTENANCE = 2;
 const WORK_TYPE_TICKET = 1;
@@ -41,6 +42,8 @@ const mapStateToProps = (state) => ({
   error: selectError(state),
 });
 
-const mapDispatchToActions = null;
+const mapDispatchToActions = {
+  toggleIsOpen,
+};
 
 export default connect(mapStateToProps, mapDispatchToActions);
