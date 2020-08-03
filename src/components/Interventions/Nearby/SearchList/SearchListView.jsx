@@ -127,10 +127,10 @@ const AdditionalInfo = styled.div`
   ${props => props.isOpen && css`
     padding-top: 30px;
     padding-bottom: 10px;
-    max-height: 2000px;
+    max-height: 2800px;
 
     ${media.tablet`
-      max-height: 350px;
+      max-height: 450px;
     `}
   `}
 `;
