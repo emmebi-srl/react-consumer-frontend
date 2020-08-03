@@ -10,6 +10,7 @@ import { DarkGrey, LightGrey, Red, media, CenterVertically } from '../../../../s
 import { getMomentByUnixtimestamp } from '../../../../utils/datetime-utils';
 import MonthName from '../../../UI/MonthName';
 
+
 const Wrapper = styled.div`
   padding: 10px;
 
@@ -126,7 +127,11 @@ const AdditionalInfo = styled.div`
   ${props => props.isOpen && css`
     padding-top: 30px;
     padding-bottom: 10px;
-    max-height: 350px;
+    max-height: 2000px;
+
+    ${media.tablet`
+      max-height: 350px;
+    `}
   `}
 `;
 
@@ -227,7 +232,6 @@ SearchListView.propTypes = {
   toggleIsOpen: PropTypes.func.isRequired,
   results: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
-  error:  PropTypes.any.isRequired,
 };
 
 

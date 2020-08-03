@@ -1,9 +1,8 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Dimmer, Loader } from '../../UI'
 import SearchFormView from './SearchForm'
 import SearchListView from './SearchList'
+import SearchErrorMessage from './SearchErrorMessage';
 import { LightGrey } from '../../../styles'
 
 const Separator = styled.div`
@@ -12,22 +11,15 @@ const Separator = styled.div`
   margin: 30px;
 `;
 
-const NearbyView = ({isLoading}) => {
+const NearbyView = () => {
   return (
     <div>
-      <Dimmer inverted active={isLoading}>
-        <Loader inverted />
-      </Dimmer>
+      <SearchErrorMessage></SearchErrorMessage>
       <SearchFormView></SearchFormView>
       <Separator></Separator>
       <SearchListView></SearchListView>
     </div>
   )
-};
-
-// PropTypes
-NearbyView.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
 };
 
 export default NearbyView;

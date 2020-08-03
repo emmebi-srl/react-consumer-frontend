@@ -16,11 +16,6 @@ const selectLoading = createSelector(
   (state) => state.loading,
 );
 
-const selectError = createSelector(
-  selectSearchList,
-  (state) => state.loading,
-);
-
 const selectResults = createSelector(
   selectSearchList,
   (state) => {
@@ -39,7 +34,6 @@ const selectResults = createSelector(
 const mapStateToProps = (state) => ({
   results: selectResults(state),
   loading: selectLoading(state),
-  error: selectError(state),
 });
 
 const mapDispatchToActions = {

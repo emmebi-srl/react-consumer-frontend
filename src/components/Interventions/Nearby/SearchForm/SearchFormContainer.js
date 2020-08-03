@@ -9,9 +9,15 @@ const searchFormSelector = createSelector(
   (state) => state.searchForm
 );
 
+const allowSumitSelector = createSelector(
+  searchFormSelector,
+  (state) => state.address || state.city || state.postalCode
+);
+
 const mapStateToProps = (state, props) => {
   return {
     searchForm: searchFormSelector(state),
+    allowSubmit: allowSumitSelector(state),
     querystring: querystring.parse(props.location.search),
   }
 };

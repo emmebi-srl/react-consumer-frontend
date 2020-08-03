@@ -47,7 +47,8 @@ const FormField = styled(Form.Field)`
   
 
 const SearchFormView = ({ searchForm: { address, city, postalCode, rangeKm },
-  setSystem, setSearchFormValue, getInterventions, querystring: { systemId } }) => {
+  setSystem, setSearchFormValue, getInterventions, allowSubmit,
+  querystring: { systemId } }) => {
 
   const onSubmit = () => getInterventions({ address, city, postalCode, rangeKm });
   return (
@@ -90,7 +91,8 @@ const SearchFormView = ({ searchForm: { address, city, postalCode, rangeKm },
         </FormField>
 
         <FormField>
-          <PrimaryButton fluid><FormattedMessage {...messages.search}/> </PrimaryButton>
+          <PrimaryButton fluid
+            disabled={!allowSubmit}><FormattedMessage {...messages.search}/> </PrimaryButton>
         </FormField>
 
       </StyledFormCard>  
@@ -106,6 +108,7 @@ SearchFormView.propTypes = {
     city: PropTypes.string,
     postalCode: PropTypes.string,
   }).isRequired,
+  allowSubmit: PropTypes.bool.isRequired, 
   querystring: PropTypes.shape({
     systemId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }),

@@ -57,7 +57,10 @@ export const media = Object.keys(sizes).reduce((accumulator, label) => {
 }, {})
 
 export const CardPadding = css`
-  padding: 10px 20px!important;
+  padding: 10px!important;
+  ${media.tablet`
+    padding: 10px 20px!important;
+  `}
 `;
 
 export const Card = styled.div`
