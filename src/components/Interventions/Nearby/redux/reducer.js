@@ -63,6 +63,7 @@ export const reducer  = {
       searchList: {
         ...state.searchList,
         loading: false,
+        error: null,
         results: results.map((result) => {
           result.isOpen = false;
           return result;
