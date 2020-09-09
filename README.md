@@ -3,7 +3,8 @@
 ## How to build
 To create a build you can use one of de following commands:
  * `npm run build:dev`
- * `npm run build:prod`
+ * `npm run build:prod:emmebi`
+ * `npm run build:prod:siantel`
 
 ### Docker image
 To create a docker image run the following command:

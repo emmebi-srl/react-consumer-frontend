@@ -47,10 +47,11 @@
     "storybook-addon-jsx": "^5.4.0"
   },
   "scripts": {
-    "start": "sh -ac '. ./local.env; react-scripts start'",
-    "build": "sh -ac '. ./${REACT_APP_ENV}.env; react-scripts build'",
+    "start": "sh -ac '. ./envs/local.env; react-scripts start'",
+    "build": "sh -ac '. ./envs/${REACT_APP_ENV}.env; react-scripts build'",
     "build:dev": "REACT_APP_ENV=dev npm run build",
-    "build:prod": "REACT_APP_ENV=prod npm run build",
+    "build:prod:emmebi": "REACT_APP_ENV=prod-emmebi npm run build",
+    "build:prod:siantel": "REACT_APP_ENV=prod-siantel npm run build",
     "test": "NODE_ENV=testing jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
