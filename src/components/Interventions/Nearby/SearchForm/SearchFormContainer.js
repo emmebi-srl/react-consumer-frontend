@@ -17,7 +17,7 @@ const allowSumitSelector = createSelector(
 const mapStateToProps = (state, props) => {
   return {
     searchForm: searchFormSelector(state),
-    allowSubmit: allowSumitSelector(state),
+    allowSubmit: !!allowSumitSelector(state),
     querystring: querystring.parse(props.location.search),
   }
 };

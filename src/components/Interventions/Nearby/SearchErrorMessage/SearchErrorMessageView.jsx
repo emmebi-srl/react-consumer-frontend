@@ -29,7 +29,7 @@ const SearchErrorMessageView = ({ hasError, error }) => {
 // PropTypes
 SearchErrorMessageView.propTypes = {
   hasError: PropTypes.bool.isRequired,
-  error: PropTypes.any.isRequired,
+  error: PropTypes.any,
 };
 
 

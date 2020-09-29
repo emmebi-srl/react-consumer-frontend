@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import SearchFormView from './SearchForm'
 import SearchListView from './SearchList'
+import SearchMapView from './SearchMap'
 import SearchErrorMessage from './SearchErrorMessage';
 import { LightGrey } from '../../../styles'
 
@@ -18,6 +19,8 @@ const NearbyView = () => {
       <SearchFormView></SearchFormView>
       <Separator></Separator>
       <SearchListView></SearchListView>
+      <Separator></Separator>
+      <SearchMapView></SearchMapView>
     </div>
   )
 };
