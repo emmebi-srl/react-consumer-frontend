@@ -8,5 +8,6 @@ const MyButton = ({...rest}) => {
 }
 
 MyButton.Content = SemanticButton.Content
+MyButton.Group = SemanticButton.Group
 
 export const Button = MyButton;

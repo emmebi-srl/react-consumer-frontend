@@ -10,6 +10,7 @@ import configureStore from './store/configure-store'
 
 import './index.css'
 import 'semantic-ui-css/semantic.min.css'
+import './styles/leaflet'
 
 import App from './AppContainer'
 import localeData from './assets/locales/data.json'

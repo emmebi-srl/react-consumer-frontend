@@ -14,7 +14,7 @@ export const AriesDate = ({format, unixTimestamp}) => {
 
 AriesDate.propTypes = {
     format: PropTypes.string, 
-    unixTimestamp: PropTypes.number.isRequired
+    unixTimestamp: PropTypes.number,
 };
 
 export default AriesDate

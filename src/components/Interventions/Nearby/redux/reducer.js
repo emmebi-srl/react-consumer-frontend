@@ -16,7 +16,9 @@ export const initialState = {
     loading: false,
     results: [],
     error: null,
-  }
+  },
+  interventionViewType: 'list',
+  openedMap: false,
 };
 
 
@@ -99,6 +101,15 @@ export const reducer  = {
           return result;
         }),
       }
+    };
+  },
+
+  [actionTypes.SET_INTERVENTIONS_VIEW_TYPE]: (state, action) => {
+    const { type } = action.payload;
+    return {
+      ...state,
+      interventionViewType: type,
+      openedMap: type === 'map',
     };
   },
 };

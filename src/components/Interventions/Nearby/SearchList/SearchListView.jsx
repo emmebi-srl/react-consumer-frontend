@@ -202,14 +202,14 @@ const SearchListView = ({ loading, results, toggleIsOpen }) => {
                   </Table.Header>
 
                   <Table.Body>
-                    { maintenance ? <Table.Row>
+                    { maintenance ? <Table.Row key={maintenance.referenceId}>
                         <Table.Cell>{maintenance.referenceId}</Table.Cell>
                         <Table.Cell><FormattedMessage {...messages.maintenance}/></Table.Cell>
                     <Table.Cell>{maintenance.description} - <MonthName mDate={maintenanceDate}/> {maintenanceDate.year()}</Table.Cell>
                         <Table.Cell><AriesDate unixTimestamp={maintenance.expirationDate}/></Table.Cell>
                       </Table.Row> : null }
                     { tickets.map((ticket) => (
-                      <Table.Row>
+                      <Table.Row key={ticket.referenceId}>
                         <Table.Cell>{ticket.referenceId}</Table.Cell>
                         <Table.Cell><FormattedMessage {...messages.ticket}/></Table.Cell>
                         <Table.Cell>{ticket.description}</Table.Cell>

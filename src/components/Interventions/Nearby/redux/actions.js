@@ -5,6 +5,7 @@ export const actionTypes = {
   GET_INTERVENTIONS_SUCCESS: 'INTERVENTIONS:NEARBY:GET_INTERVENTIONS_SUCCESS',
   GET_INTERVENTIONS_ERROR: 'INTERVENTIONS:NEARBY:GET_INTERVENTIONS_ERROR',
   TOGGLE_IS_OPEN: 'INTERVENTIONS:NEARBY:TOGGLE_IS_OPEN',
+  SET_INTERVENTIONS_VIEW_TYPE: 'INTERVENTIONS:SET_VIEW_TYPE',
 }
 
 export const setSearchFormValue = (key, value) => ({
@@ -35,4 +36,14 @@ export const getInterventionsError = ({ error }) => ({
 export const toggleIsOpen = ({ systemId }) => ({
   type: actionTypes.TOGGLE_IS_OPEN,
   payload: { systemId },
+});
+
+export const setMapViewType = () => ({
+  type: actionTypes.SET_INTERVENTIONS_VIEW_TYPE,
+  payload: { type: 'map' },
+});
+
+export const setListViewType = () => ({
+  type: actionTypes.SET_INTERVENTIONS_VIEW_TYPE,
+  payload: { type: 'list' },
 });
