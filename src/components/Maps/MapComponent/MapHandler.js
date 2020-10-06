@@ -3,10 +3,8 @@ import IconUrl from 'leaflet/dist/images/marker-icon.png';
 import IconsShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 const centerMap = (map) => (lat, lng, zoom) => {
+  map.setZoom(zoom)
   map.panTo(new LatLng(lat, lng));
-  if (zoom) {
-    map.setZoom(zoom);
-  }
 };
 
 const addMarker = (map, markers) => (lat, lng, popup) => {
