@@ -88,7 +88,6 @@ class SearchMapView  extends React.PureComponent {
       const maintenanceDate = maintenance && maintenance.expirationDate
       ? getMomentByUnixtimestamp({ unixTimestamp: maintenance.expirationDate })
       : null;
-      console.log(maintenanceDate);
       
       const popup = new Popup();
       popup.setContent(renderToString(<div>
@@ -106,6 +105,7 @@ class SearchMapView  extends React.PureComponent {
           {formatMessage(messages.ticket)}:
           <span className="value"> {tickets.length}</span>
         </Tickets>: null }
+
       </div>));
 
       return {
