@@ -1,12 +1,6 @@
-import React from 'react'
 import {Button as SemanticButton} from 'semantic-ui-react'
 
-const MyButton = ({...rest}) => {
-  return (
-    <SemanticButton {...rest} />
-  )
-}
-
+const MyButton = SemanticButton;
 MyButton.Content = SemanticButton.Content
 MyButton.Group = SemanticButton.Group
 
