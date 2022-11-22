@@ -2,7 +2,7 @@ import { all, call, fork, take, put } from 'redux-saga/effects'
 import ariesProxy from '../../../proxies/aries-proxy'
 import {actionTypes} from './CustomersActions'
 
-const fetchCustomers = async _ => await ariesProxy.clients.get({includes: 'system,customer'})
+const fetchCustomers = async _ => await ariesProxy.customers.search();
 
 function* doGetCustomers() {
   yield put({type: actionTypes.CUSTOMERS_GET_REQUEST, payload: { loading: true }})
