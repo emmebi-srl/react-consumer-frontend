@@ -99,7 +99,9 @@ class SearchMapView  extends React.PureComponent {
           <span className="value"> <LocaleNumber value={result.distance} radix={2}/>km</span>
         </Distance>
         { maintenance ?<Maintenance>
-          {formatMessage(messages.maintenance)} (<MonthName mDate={maintenanceDate}/> {maintenanceDate.year()})
+          {formatMessage(messages.maintenance)} { maintenanceDate ? <>
+            (<MonthName mDate={maintenanceDate}/> {maintenanceDate.year()})
+          </> : null }
         </Maintenance> : null }
         { tickets[0] ? <Tickets>
           {formatMessage(messages.ticket)}:
