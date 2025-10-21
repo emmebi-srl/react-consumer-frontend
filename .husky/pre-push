@@ -1,0 +1,2 @@
+./node_modules/.bin/tsc --noEmit --incremental
+./node_modules/.bin/knip

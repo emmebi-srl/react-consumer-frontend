@@ -1,2 +1,0 @@
-import InterventionsNearbyPageContainer from './InterventionsNearbyPageContainer'
-export default InterventionsNearbyPageContainer

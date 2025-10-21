@@ -1,0 +1,5 @@
+{
+  "*.(ts|tsx)": ["eslint --cache --cache-strategy content --fix"],
+  "*.(css|scss)": ["stylelint --cache --cache-strategy content --fix"],
+  "*.{html,json}": "prettier --write"
+}

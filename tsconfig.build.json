@@ -1,0 +1,8 @@
+// tsconfig.build.json
+{
+  "extends": "./tsconfig",
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
+  ]
+}
