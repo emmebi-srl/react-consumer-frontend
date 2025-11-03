@@ -11,7 +11,7 @@ interface Props {
 const CustomerTableRowContent: React.FC<Props> = ({ customer }) => {
   return (
     <>
-      <TableCell align="left">
+      <TableCell align="right">
         <MainLabel>{customer.id}</MainLabel>
       </TableCell>
       <TableCell sx={{ width: '100%', maxWidth: 0 }}>
@@ -20,15 +20,15 @@ const CustomerTableRowContent: React.FC<Props> = ({ customer }) => {
             overflow: 'hidden',
           }}
         >
-          <LabelWithTooltip label={customer.companyName} />
+          <LabelWithTooltip variant="secondary" label={customer.companyName} />
         </DetailDataCell>
       </TableCell>
       <TableCell align="left">
-        <MainLabel>{customer.taxCode}</MainLabel>
+        <DetailDataCell>{customer.taxCode}</DetailDataCell>
       </TableCell>
 
       <TableCell align="left">
-        <MainLabel>{customer.vat}</MainLabel>
+        <DetailDataCell>{customer.vat}</DetailDataCell>
       </TableCell>
     </>
   );

@@ -1,2 +1,0 @@
-import ConfigurationLanRowView from './ConfigurationLanRowView'
-export default ConfigurationLanRowView

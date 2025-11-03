@@ -2,27 +2,27 @@ import { Customer } from './customers';
 import { System } from './systems';
 
 export enum ChecklistMasterSlaveEnum {
-  Master = 1,
-  Slave = 2,
+  Master = '1',
+  Slave = '2',
 }
 
 export enum ChecklistToggleConfirmEnum {
-  Yes = 1,
-  No = 2,
-  NotApplicable = 3,
+  Yes = '1',
+  No = '2',
+  NotApplicable = '3',
 }
 
 export enum ChecklistSnmpVersionEnum {
-  V1 = 1,
-  V2 = 2,
-  V3 = 3,
+  V1 = '1',
+  V2 = '2',
+  V3 = '3',
 }
 
 export enum ChecklistSuctionSystemTypeEnum {
-  None = 0,
-  Normal = 1,
-  HighSensitivity = 2,
-  Laser = 3,
+  None = '0',
+  Normal = '1',
+  HighSensitivity = '2',
+  Laser = '3',
 }
 
 export interface ChecklistsResponse {
@@ -62,6 +62,7 @@ export interface Checklist {
   reports?: ChecklistReport[] | null;
   system?: System | null;
   customer?: Customer | null;
+  checklistType?: string;
 }
 
 export interface ChecklistReport {
@@ -85,12 +86,10 @@ export interface ChecklistParagraph {
   rows?: ChecklistRow[] | null;
 }
 
-export interface ChecklistRow {
+export type ChecklistRow = {
   id: number;
   checklistId: number;
   paragraphId: number;
-  data: Data;
-  rowType: number;
   rowModelId: number;
   paragraphModelId: number;
   checklistModelId: number;
@@ -98,8 +97,81 @@ export interface ChecklistRow {
   name: string;
   description: string;
   employeeIndications: string;
-}
+} & (
+  | {
+      rowType: ChecklistRowTypeEnum.ToggleConfirm;
+      data: { nameValuePairs: ChecklistRowDataToggleConfirm };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.ToggleNullConfirmQty;
+      data: { nameValuePairs: ChecklistRowDataToggleNullConfirmQty };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.Notes;
+      data: { nameValuePairs: ChecklistRowDataNotes };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.Header;
+      data: { nameValuePairs: ChecklistRowDataHeader };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.MasterSlave;
+      data: { nameValuePairs: ChecklistRowDataMasterSlave };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.BatterySpec;
+      data: { nameValuePairs: ChecklistRowDataBatterySpec };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.InstrumMeasures;
+      data: { nameValuePairs: ChecklistRowDataInstrumMeasures };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.PowerSupplyInfo;
+      data: { nameValuePairs: ChecklistRowDataPowerSupplyInfo };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.SuctionSystem;
+      data: { nameValuePairs: ChecklistRowDataSuctionSystem };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.DateNotes;
+      data: { nameValuePairs: ChecklistRowDataDateNotes };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.ConfigurationLan;
+      data: { nameValuePairs: ChecklistRowDataConfigurationLan };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.ToggleNullConfirm;
+      data: { nameValuePairs: ChecklistRowDataToggleNullConfirm };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.InfoAndPrecautions;
+      data: { nameValuePairs: ChecklistRowDataInfoAndPrecautions };
+    }
+  | {
+      rowType: ChecklistRowTypeEnum.CentralInfo;
+      data: { nameValuePairs: ChecklistRowDataCentralInfo };
+    }
+);
 
+export enum ChecklistRowTypeEnum {
+  ToggleConfirm = 1,
+  ToggleNullConfirm = 2,
+  Notes = 3,
+  Header = 4,
+  CentralInfo = 5,
+  MasterSlave = 6,
+  BatterySpec = 7,
+  InstrumMeasures = 8,
+  PowerSupplyInfo = 9,
+  SuctionSystem = 10,
+  DateNotes = 11,
+  ConfigurationLan = 12,
+  ToggleNullConfirmQty = 13,
+  InfoAndPrecautions = 14,
+}
 export interface ChecklistRowData {
   nameValuePairs:
     | ChecklistRowDataToggleNullConfirmQty
@@ -136,8 +208,8 @@ export interface ChecklistRowDataToggleNullConfirm {
 }
 
 export interface ChecklistRowDataMasterSlave {
-  master_slave?: ChecklistMasterSlaveEnum;
-  slave_id?: string;
+  masterSlave?: ChecklistMasterSlaveEnum;
+  slaveId?: string;
   notes?: string;
   isValid: boolean;
 }
@@ -158,14 +230,14 @@ export interface ChecklistRowDataPowerSupplyInfo {
 }
 
 export interface ChecklistRowDataSuctionSystem {
-  suction_system_type?: ChecklistSuctionSystemTypeEnum;
-  sensor_number?: string;
+  suctionSystemType?: ChecklistSuctionSystemTypeEnum;
+  sensorNumber?: string;
   brand?: string;
   model?: string;
   position?: string;
   tubes: {
-    tube_number?: number;
-    alarm_time?: number;
+    tubeNumber?: number;
+    alarmTime?: number;
     notes: string;
   }[];
   notes: string;
@@ -185,11 +257,11 @@ export interface ChecklistRowDataToggleConfirm {
 }
 
 export interface ChecklistRowDataInstrumMeasures {
-  start_voltage?: number;
-  next_voltage?: number;
-  rest_absorption?: number;
-  alarm_absorption?: number;
-  hour_autonomy?: number;
+  startVoltage?: number;
+  nextVoltage?: number;
+  restAbsorption?: number;
+  alarmAbsorption?: number;
+  hourAutonomy?: number;
   notes: string;
   isValid: boolean;
 }
@@ -206,19 +278,19 @@ export interface ChecklistRowDataDateNotes {
 }
 
 export interface ChecklistRowDataConfigurationLan {
-  serial_number?: string;
-  internal_ip?: string;
-  external_ip?: string;
+  serialNumber?: string;
+  internalIp?: string;
+  externalIp?: string;
   ports?: string;
   username?: string;
   password?: string;
-  peer_to_peer: boolean;
-  peer_to_peer_notes?: string;
-  snmp_version?: ChecklistSnmpVersionEnum;
+  peerToPeer?: boolean;
+  peerToPeerNotes?: string;
+  snmpVersion?: ChecklistSnmpVersionEnum;
   ping?: string;
-  ddns_server?: string;
-  ddns_username?: string;
-  ddns_password?: string;
+  ddnsServer?: string;
+  ddnsUsername?: string;
+  ddnsPassword?: string;
   notes: string;
   isValid: boolean;
 }
@@ -228,8 +300,8 @@ export interface ChecklistRowDataCentralInfo {
   model?: string;
   position?: string;
   notes: string;
-  master_slave?: ChecklistMasterSlaveEnum;
-  slave_id?: string;
+  masterSlave?: ChecklistMasterSlaveEnum;
+  slaveId?: string;
   isValid: boolean;
 }
 

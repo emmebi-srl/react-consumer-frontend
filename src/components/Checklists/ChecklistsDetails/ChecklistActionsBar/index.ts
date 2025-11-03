@@ -1,2 +1,0 @@
-import ChecklistActionsBar from './ChecklistActionsBarContainer'
-export default ChecklistActionsBar

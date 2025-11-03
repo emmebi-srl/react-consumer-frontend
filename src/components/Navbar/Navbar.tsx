@@ -28,6 +28,7 @@ const Navbar = () => {
   };
 
   const isInterventionsActive = Boolean(useRouteMatch([RouteConfig.InterventionsNearby.buildLink()]));
+  const isChecklistListActive = Boolean(useRouteMatch([RouteConfig.ChecklistList.buildLink()]));
   const isCustomerListActive = Boolean(useRouteMatch([RouteConfig.CustomerList.buildLink()]));
 
   return (
@@ -56,6 +57,14 @@ const Navbar = () => {
               to={RouteConfig.CustomerList.buildLink()}
             >
               Clienti
+            </Button>
+            <Button
+              sx={{ my: 2, color: 'white', display: 'block' }}
+              component={Link}
+              variant={isChecklistListActive ? 'outlined' : 'text'}
+              to={RouteConfig.ChecklistList.buildLink()}
+            >
+              Checklist
             </Button>
             <Button
               sx={{ my: 2, color: 'white', display: 'block' }}

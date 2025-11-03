@@ -18,7 +18,6 @@ export const AuthGuard: React.FC<{ children: ReactNode }> = ({ children }) => {
     return <LoadingScreen />;
   }
 
-  console.log('AuthGuard data', data);
   if (!data) {
     const path = RouteConfig.Logout.buildLink();
     const queryString = redirectUrlSearchParams.toString();

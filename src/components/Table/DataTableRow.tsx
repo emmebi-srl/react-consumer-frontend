@@ -4,11 +4,13 @@ import { forwardRef } from 'react';
 export interface DataTableRowProps extends TableRowProps {
   active?: boolean;
   hidden?: boolean;
+  'data-index'?: number;
 }
 
 const DataTableRow = forwardRef<HTMLTableRowElement, DataTableRowProps>(({ hidden, active, ...props }, ref) => {
   const getBackgroundColor = (theme: Theme) => {
     if (active) return theme.palette.primary.light;
+    if (props['data-index'] !== undefined && props['data-index'] % 2 !== 0) return theme.palette.grey[50];
     if (hidden) return theme.palette.grey[100];
     return 'white';
   };

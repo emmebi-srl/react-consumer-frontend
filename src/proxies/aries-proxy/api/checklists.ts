@@ -4,14 +4,14 @@ import { Checklist, ChecklistsResponse } from '~/types/aries-proxy/checklists';
 export const getChecklists = ({ includes }: { includes?: string[] }) => {
   return ariesServicesClient.get<ChecklistsResponse>('checklist', {
     params: {
-      includes,
+      includes: includes?.join(','),
     },
   });
 };
 export const getChecklistById = ({ includes, id }: { includes?: string[]; id: number }) => {
   return ariesServicesClient.get<ChecklistsResponse>('checklist', {
     params: {
-      includes,
+      includes: includes?.join(','),
       id,
     },
   });

@@ -48,7 +48,7 @@ const DataTableHeading = <Id extends string>({
           <th colSpan={headLabel.length + 1}>{children}</th>
         </tr>
       )}
-      <TableRow sx={{ background: theme.palette.grey[100] }}>
+      <TableRow sx={{ background: theme.palette.grey[300] }}>
         {select ? (
           <TableCell padding="checkbox">
             <Checkbox

@@ -1,2 +1,0 @@
-import InstrumMeasuresRowView from './InstrumMeasuresRowView'
-export default InstrumMeasuresRowView

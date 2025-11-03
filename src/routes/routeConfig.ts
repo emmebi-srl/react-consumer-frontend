@@ -31,5 +31,7 @@ export const RouteConfig = {
   Login: defineRoute('login'),
   Logout: defineRoute('logout'),
   CustomerList: defineRoute('customers'),
+  ChecklistList: defineRoute('checklists'),
+  ChecklistDetail: defineRoute('checklists/:checklistId'),
   InterventionsNearby: defineRoute('interventions/nearby'),
 };
