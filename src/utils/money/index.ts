@@ -189,7 +189,7 @@ export function maxMoney(...args: Money[]): Money | undefined {
 }
 
 export function minMoney(...args: Money[]): Money | undefined {
-  if (args.length === 0) return undefined;
+  if (!args[0]) return undefined;
   const currency = args[0].currency;
 
   const arr = args.map((money) => {
