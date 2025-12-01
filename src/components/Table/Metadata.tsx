@@ -3,7 +3,7 @@ import { PropsWithChildren } from 'react';
 import { isDefined } from '~/types/typeGuards';
 
 interface Props {
-  filteredCount: number;
+  filteredCount?: number;
   totalCount: number;
 }
 
@@ -20,7 +20,15 @@ const Metadata: React.FC<PropsWithChildren<Props>> = ({ children, filteredCount,
       gap={16}
     >
       <Typography variant="subtitle2" mt={0.5} fontWeight={500}>
-        <strong>{filteredCount}</strong> Risultati su <strong>{totalCount}</strong> Totali
+        {filteredCount && filteredCount === totalCount ? (
+          <>
+            <strong>{filteredCount}</strong> Risultati su <strong>{totalCount}</strong> Totali
+          </>
+        ) : (
+          <>
+            <strong>{filteredCount}</strong> Risultati
+          </>
+        )}
       </Typography>
       {children}
     </Box>

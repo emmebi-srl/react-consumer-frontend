@@ -19,7 +19,7 @@ const CustomerBar: React.FC<Props> = ({ customers }) => {
       borderColor={theme.palette.grey[300]}
     >
       <CustomerFilters />
-      <Metadata count={customers.length} />
+      <Metadata totalCount={customers.length} />
     </Box>
   );
 };

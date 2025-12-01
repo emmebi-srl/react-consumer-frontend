@@ -19,7 +19,7 @@ const ChecklistsBar: React.FC<Props> = ({ checklists }) => {
       borderColor={theme.palette.grey[300]}
     >
       <ChecklistsFilters />
-      <Metadata count={checklists.length} />
+      <Metadata totalCount={checklists.length} />
     </Box>
   );
 };
