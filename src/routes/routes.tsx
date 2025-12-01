@@ -6,13 +6,15 @@ import { PublicGuard } from './PublicGuard';
 import { AuthGuard } from './AuthGuard';
 import PrivateAreaLayout from '~/components/PrivateAreaLayout/PrivateAreaLayout';
 import RedirectWithQueryParams from './RedirectWithQueryParams';
-import ChecklistDetailView from '~/views/checklists/detail/ChecklistDetailView';
 
 const Login = asyncComponent(() => import('../views/auth/login/LoginView'));
 const Logout = asyncComponent(() => import('../views/auth/logout/LogoutView'));
 const InterventionsNearby = asyncComponent(() => import('../views/interventions/nearby/InterventionsNearbyView'));
 const CustomerList = asyncComponent(() => import('../views/customers/list/CustomerListView'));
 const ChecklistListView = asyncComponent(() => import('../views/checklists/list/ChecklistListView'));
+const ChecklistDetailView = asyncComponent(() => import('../views/checklists/detail/ChecklistDetailView'));
+const CampaignListView = asyncComponent(() => import('../views/campaigns/list/CampaignListView'));
+const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/CampaignNewView'));
 
 const routes: RouteObject[] = [
   {
@@ -54,6 +56,14 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.ChecklistDetail.template,
             element: <ChecklistDetailView />,
+          },
+          {
+            path: RouteConfig.CampaignList.template,
+            element: <CampaignListView />,
+          },
+          {
+            path: RouteConfig.CampaignNew.template,
+            element: <CampaignNewView />,
           },
           {
             path: '*',

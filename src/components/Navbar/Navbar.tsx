@@ -15,9 +15,12 @@ import {
 import { RouteConfig } from '~/routes/routeConfig';
 import useRouteMatch from '~/hooks/useRouteMatch';
 import { Link } from 'react-router-dom';
+import { useUserMe } from '~/proxies/aries-proxy/users';
 
 const Navbar = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<HTMLButtonElement | null>(null);
+  const { data: userData } = useUserMe();
+  const user = userData?.users.at(0);
 
   const handleOpenUserMenu: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -30,6 +33,7 @@ const Navbar = () => {
   const isInterventionsActive = Boolean(useRouteMatch([RouteConfig.InterventionsNearby.buildLink()]));
   const isChecklistListActive = Boolean(useRouteMatch([RouteConfig.ChecklistList.buildLink()]));
   const isCustomerListActive = Boolean(useRouteMatch([RouteConfig.CustomerList.buildLink()]));
+  const isCampaignMailActive = Boolean(useRouteMatch([RouteConfig.CampaignList.buildLink()]));
 
   return (
     <AppBar position="static">
@@ -74,11 +78,19 @@ const Navbar = () => {
             >
               Interventi
             </Button>
+            <Button
+              sx={{ my: 2, color: 'white', display: 'block' }}
+              component={Link}
+              variant={isCampaignMailActive ? 'outlined' : 'text'}
+              to={RouteConfig.CampaignList.buildLink()}
+            >
+              Campagne Mail
+            </Button>
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Impostazioni account">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="User" src={`https://ui-avatars.com/api/?name=user`} />
+                <Avatar alt="User" src={`https://ui-avatars.com/api/?name=${user?.username ?? 'User'}`} />
               </IconButton>
             </Tooltip>
             <Menu

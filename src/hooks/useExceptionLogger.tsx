@@ -14,8 +14,8 @@ export interface ResolvedError {
 }
 
 export const resolveError = (error: unknown) => {
-  const errorTitle = 'Something went wrong';
-  let errorBody = 'An unexpected error took place. If the problem persists, please contact Victor.';
+  const errorTitle = 'Qualcosa è andato storto';
+  let errorBody = 'Si è verificato un errore imprevisto. Se il problema persiste, contattare info@emmebi.tv.it';
   let errorType: ErrorType = 'unknown';
   let stackTrace: string | undefined;
 

@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import _isEmpty from 'lodash/isEmpty';
 import { createChecklistSystemLink, getChecklistById, getChecklistPdf, getChecklists } from './api/checklists';
+import useExceptionLogger from '~/hooks/useExceptionLogger';
 
 export const ChecklistsQueryKeys = {
   search: (searchText: string) => ['Checklists', 'search', searchText] as const,
@@ -34,19 +35,27 @@ export const useChecklistById = (checklistId: number) => {
 };
 
 export const useChecklistPdf = () => {
+  const exceptionLogger = useExceptionLogger();
   return useMutation({
     mutationFn: async ({ checklistId }: { checklistId: number }) => {
       const result = await getChecklistPdf({ id: checklistId });
       const fileURL = URL.createObjectURL(result.data);
       window.open(fileURL);
     },
+    onError: (error, data) => {
+      exceptionLogger.captureException(error, { extra: data });
+    },
   });
 };
 
 export const useCreateChecklistSystemLink = () => {
+  const exceptionLogger = useExceptionLogger();
   return useMutation({
     mutationFn: async ({ checklistId }: { checklistId: number }) => {
       await createChecklistSystemLink({ id: checklistId });
+    },
+    onError: (error, data) => {
+      exceptionLogger.captureException(error, { extra: data });
     },
   });
 };

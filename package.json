@@ -22,6 +22,7 @@
     "date-fns": "4.1.0",
     "jotai": "2.15.0",
     "leaflet": "^1.9.4",
+    "lettersanitizer": "1.0.7",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "nprogress": "0.2.0",
@@ -30,6 +31,7 @@
     "react": "^19.1.1",
     "react-device-detect": "^2.2.3",
     "react-dom": "^19.1.1",
+    "react-dropzone": "14.3.8",
     "react-error-boundary": "6.0.0",
     "react-hook-form": "7.64.0",
     "react-router-dom": "^7.9.3",
@@ -87,9 +89,9 @@
     "prepare": "husky",
     "start": "vite --mode development",
     "build": "tsc -p tsconfig.build.json && vite build",
-    "build:dev": "npm run build --mode development",
-    "build:prod:emmebi": "npm run build --mode emmebi",
-    "build:prod:siantel": "npm run build --mode sitnatel",
+    "build:dev": "cp env.development .env && npm run build",
+    "build:prod:emmebi": "cp .env.emmebi .env && npm run build",
+    "build:prod:siantel": "cp .env.siantel .env && npm run build",
     "test": "cross-env NODE_ENV=testing LC_ALL=it_IT.UTF-8 TZ=\"Europe/Rome\" vitest"
   },
   "jest": {

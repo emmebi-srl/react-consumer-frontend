@@ -20,7 +20,7 @@ const PageContainer: React.FC<Props> = ({ children, sx, style, fullWidth }) => {
         flexGrow: 1,
         flexShrink: 0,
         height: '100%',
-        width: 'auto',
+        width: '100%',
         py: 2,
         ...sx,
       }}

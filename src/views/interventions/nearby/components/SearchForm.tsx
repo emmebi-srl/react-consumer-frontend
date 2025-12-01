@@ -13,7 +13,7 @@ const SearchFormSchema = z.object({
   city: z.string(),
   postalCode: z.string(),
   rangeKm: z.number().refine((val) => KM_RANGES.includes(val), {
-    message: `Must be one of the following values: ${KM_RANGES.join(', ')}`,
+    message: `Deve essere uno dei seguenti valori: ${KM_RANGES.join(', ')}`,
   }),
 });
 

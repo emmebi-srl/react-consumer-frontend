@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import PageContainer from '~/components/Layout/PageContainer';
 import { useAuthenticate } from '~/proxies/aries-proxy/authenticator';
 import { PersonRounded } from '@mui/icons-material';
-import { UsersQueryKeys, useUserMe } from '~/proxies/aries-proxy/users';
+import { UsersQueryKeys } from '~/proxies/aries-proxy/users';
 import queryClient from '~/clients/query-client';
 
 const LoginSchema = z.object({
-  username: z.string().min(1, { message: 'Username is required' }),
-  password: z.string().min(1, { message: 'Password is required' }),
+  username: z.string().min(1, { message: 'Nome utente obbligatorio' }),
+  password: z.string().min(1, { message: 'Password obbligatoria' }),
 });
 
 type LoginFormModel = z.infer<typeof LoginSchema>;
@@ -48,7 +48,7 @@ const LoginView: React.FC = () => {
           <CardHeader
             title={
               <Stack direction="row" spacing={1} alignItems="center">
-                <Icon component={PersonRounded} fontSize="large" /> <span>Login</span>
+                <Icon component={PersonRounded} fontSize="large" /> <span>Accesso</span>
               </Stack>
             }
           />
@@ -56,7 +56,7 @@ const LoginView: React.FC = () => {
             <Stack direction="column" spacing={2}>
               <TextField
                 {...form.register('username')}
-                label="Username"
+                label="Nome utente"
                 variant="outlined"
                 error={!!form.formState.errors.username}
                 helperText={form.formState.errors.username?.message}
@@ -70,7 +70,7 @@ const LoginView: React.FC = () => {
                 error={!!form.formState.errors.password}
                 helperText={form.formState.errors.password?.message}
               />
-              {loginError ? <Alert severity="error">Invalid Credentials</Alert> : null}
+              {loginError ? <Alert severity="error">Credenziali non valide</Alert> : null}
             </Stack>
           </CardContent>
 

@@ -38,7 +38,7 @@ export const apiObjToJsonObj = (apiObj: unknown, exceptedFields: string[] = []):
  * @example {myTest: 1, myAcc: 'asdasd'} --> {my_test: 1, my_acc: 'asdasd'}
  */
 export const jsonObjToApiObj = (jsonObj: unknown, exceptedFields: string[] = []): unknown => {
-  if (!jsonObj || !_isObject(jsonObj) || !_isArray(jsonObj)) return jsonObj;
+  if (!jsonObj || (!_isObject(jsonObj) && !_isArray(jsonObj))) return jsonObj;
 
   if (_isArray(jsonObj)) {
     return jsonObj.map((item) => apiObjToJsonObj(item, exceptedFields));

@@ -34,4 +34,6 @@ export const RouteConfig = {
   ChecklistList: defineRoute('checklists'),
   ChecklistDetail: defineRoute('checklists/:checklistId'),
   InterventionsNearby: defineRoute('interventions/nearby'),
+  CampaignList: defineRoute('campaigns'),
+  CampaignNew: defineRoute('campaigns/new'),
 };
