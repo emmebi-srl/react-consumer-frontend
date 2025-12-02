@@ -20,7 +20,7 @@ const Container = styled('div')({
 
 const SplitMain = forwardRef<HTMLDivElement, PropsWithChildren<Props>>(({ sidebarOpen, children }, ref) => {
   return (
-    <Container sx={{ marginRight: sidebarOpen ? '600px' : undefined }} ref={ref}>
+    <Container sx={{ marginRight: sidebarOpen ? '0px' : undefined }} ref={ref}>
       {children}
     </Container>
   );

@@ -56,15 +56,22 @@ const CampaignAsideFprm: React.FC<{
   });
 
   const handleSubmit = (data: EditCampaignFormValues) => {
-    campaignUpdate.mutate({
-      id: campaign.id,
-      data: {
-        campaignTypeId: data.campaignTypeId,
-        name: data.name,
-        description: data.description,
-        mailSubject: data.mailSubject,
+    campaignUpdate.mutate(
+      {
+        id: campaign.id,
+        data: {
+          campaignTypeId: data.campaignTypeId,
+          name: data.name,
+          description: data.description,
+          mailSubject: data.mailSubject,
+        },
       },
-    });
+      {
+        onSuccess: () => {
+          form.reset(data);
+        },
+      },
+    );
   };
 
   const campaignTypes = campaignTypesData?.campaignTypes ?? [];
@@ -164,6 +171,8 @@ const CampaignAsideFprm: React.FC<{
               form.reset({
                 name: campaign.name,
                 description: campaign.description,
+                mailSubject: campaign.mailSubject,
+                campaignTypeId: campaign.campaignTypeId,
               })
             }
             disabled={false}
