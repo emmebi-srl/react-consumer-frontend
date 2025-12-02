@@ -36,4 +36,6 @@ export const RouteConfig = {
   InterventionsNearby: defineRoute('interventions/nearby'),
   CampaignList: defineRoute('campaigns'),
   CampaignNew: defineRoute('campaigns/new'),
+  QuoteList: defineRoute('quotes'),
+  QuoteDetail: defineRoute('quotes/:year/:quoteId'),
 };

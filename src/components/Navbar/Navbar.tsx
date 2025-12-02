@@ -34,6 +34,7 @@ const Navbar = () => {
   const isChecklistListActive = Boolean(useRouteMatch([RouteConfig.ChecklistList.buildLink()]));
   const isCustomerListActive = Boolean(useRouteMatch([RouteConfig.CustomerList.buildLink()]));
   const isCampaignMailActive = Boolean(useRouteMatch([RouteConfig.CampaignList.buildLink()]));
+  const isQuoteActive = Boolean(useRouteMatch([RouteConfig.QuoteList.buildLink()]));
 
   return (
     <AppBar position="static">
@@ -85,6 +86,14 @@ const Navbar = () => {
               to={RouteConfig.CampaignList.buildLink()}
             >
               Campagne Mail
+            </Button>
+            <Button
+              sx={{ my: 2, color: 'white', display: 'block' }}
+              component={Link}
+              variant={isQuoteActive ? 'outlined' : 'text'}
+              to={RouteConfig.QuoteList.buildLink()}
+            >
+              Preventivi
             </Button>
           </Box>
           <Box sx={{ flexGrow: 0 }}>

@@ -15,6 +15,8 @@ const ChecklistListView = asyncComponent(() => import('../views/checklists/list/
 const ChecklistDetailView = asyncComponent(() => import('../views/checklists/detail/ChecklistDetailView'));
 const CampaignListView = asyncComponent(() => import('../views/campaigns/list/CampaignListView'));
 const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/CampaignNewView'));
+const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
+const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
 
 const routes: RouteObject[] = [
   {
@@ -64,6 +66,14 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.CampaignNew.template,
             element: <CampaignNewView />,
+          },
+          {
+            path: RouteConfig.QuoteList.template,
+            element: <QuoteListView />,
+          },
+          {
+            path: RouteConfig.QuoteDetail.template,
+            element: <QuoteDetailView />,
           },
           {
             path: '*',
