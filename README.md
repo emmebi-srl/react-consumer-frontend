@@ -6,6 +6,14 @@ To create a build you can use one of de following commands:
  * `npm run build:prod:emmebi`
  * `npm run build:prod:siantel`
 
+### SCP Release 
+EMMEBI: scp -r /c/Users/MARIO/Documents/Projects/react-consumer-frontend/build mirco@192.168.12.204:/home/mirco/build
+SIANTEL: scp -r /c/Users/MARIO/Documents/Projects/react-consumer-frontend/build adminsiantel@192.168.20.241:/home/adminsiantel/build
+
+chmod 777 build
+
+cp -r ./build/* /var/www/html/
+
 ### Docker image
 To create a docker image run the following command:
 `docker build --file ./Dockerfile --tag aries-web-app:{target-version} .`
