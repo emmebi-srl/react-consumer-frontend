@@ -13,6 +13,7 @@ import {
   getQuoteRevisionById,
   getQuoteRevisions,
   getQuoteStatuses,
+  getQuoteTypes,
   getQuotes,
   getQuotesMetadata,
   updateQuote,
@@ -29,7 +30,6 @@ import {
   QuoteRevisionCreate,
   QuoteRevisionUpdate,
   QuoteSearchRequest,
-  QuoteStatus,
   QuoteUpdate,
 } from '~/types/aries-proxy/quotes';
 
@@ -41,6 +41,7 @@ export const QuoteQueryKeys = {
   metadata: (params: QuoteSearchRequest) => ['Quotes', 'metadata', params] as const,
   byId: (year: number, id: number) => ['Quote', year, id] as const,
   statuses: ['QuoteStatuses'] as const,
+  types: ['QuoteTypes'] as const,
   revisions: (year: number, id: number) => ['Quote', year, id, 'revisions'] as const,
   revisionById: (year: number, id: number, revisionId: number) => ['Quote', year, id, 'revision', revisionId] as const,
   lots: (year: number, id: number, revisionId: number) => ['Quote', year, id, 'revision', revisionId, 'lots'] as const,
@@ -57,7 +58,7 @@ export const useQuotesSearch = (params: QuoteSearchRequest) => {
     queryKey: QuoteQueryKeys.search(params),
     queryFn: async ({ pageParam }) => {
       const pageSize = params.pageSize ?? QuoteSearchPageSize;
-      const pageIndex = pageParam ? Number(pageParam) : params.pageIndex ?? 1;
+      const pageIndex = pageParam ? Number(pageParam) : (params.pageIndex ?? 1);
       const res = await getQuotes({
         ...params,
         pageIndex,
@@ -73,7 +74,7 @@ export const useQuotesSearch = (params: QuoteSearchRequest) => {
     },
     initialPageParam: '',
     getNextPageParam: (data) => {
-      if (!data?.quotes || data.quotes.length < (params.pageSize ?? QuoteSearchPageSize)) {
+      if (data.quotes.length < (params.pageSize ?? QuoteSearchPageSize)) {
         return undefined;
       }
 
@@ -105,16 +106,24 @@ export const useQuoteStatuses = () => {
   });
 };
 
+export const useQuoteTypes = () => {
+  return useQuery({
+    queryKey: QuoteQueryKeys.types,
+    queryFn: async () => (await getQuoteTypes()).data,
+  });
+};
+
 export const useCreateQuote = () => {
   const exceptionLogger = useExceptionLogger();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: QuoteCreate) => (await createQuote(payload)).data,
-    onError: (err, data) => exceptionLogger.captureException(err, {
-      extra: {
-        data,
-      }
-    }),
+    onError: (err, data) =>
+      exceptionLogger.captureException(err, {
+        extra: {
+          data,
+        },
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: QuoteQueryKeys.all,
@@ -186,7 +195,9 @@ export const useUpdateQuoteRevision = () => {
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
     onSuccess: (_res, variables) =>
       Promise.all([
-        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.revisionById(variables.year, variables.id, variables.revisionId) }),
+        queryClient.invalidateQueries({
+          queryKey: QuoteQueryKeys.revisionById(variables.year, variables.id, variables.revisionId),
+        }),
         queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.revisions(variables.year, variables.id) }),
         queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
       ]),
@@ -205,7 +216,7 @@ export const useQuoteLotById = (year: number, id: number, revisionId: number, po
   return useQuery({
     queryKey: QuoteQueryKeys.lotById(year, id, revisionId, position),
     queryFn: async () => (await getQuoteLotById(year, id, revisionId, position)).data,
-    enabled: !!year && !!id && !!revisionId && position !== undefined,
+    enabled: !!year && !!id && !!revisionId && !!position,
   });
 };
 
@@ -227,7 +238,9 @@ export const useCreateQuoteLot = () => {
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
     onSuccess: (_res, variables) =>
       Promise.all([
-        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.lots(variables.year, variables.id, variables.revisionId) }),
+        queryClient.invalidateQueries({
+          queryKey: QuoteQueryKeys.lots(variables.year, variables.id, variables.revisionId),
+        }),
         queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
       ]),
   });
@@ -256,7 +269,9 @@ export const useUpdateQuoteLot = () => {
         queryClient.invalidateQueries({
           queryKey: QuoteQueryKeys.lotById(variables.year, variables.id, variables.revisionId, variables.position),
         }),
-        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.lots(variables.year, variables.id, variables.revisionId) }),
+        queryClient.invalidateQueries({
+          queryKey: QuoteQueryKeys.lots(variables.year, variables.id, variables.revisionId),
+        }),
         queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
       ]),
   });
@@ -266,7 +281,7 @@ export const useQuoteItems = (year: number, id: number, revisionId: number, posi
   return useQuery({
     queryKey: QuoteQueryKeys.items(year, id, revisionId, position),
     queryFn: async () => (await getQuoteItems(year, id, revisionId, position)).data,
-    enabled: !!year && !!id && !!revisionId && position !== undefined,
+    enabled: !!year && !!id && !!revisionId,
   });
 };
 
@@ -274,7 +289,7 @@ export const useQuoteItemById = (year: number, id: number, revisionId: number, p
   return useQuery({
     queryKey: QuoteQueryKeys.itemById(year, id, revisionId, position, tabId),
     queryFn: async () => (await getQuoteItemById(year, id, revisionId, position, tabId)).data,
-    enabled: !!year && !!id && !!revisionId && position !== undefined && !!tabId,
+    enabled: !!year && !!id && !!revisionId && !!position && !!tabId,
   });
 };
 
@@ -324,7 +339,10 @@ export const useUpdateQuoteItem = () => {
       position: number;
       tabId: number;
       data: QuoteItemUpdate;
-    }) => (await updateQuoteItem(year, id, revisionId, position, tabId, data)).data,
+    }) => {
+      const result = await updateQuoteItem(year, id, revisionId, position, tabId, data);
+      return result.data;
+    },
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
     onSuccess: (_res, variables) =>
       Promise.all([

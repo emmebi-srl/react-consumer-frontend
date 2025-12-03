@@ -4,12 +4,14 @@ export interface QuoteFilters {
   search: string;
   year?: number;
   statusId?: number;
+  typeId?: number;
 }
 
 export const defaultValues: QuoteFilters = {
   search: '',
   year: undefined,
   statusId: undefined,
+  typeId: undefined,
 };
 
 const {

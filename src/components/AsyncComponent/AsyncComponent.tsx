@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ComponentType, lazy } from 'react';
 import _isError from 'lodash/isError';
 import NProgress from 'nprogress';

@@ -18,6 +18,17 @@ export interface QuoteStatus {
   resetReminder: boolean;
 }
 
+export interface QuoteTypeList {
+  types: QuoteType[];
+}
+
+export interface QuoteType {
+  id: number;
+  name: string;
+  description?: string | null;
+  contractTypeId?: number | null;
+}
+
 export interface QuoteRevisionList {
   revisions: QuoteRevision[];
 }
@@ -35,9 +46,11 @@ export interface Quote {
   year: number;
   revisionId?: number | null;
   createdAt: string;
-  stateId?: number | null;
+  status?: QuoteStatus;
+  statusId?: number | null;
   note?: string | null;
   quoteTypeId: number;
+  quoteType?: QuoteType;
   typeId?: number | null;
   agentId?: number | null;
   userId?: number | null;
@@ -150,7 +163,7 @@ export interface QuoteCreate {
   year: number;
   revisionId?: number | null;
   createdAt?: string;
-  stateId?: number | null;
+  statusId?: number | null;
   note?: string | null;
   quoteTypeId: number;
   typeId?: number | null;
@@ -168,7 +181,7 @@ export interface QuoteCreate {
 export interface QuoteUpdate {
   revisionId?: number | null;
   createdAt?: string;
-  stateId?: number | null;
+  statusId?: number | null;
   note?: string | null;
   quoteTypeId?: number | null;
   typeId?: number | null;

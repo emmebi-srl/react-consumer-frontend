@@ -2,7 +2,7 @@ import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/compone
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
 import { useDirtyState, useFilterState, useIsDirty, useResetFilters, useUpdateFilter } from '../state';
 import { MenuItem, TextField } from '@mui/material';
-import { useQuoteStatuses } from '~/proxies/aries-proxy/quotes';
+import { useQuoteStatuses, useQuoteTypes } from '~/proxies/aries-proxy/quotes';
 
 const QuoteFilters: React.FC = () => {
   const isDirty = useIsDirty();
@@ -11,10 +11,11 @@ const QuoteFilters: React.FC = () => {
   const dirtyState = useDirtyState();
   const updateFilter = useUpdateFilter();
   const { data: statusData } = useQuoteStatuses();
+  const { data: typeData } = useQuoteTypes();
 
   return (
     <CollapsibleFilters onClearFilters={resetFilters} isDirty={isDirty}>
-      <PrimaryFilters dirtyState={dirtyState} additionalFilters={['year', 'statusId']}>
+      <PrimaryFilters dirtyState={dirtyState} additionalFilters={['year', 'statusId', 'typeId']}>
         <InlineSearchFilter
           name="search"
           value={filters.search}
@@ -45,6 +46,21 @@ const QuoteFilters: React.FC = () => {
           {(statusData?.statuses ?? []).map((status) => (
             <MenuItem key={status.id} value={status.id}>
               {status.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select
+          size="small"
+          label="Tipo"
+          value={filters.typeId ?? ''}
+          onChange={(e) => updateFilter('typeId', e.target.value ? Number(e.target.value) : undefined)}
+          sx={{ width: 180 }}
+        >
+          <MenuItem value="">Tutti</MenuItem>
+          {(typeData?.types ?? []).map((type) => (
+            <MenuItem key={type.id} value={type.id}>
+              {type.name}
             </MenuItem>
           ))}
         </TextField>

@@ -40,10 +40,10 @@ const QuoteTableRowContent: React.FC<{ quote: Quote }> = ({ quote }) => {
         <SecondaryLabel>{quote.note || 'N/A'}</SecondaryLabel>
       </TableCell>
       <TableCell>
-        <SecondaryLabel>{quote.stateId ?? '-'}</SecondaryLabel>
+        <SecondaryLabel>{quote.status?.name ?? quote.statusId ?? '-'}</SecondaryLabel>
       </TableCell>
       <TableCell>
-        <Chip size="small" label={quote.quoteTypeId} />
+        <Chip size="small" label={quote.quoteType?.name ?? quote.quoteTypeId} />
       </TableCell>
       <TableCell>
         <SecondaryLabel>{latestRevision?.customer?.companyName ?? '—'}</SecondaryLabel>
@@ -72,7 +72,6 @@ const QuoteTableRowContent: React.FC<{ quote: Quote }> = ({ quote }) => {
   );
 };
 
-
 const QuoteListView = () => {
   const filters = useFilterState();
   const virtuoso = useRef<TableVirtuosoHandle>(null);
@@ -84,9 +83,10 @@ const QuoteListView = () => {
       search: filters.search,
       year: filters.year,
       statusId: filters.statusId,
-      includes: 'revisions,revisions.customer,revisions.destination',
+      typeId: filters.typeId,
+      includes: 'revisions,revisions.customer,revisions.destination,status,type',
     }),
-    [filters.search, filters.year, filters.statusId],
+    [filters.search, filters.year, filters.statusId, filters.typeId],
   );
 
   const quotesQuery = useQuotesSearch(queryParams);
