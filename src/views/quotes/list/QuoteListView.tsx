@@ -13,8 +13,6 @@ import { useQuotesSearch } from '~/proxies/aries-proxy/quotes';
 import { Quote } from '~/types/aries-proxy/quotes';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
-import TableLoading from '~/components/Table/TableLoading';
-import TableNoData from '~/components/Table/TableNoData';
 import { RouteConfig } from '~/routes/routeConfig';
 import { Link as RouterLink } from 'react-router-dom';
 import QuoteTableHeading from './components/QuoteTableHeading';
@@ -136,8 +134,6 @@ const QuoteListView = () => {
                 computeItemKey={(_index, quote) => `${quote.year}-${quote.id}`}
                 itemContent={(_index, quote) => <QuoteTableRowContent quote={quote} />}
               />
-              {quotesQuery.isFetching && <TableLoading />}
-              {!quotesQuery.isFetching && quotes.length === 0 ? <TableNoData /> : null}
             </DataTableContainer>
           </Stack>
         </PageContainer>

@@ -110,7 +110,11 @@ export const useCreateQuote = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: QuoteCreate) => (await createQuote(payload)).data,
-    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onError: (err, data) => exceptionLogger.captureException(err, {
+      extra: {
+        data,
+      }
+    }),
     onSuccess: () =>
       queryClient.invalidateQueries({
         queryKey: QuoteQueryKeys.all,

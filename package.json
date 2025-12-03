@@ -92,7 +92,9 @@
     "build:dev": "cp env.development .env && npm run build",
     "build:prod:emmebi": "cp .env.emmebi .env && npm run build",
     "build:prod:siantel": "cp .env.siantel .env && npm run build",
-    "test": "cross-env NODE_ENV=testing LC_ALL=it_IT.UTF-8 TZ=\"Europe/Rome\" vitest"
+    "test": "cross-env NODE_ENV=testing LC_ALL=it_IT.UTF-8 TZ=\"Europe/Rome\" vitest",
+    "lint": "eslint --cache --cache-strategy content",
+    "typelint": "./node_modules/.bin/tsc --noEmit --incremental"
   },
   "jest": {
     "setupFiles": [

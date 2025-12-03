@@ -6,8 +6,6 @@ import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
 import { useQuoteById } from '~/proxies/aries-proxy/quotes';
 import { RouteConfig } from '~/routes/routeConfig';
-import TableNoData from '~/components/Table/TableNoData';
-import TableLoading from '~/components/Table/TableLoading';
 
 const QuoteDetailView = () => {
   const params = useParams<{ year?: string; quoteId?: string }>();
@@ -38,9 +36,6 @@ const QuoteDetailView = () => {
                 {'←'} Torna alla lista
               </Typography>
             </Stack>
-
-            {quoteQuery.isFetching && <TableLoading />}
-            {!quoteQuery.isFetching && !quote && <TableNoData />}
 
             {quote && (
               <Stack spacing={2}>
