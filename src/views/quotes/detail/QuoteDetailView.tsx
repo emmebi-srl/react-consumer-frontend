@@ -16,7 +16,7 @@ const QuoteDetailView = () => {
     includes: 'revisions,revisions.customer,revisions.destination,revisions.lots,revisions.lots.items',
   });
 
-  const quote = quoteQuery.data?.quotes?.at(0);
+  const quote = quoteQuery.data?.quotes.at(0);
 
   return (
     <SplitLayout>
@@ -40,8 +40,8 @@ const QuoteDetailView = () => {
             {quote && (
               <Stack spacing={2}>
                 <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-                  <Chip label={`Stato: ${quote.stateId ?? 'N/D'}`} />
-                  <Chip label={`Tipo: ${quote.quoteTypeId}`} />
+                  <Chip label={`Stato: ${quote.status?.name ?? quote.statusId ?? 'N/D'}`} />
+                  <Chip label={`Tipo: ${quote.quoteType?.name ?? quote.quoteTypeId}`} />
                   <Chip label={`Revisione corrente: ${quote.revisionId ?? 'N/D'}`} />
                 </Stack>
                 <Typography variant="body1" color="text.secondary">
@@ -76,7 +76,11 @@ const QuoteDetailView = () => {
                         </Typography>
                         <Typography variant="subtitle2">Lotti</Typography>
                         {(rev.lots ?? []).map((lot) => (
-                          <Stack key={lot.position} spacing={1} sx={{ border: '1px solid #eee', borderRadius: 1, p: 2 }}>
+                          <Stack
+                            key={lot.position}
+                            spacing={1}
+                            sx={{ border: '1px solid #eee', borderRadius: 1, p: 2 }}
+                          >
                             <Stack direction="row" spacing={2} alignItems="center">
                               <Typography variant="body1">Lotto #{lot.position}</Typography>
                               <Chip label={`Id lotto: ${lot.lotId}`} size="small" />

@@ -5,6 +5,7 @@ import {
   QuoteItemUpdate,
   QuoteList,
   QuoteStatusList,
+  QuoteTypeList,
   QuoteLotCreate,
   QuoteLotUpdate,
   QuoteRevisionCreate,
@@ -31,6 +32,10 @@ export const getQuoteById = (year: number, id: number, options?: { includes?: st
 
 export const getQuoteStatuses = () => {
   return ariesServicesClient.get<QuoteStatusList>('quote/status');
+};
+
+export const getQuoteTypes = () => {
+  return ariesServicesClient.get<QuoteTypeList>('quote/type');
 };
 
 export const createQuote = (model: QuoteCreate) => {
@@ -69,24 +74,21 @@ export const createQuoteLot = (year: number, id: number, revisionId: number, mod
   return ariesServicesClient.post<QuoteLotList>(`quote/${year}/${id}/revisions/${revisionId}/lots`, model);
 };
 
-export const updateQuoteLot = (year: number, id: number, revisionId: number, position: number, model: QuoteLotUpdate) => {
-  return ariesServicesClient.patch<QuoteLotList>(
-    `quote/${year}/${id}/revisions/${revisionId}/lots/${position}`,
-    model,
-  );
+export const updateQuoteLot = (
+  year: number,
+  id: number,
+  revisionId: number,
+  position: number,
+  model: QuoteLotUpdate,
+) => {
+  return ariesServicesClient.patch<QuoteLotList>(`quote/${year}/${id}/revisions/${revisionId}/lots/${position}`, model);
 };
 
 export const getQuoteItems = (year: number, id: number, revisionId: number, position: number) => {
   return ariesServicesClient.get<QuoteItemList>(`quote/${year}/${id}/revisions/${revisionId}/lots/${position}/items`);
 };
 
-export const getQuoteItemById = (
-  year: number,
-  id: number,
-  revisionId: number,
-  position: number,
-  tabId: number,
-) => {
+export const getQuoteItemById = (year: number, id: number, revisionId: number, position: number, tabId: number) => {
   return ariesServicesClient.get<QuoteItemList>(
     `quote/${year}/${id}/revisions/${revisionId}/lots/${position}/items/${tabId}`,
   );
@@ -113,5 +115,8 @@ export const updateQuoteItem = (
   tabId: number,
   model: QuoteItemUpdate,
 ) => {
-  return ariesServicesClient.patch(`quote/${year}/${id}/revisions/${revisionId}/lots/${position}/items/${tabId}`, model);
+  return ariesServicesClient.patch<QuoteItemList>(
+    `quote/${year}/${id}/revisions/${revisionId}/lots/${position}/items/${tabId}`,
+    model,
+  );
 };
