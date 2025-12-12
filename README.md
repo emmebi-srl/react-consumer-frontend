@@ -11,7 +11,7 @@ EMMEBI: scp -r /c/Users/MARIO/Documents/Projects/react-consumer-frontend/build m
 SIANTEL: scp -r /c/Users/MARIO/Documents/Projects/react-consumer-frontend/build adminsiantel@192.168.20.241:/home/adminsiantel/
 
 chmod 777 build
-
+ rm -rf /var/www/html/*
 cp -r ./build/* /var/www/html/
 
 ### Docker image
