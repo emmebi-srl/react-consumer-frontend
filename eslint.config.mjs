@@ -5,9 +5,12 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
 import tseslint from 'typescript-eslint';
 import pluginImport from 'eslint-plugin-import';
-import perfectionist from 'eslint-plugin-perfectionist'
+import perfectionist from 'eslint-plugin-perfectionist';
 
 export default tseslint.config(
+  {
+    ignores: ['build/**', 'dist/**', 'coverage/**', 'node_modules/**'],
+  },
   {
     extends: [eslint.configs.recommended],
     rules: {
@@ -17,6 +20,7 @@ export default tseslint.config(
     },
   },
   {
+    files: ['scripts/**/*.ts', 'src/**/*.ts', 'src/**/*.tsx'],
     extends: [...tseslint.configs.recommendedTypeChecked, ...tseslint.configs.stylisticTypeChecked],
     rules: {
       '@typescript-eslint/no-empty-function': 'off',

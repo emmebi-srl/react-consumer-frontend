@@ -9,7 +9,7 @@ import { ErrorBoundaryFallback } from '~/components/Errors/ErrorBoundaryFallback
 import queryClient from '~/clients/query-client';
 import ThemeConfig from '~/styles/theme';
 
-const logErrorHandler = (error: Error, info: ErrorInfo) => {
+const logErrorHandler = (error: unknown, info: ErrorInfo) => {
   console.error(error);
   // eslint-disable-next-line no-console
   console.log(info.componentStack);

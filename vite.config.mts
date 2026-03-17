@@ -24,7 +24,7 @@ export default defineConfig({
       },
     },
     testTimeout: 10000,
-    setupFiles: './tests/vitest.setup',
+    setupFiles: ['./tests/vitest.setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -4,10 +4,8 @@
   "singleQuote": true,
   "bracketSpacing": true,
   "tabWidth": 2,
-  "tabs": false,
   "trailingComma": "all",
-  "arraySpacing": true,
   "bracketSameLine": false,
-  "endOfLine": "lf",
-  "xmlWhitespaceSensitivity": "ignore"
+  "endOfLine": "auto",
+  "htmlWhitespaceSensitivity": "ignore"
 }

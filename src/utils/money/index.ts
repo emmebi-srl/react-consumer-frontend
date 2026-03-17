@@ -72,7 +72,7 @@ export const formatMoneyShort = (money: Money): string => {
     compactDisplay: 'short',
   })
     .format(amount)
-    .replace('Mio\xA0', 'M');
+    .replace(/(?:Mio|Mln)\xA0/u, 'M');
 };
 
 export function sumMoney(leftMoney: Money, rightMoney: Money): Money {

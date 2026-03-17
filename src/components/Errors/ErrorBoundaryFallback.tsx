@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Box, Dialog, Typography, useTheme, Button } from '@mui/material';
+import { FallbackProps } from 'react-error-boundary';
 
-interface FallbackProps {
-  error: Error;
-  resetErrorBoundary(): void;
-}
+const getErrorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 export const ErrorBoundaryFallback = (props: FallbackProps) => {
   return <ErrorBoundaryFallbackView {...props} />;
@@ -33,7 +31,7 @@ const ErrorBoundaryFallbackView = ({ error, resetErrorBoundary }: FallbackProps)
         flexDirection: 'column',
       }}
     >
-      <Typography variant="h4">Mi dispiace, qualcosa è andato storto</Typography>
+      <Typography variant="h4">Mi dispiace, qualcosa Ã¨ andato storto</Typography>
       <Box
         component="pre"
         sx={{
@@ -48,7 +46,7 @@ const ErrorBoundaryFallbackView = ({ error, resetErrorBoundary }: FallbackProps)
           borderRadius: '8px',
         }}
       >
-        {error.message}
+        {getErrorMessage(error)}
       </Box>
       <Button variant="contained" onClick={resetErrorBoundary}>
         Ripristina
