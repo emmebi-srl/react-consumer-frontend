@@ -9,6 +9,14 @@ import RedirectWithQueryParams from './RedirectWithQueryParams';
 
 const Login = asyncComponent(() => import('../views/auth/login/LoginView'));
 const Logout = asyncComponent(() => import('../views/auth/logout/LogoutView'));
+const LandingAcceptSubscriptionProposalView = asyncComponent(
+  () => import('../views/landing/accept-subscription-proposal/AcceptSubscriptionProposalView'),
+);
+const LandingRejectSubscriptionProposalView = asyncComponent(
+  () => import('../views/landing/reject-subscription-proposal/RejectSubscriptionProposalView'),
+);
+const LandingLinkExpiredView = asyncComponent(() => import('../views/landing/link-expired/LinkExpiredView'));
+const LandingDoneView = asyncComponent(() => import('../views/landing/done/LandingDoneView'));
 const InterventionsNearby = asyncComponent(() => import('../views/interventions/nearby/InterventionsNearbyView'));
 const CustomerList = asyncComponent(() => import('../views/customers/list/CustomerListView'));
 const ChecklistListView = asyncComponent(() => import('../views/checklists/list/ChecklistListView'));
@@ -34,6 +42,22 @@ const routes: RouteObject[] = [
       {
         path: RouteConfig.Logout.template,
         element: <Logout />,
+      },
+      {
+        path: RouteConfig.LandingAcceptSubscriptionProposal.template,
+        element: <LandingAcceptSubscriptionProposalView />,
+      },
+      {
+        path: RouteConfig.LandingRejectSubscriptionProposal.template,
+        element: <LandingRejectSubscriptionProposalView />,
+      },
+      {
+        path: RouteConfig.LandingLinkExpired.template,
+        element: <LandingLinkExpiredView />,
+      },
+      {
+        path: RouteConfig.LandingDone.template,
+        element: <LandingDoneView />,
       },
       {
         path: '*',

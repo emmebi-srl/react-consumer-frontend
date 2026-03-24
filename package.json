@@ -89,6 +89,7 @@
   "scripts": {
     "prepare": "husky",
     "start": "vite --mode development",
+    "start:windows": "cross-env VITE_DEV_HOST=127.0.0.1 VITE_DEV_PORT=5173 vite --mode development",
     "build": "tsc -p tsconfig.build.json && vite build",
     "build:dev": "cp env.development .env && npm run build",
     "build:prod:emmebi": "cp .env.emmebi .env && npm run build",

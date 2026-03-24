@@ -1,4 +1,5 @@
 export const KEY_ARIES_API_TOKEN = 'ARIES_API_TOKEN';
+export const KEY_ARIES_LANDING_API_TOKEN = 'ARIES_LANDING_API_TOKEN';
 
 // Put the object into storage
 export const setLocalStorageItem = <T>(key: string, value: T) => localStorage.setItem(key, JSON.stringify(value));

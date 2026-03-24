@@ -5,4 +5,4 @@ export interface AriesAuthToken {
   token_type: 'Bearer' | 'Basic';
 }
 
-export type AriesGrantType = 'password' | 'refresh_token';
+export type AriesGrantType = 'password' | 'refresh_token' | 'resource_access_code';

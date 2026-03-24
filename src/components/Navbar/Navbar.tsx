@@ -1,17 +1,7 @@
 import React from 'react';
 import { Box, Container } from '@mui/system';
-import {
-  AppBar,
-  Avatar,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-  Typography,
-  Link as MuiLink,
-} from '@mui/material';
+import { AppBar, Avatar, Button, IconButton, Link as MuiLink, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
+import Logo from '~/components/Layout/Logo';
 import { RouteConfig } from '~/routes/routeConfig';
 import useRouteMatch from '~/hooks/useRouteMatch';
 import { Link } from 'react-router-dom';
@@ -40,19 +30,14 @@ const Navbar = () => {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
-            variant="h6"
-            noWrap
+          <Logo
             sx={{
               mr: 2,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
+              backgroundColor: 'common.white',
+              borderRadius: 1,
+              padding: 0.5,
             }}
-          >
-            ARIES
-          </Typography>
+          />
 
           <Box sx={{ flexGrow: 1, display: 'flex' }}>
             <Button
