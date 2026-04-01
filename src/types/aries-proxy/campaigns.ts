@@ -1,3 +1,6 @@
+import { Customer } from './customers';
+import { System } from './systems';
+
 // ==============================
 // Campaign List
 // ==============================
@@ -104,11 +107,45 @@ export interface CampaignMail {
   customerId: number;
   systemId?: number | null;
   mailId?: number | null;
+  statusId?: number | null;
   email: string;
   sendDate: string;
   isProcessed: boolean;
+  isRead: boolean;
+  hasInteracted: boolean;
   processingError: string;
   insertionDate: string;
+  customer?: Customer;
+  system?: System;
+  status?: CampaignMailStatus;
+}
+
+export interface CampaignMailStatus {
+  id: number;
+  name: string;
+  applicationReference?: string | null;
+  color?: string | null;
+  isFinal: boolean;
+}
+
+export interface CampaignMailStatusList {
+  statuses: CampaignMailStatus[];
+}
+
+export interface CampaignMailMetadataResponse {
+  metadata: CampaignMailMetadata;
+}
+
+export interface CampaignMailMetadata {
+  totalCount: number;
+  recipientsCount: number;
+  statusCounts: CampaignMailStatusMetadata[];
+}
+
+export interface CampaignMailStatusMetadata {
+  statusApplicationReference?: string | null;
+  statusName?: string | null;
+  totalCount: number;
 }
 
 export interface CampaignMailCreate {
@@ -116,6 +153,7 @@ export interface CampaignMailCreate {
   customerId: number;
   systemId?: number | null;
   mailId?: number | null;
+  statusId?: number | null;
   email: string;
   sendDate?: string | null;
   isProcessed?: boolean | null;
@@ -127,10 +165,22 @@ export interface CampaignMailUpdate {
   customerId?: number | null;
   systemId?: number | null;
   mailId?: number | null;
+  statusId?: number | null;
   email?: string | null;
   sendDate?: string | null;
   isProcessed?: boolean | null;
   processingError?: string | null;
+}
+
+export interface CampaignMailSearchRequest {
+  search?: string;
+  status?: string;
+  processed?: boolean;
+  fromDate?: number | null;
+  toDate?: number | null;
+  pageSize?: number;
+  pageIndex?: number;
+  includes?: string;
 }
 
 // ==============================

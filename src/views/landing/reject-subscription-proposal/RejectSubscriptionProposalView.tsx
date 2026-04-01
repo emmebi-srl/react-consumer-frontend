@@ -1,15 +1,41 @@
-import { Alert, Box, Button, Card, CardContent, Chip, Container, Stack, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { alpha, styled } from '@mui/material/styles';
-import { AccessTimeOutlined, InfoOutlined, LocalPhoneOutlined, MoneyOffOutlined } from '@mui/icons-material';
+import {
+  ArrowForwardOutlined,
+  BuildOutlined,
+  Inventory2Outlined,
+  PhoneInTalkOutlined,
+  RequestQuoteOutlined,
+  ScheduleOutlined,
+  SupportAgentOutlined,
+} from '@mui/icons-material';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import z from 'zod';
 import LandingAccessToken from '~/components/Landing/LandingAccessToken';
+import LandingFooter from '~/components/Landing/LandingFooter';
+import LandingServiceCards, { LandingServiceCardItem } from '~/components/Landing/LandingServiceCards';
 import LoadingScreen from '~/components/Loading/LoadingScreen';
 import Logo from '~/components/Layout/Logo';
-import { useRejectSubscriptionProposal, useSubscriptionProposal } from '~/proxies/aries-proxy/landing';
+import {
+  useRejectSubscriptionProposal,
+  useRequestMoreInfo,
+  useSubscriptionProposal,
+} from '~/proxies/aries-proxy/landing';
 import { RouteConfig } from '~/routes/routeConfig';
 import { KEY_ARIES_LANDING_API_TOKEN, setLocalStorageItem } from '~/utils/local-storage';
 
@@ -19,9 +45,36 @@ const FormSchema = z.object({
 
 type FormValues = z.infer<typeof FormSchema>;
 
+const serviceCards: LandingServiceCardItem[] = [
+  {
+    icon: <SupportAgentOutlined color="primary" fontSize="large" />,
+    description: 'Urgenze da valutare caso per caso.',
+    title: 'Reperibilita telefonica h24',
+    value: 'Solo orario ufficio',
+  },
+  {
+    icon: <RequestQuoteOutlined color="primary" fontSize="large" />,
+    description: 'Subordinato allo stato del momento e in coda a quelli gia programmati.',
+    title: 'Costo per interventi',
+    value: 'A listino',
+  },
+  {
+    icon: <BuildOutlined color="primary" fontSize="large" />,
+    description: 'In coda a quelli gia programmati.',
+    title: 'Costo per manutenzione',
+    value: 'A listino',
+  },
+  {
+    icon: <Inventory2Outlined color="primary" fontSize="large" />,
+    description: 'Secondo disponibilita.',
+    title: 'Costo materiale ricambio',
+    value: 'A listino',
+  },
+];
+
 const PageShell = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
-  background: `radial-gradient(circle at top left, ${alpha(theme.palette.primary.main, 0.12)}, transparent 28%), linear-gradient(180deg, #f8fbff 0%, ${theme.palette.grey[100]} 100%)`,
+  background: `radial-gradient(circle at top left, ${alpha(theme.palette.primary.main, 0.14)}, transparent 30%), linear-gradient(180deg, #f8fbff 0%, ${theme.palette.grey[100]} 100%)`,
   paddingBottom: theme.spacing(8),
 }));
 
@@ -30,22 +83,23 @@ const TopBar = styled(Box)(({ theme }) => ({
   top: 0,
   zIndex: 10,
   backdropFilter: 'blur(12px)',
-  backgroundColor: alpha(theme.palette.common.white, 0.78),
+  backgroundColor: alpha(theme.palette.common.white, 0.82),
   borderBottom: `1px solid ${alpha(theme.palette.divider, 0.9)}`,
   marginBottom: theme.spacing(4),
 }));
 
-const HeroCard = styled(Card)(({ theme }) => ({
-  borderRadius: 24,
+const MainCard = styled(Card)(({ theme }) => ({
+  borderRadius: 28,
   border: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-  boxShadow: '0 12px 30px rgba(15, 23, 42, 0.08)',
+  boxShadow: '0 18px 38px rgba(15, 23, 42, 0.1)',
   overflow: 'hidden',
 }));
 
-const FormCard = styled(Card)(({ theme }) => ({
-  borderRadius: 24,
-  border: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-  boxShadow: '0 18px 38px rgba(15, 23, 42, 0.1)',
+const SectionBox = styled(Box)(({ theme }) => ({
+  borderRadius: 20,
+  border: `1px solid ${theme.palette.divider}`,
+  padding: theme.spacing(3),
+  backgroundColor: theme.palette.common.white,
 }));
 
 const InfoCard = styled(Card)(({ theme }) => ({
@@ -54,25 +108,26 @@ const InfoCard = styled(Card)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.primary.light, 0.08),
 }));
 
-const SectionBox = styled(Box)(({ theme }) => ({
-  borderRadius: 18,
-  border: `1px solid ${theme.palette.divider}`,
-  padding: theme.spacing(3),
-  backgroundColor: theme.palette.common.white,
+const ActionCard = styled(Card)(({ theme }) => ({
+  borderRadius: 24,
+  border: `1px solid ${alpha(theme.palette.warning.main, 0.28)}`,
+  background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, 0.24)} 0%, ${alpha(theme.palette.common.white, 0.96)} 100%)`,
+  boxShadow: 'none',
 }));
 
-const SummaryItem = styled(Box)(({ theme }) => ({
-  borderRadius: 16,
-  border: `1px solid ${theme.palette.divider}`,
-  backgroundColor: theme.palette.common.white,
-  padding: theme.spacing(2),
-}));
+const formatSystemLabel = (systemType: string, systemDescription: string) =>
+  [systemType, systemDescription].filter(Boolean).join(' - ');
 
 const RejectSubscriptionProposalContent: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const campaignAriesEmailId = Number(searchParams.get('campaignAriesEmailId'));
   const { mutateAsync: rejectProposal, isPending: isRejecting, error: rejectError } = useRejectSubscriptionProposal();
+  const {
+    mutateAsync: requestMoreInfo,
+    isPending: isRequestingMoreInfo,
+    error: requestMoreInfoError,
+  } = useRequestMoreInfo();
   const {
     data: proposal,
     isLoading: isProposalLoading,
@@ -95,6 +150,13 @@ const RejectSubscriptionProposalContent: React.FC = () => {
     }
   }, [navigate, proposalError]);
 
+  useEffect(() => {
+    if (proposal?.isInFinalState) {
+      setLocalStorageItem(KEY_ARIES_LANDING_API_TOKEN, null);
+      navigate(RouteConfig.LandingSubscriptionProposalAlreadyHandled.buildLink(), { replace: true });
+    }
+  }, [navigate, proposal]);
+
   const handleSubmit = async (values: FormValues) => {
     await rejectProposal({
       campaignAriesEmailId,
@@ -104,8 +166,31 @@ const RejectSubscriptionProposalContent: React.FC = () => {
     });
 
     setLocalStorageItem(KEY_ARIES_LANDING_API_TOKEN, null);
-    navigate(RouteConfig.LandingDone.buildLink(), { replace: true });
+    navigate(RouteConfig.LandingDoneNonSubscriber.buildLink(), {
+      replace: true,
+      state: { companyInfo: proposal?.companyInfo ?? null },
+    });
   };
+
+  const handleRequestFreeCheckup = async () => {
+    await requestMoreInfo({
+      campaignAriesEmailId,
+      model: {
+        note: 'Vorrei prenotare un sopralluogo gratuito',
+      },
+    });
+
+    setLocalStorageItem(KEY_ARIES_LANDING_API_TOKEN, null);
+    navigate(RouteConfig.LandingDoneFreeCheckup.buildLink(), {
+      replace: true,
+      state: { companyInfo: proposal?.companyInfo ?? null },
+    });
+  };
+
+  if (!Number.isFinite(campaignAriesEmailId) || campaignAriesEmailId <= 0) {
+    navigate(RouteConfig.LandingLinkExpired.buildLink(), { replace: true });
+    return null;
+  }
 
   if (isProposalLoading) {
     return <LoadingScreen />;
@@ -126,226 +211,203 @@ const RejectSubscriptionProposalContent: React.FC = () => {
             alignItems={{ md: 'center' }}
             justifyContent="space-between"
           >
-            <Stack direction="row" spacing={4} alignItems="center">
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 1.5, md: 4 }} alignItems={{ md: 'center' }}>
               <Logo sx={{ height: 60 }} />
               <Box>
                 <Typography variant="h6" fontWeight={700}>
-                  Informazioni sul servizio senza abbonamento
+                  Proteggi cio che conta di piu
                 </Typography>
-                <Typography color="text.secondary">Scelta senza vincoli</Typography>
+                <Typography color="text.secondary">Scelta senza abbonamento, con informazioni chiare</Typography>
               </Box>
             </Stack>
-            <Chip color="primary" variant="outlined" label="Informazione trasparente" />
+            <Chip
+              color="primary"
+              variant="outlined"
+              label="Massima trasparenza"
+              sx={{ display: { xs: 'none', md: 'inline-flex' } }}
+            />
           </Stack>
         </Container>
       </TopBar>
 
       <Container maxWidth="lg">
-        <Stack direction={{ xs: 'column' }} spacing={3}>
-          <HeroCard>
-            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-              <Stack spacing={2.5}>
-                <Stack
-                  direction={{ xs: 'column', md: 'row' }}
-                  spacing={1.5}
-                  justifyContent="space-between"
-                  alignItems={{ md: 'center' }}
-                >
-                  <Chip icon={<InfoOutlined />} color="primary" label="Scelta senza abbonamento" />
-                  <Chip variant="outlined" label="Nessun vincolo" />
-                </Stack>
-
+        <MainCard>
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
+              <Stack spacing={3}>
                 <Box>
                   <Typography variant="h3" fontWeight={700} sx={{ lineHeight: 1.08, mb: 1.5 }}>
-                    Nessun problema: restiamo comunque a tua disposizione
+                    HAI SCELTO DI NON ABBONARTI
                   </Typography>
-                  <Typography color="text.secondary" sx={{ fontSize: 16, lineHeight: 1.75, mb: 1.5 }}>
-                    Se in questo momento preferisci non aderire all&apos;abbonamento, continueremo comunque a essere
-                    disponibili per assisterti quando ne avrai bisogno.
-                  </Typography>
-                  <Typography color="text.secondary" sx={{ fontSize: 16, lineHeight: 1.75 }}>
-                    Vogliamo pero spiegarti in modo chiaro cosa comporta questa scelta, cosi avrai tutte le informazioni
-                    utili prima di decidere.
+                  <Typography color="text.secondary" sx={{ fontSize: 16, lineHeight: 1.8 }}>
+                    Ci dispiace MA NESSUN PROBLEMA! : resteremo comunque a disposizione. Se in questo momento,
+                    preferisci non aderire all&apos;abbonamento, continueremo comunque ad essere disponibili per
+                    assisterti quando ne avrai bisogno.
                   </Typography>
                 </Box>
 
-                <Stack spacing={1.5}>
-                  <InfoCard variant="outlined">
-                    <CardContent>
-                      <Stack direction="row" spacing={2}>
-                        <MoneyOffOutlined color="primary" />
-                        <Box>
-                          <Typography fontWeight={700}>Nessun prezzo agevolato per le manutenzioni</Typography>
-                          <Typography color="text.secondary">
-                            In caso di intervento o manutenzione futura, non verranno applicate le condizioni economiche
-                            riservate agli abbonati.
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </InfoCard>
+                <Divider />
 
-                  <InfoCard variant="outlined">
-                    <CardContent>
-                      <Stack direction="row" spacing={2}>
-                        <LocalPhoneOutlined color="primary" />
-                        <Box>
-                          <Typography fontWeight={700}>
-                            Nessun accesso alla reperibilita telefonica 7 giorni su 7, H24
-                          </Typography>
-                          <Typography color="text.secondary">
-                            Il servizio di reperibilita continuativa e riservato ai clienti che aderiscono
-                            all&apos;abbonamento.
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </InfoCard>
+                <Box>
+                  <Typography variant="h4" fontWeight={700}>
+                    MASSIMA TRASPARENZA
+                  </Typography>
+                  <Typography color="text.secondary" sx={{ mt: 1.25, maxWidth: 900, lineHeight: 1.7 }}>
+                    Vogliamo pero spiegarti in modo chiaro cosa comporta questa scelta, cosi da avere tutte le
+                    informazioni utili prima di confermare la decisione.
+                  </Typography>
+                </Box>
 
-                  <InfoCard variant="outlined">
-                    <CardContent>
-                      <Stack direction="row" spacing={2}>
-                        <AccessTimeOutlined color="primary" />
-                        <Box>
-                          <Typography fontWeight={700}>Supporto sempre disponibile in orario d&apos;ufficio</Typography>
-                          <Typography color="text.secondary">
-                            Per qualsiasi tipo di intervento resteremo comunque a disposizione durante i normali orari
-                            lavorativi.
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </CardContent>
-                  </InfoCard>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </HeroCard>
-          <FormCard>
-            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
-                <Stack spacing={3}>
+                <LandingServiceCards items={serviceCards} />
+
+                <Stack spacing={2.5}>
                   <Box>
-                    <Stack
-                      direction={{ xs: 'column', md: 'row' }}
-                      spacing={1.5}
-                      justifyContent="space-between"
-                      alignItems={{ md: 'center' }}
-                    >
-                      <Typography variant="h4" fontWeight={700}>
-                        Cosa significa scegliere &quot;Non sono interessato&quot;
-                      </Typography>
-                      <Chip variant="outlined" label="Riepilogo" />
-                    </Stack>
-                    <Typography color="text.secondary" sx={{ mt: 1.25, maxWidth: 860, lineHeight: 1.7 }}>
+                    <Typography variant="h6" fontWeight={700}>
+                      Cosa significa scegliere &quot;Non essere interessato&quot;
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ mt: 1, lineHeight: 1.75 }}>
                       La scelta di non aderire all&apos;abbonamento non blocca in alcun modo la possibilita di
-                      richiedere assistenza futura. Semplicemente, gli eventuali interventi verranno gestiti fuori
-                      convenzione, con le normali condizioni applicate ai servizi non in abbonamento.
+                      richiedere assistenza futura. Semplicemente gli interventi verranno gestiti fuori abbonamento, con
+                      le condizioni applicate ai servizi non in abbonamento.
                     </Typography>
                   </Box>
 
-                  <SectionBox>
-                    <Stack spacing={2}>
-                      <Typography variant="h6" fontWeight={700}>
-                        Dati del tuo impianto
-                      </Typography>
+                  <Box>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: {
+                          xs: '1fr',
+                          md: 'repeat(3, minmax(0, 1fr))',
+                        },
+                        gap: { xs: 2, md: 0 },
+                        py: 1,
+                        borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+                        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
                       <Box
                         sx={{
-                          display: 'grid',
-                          gridTemplateColumns: {
-                            xs: '1fr',
-                            md: 'repeat(3, minmax(0, 1fr))',
-                          },
-                          gap: 2,
+                          py: 2,
+                          borderBottom: { xs: (theme) => `1px solid ${theme.palette.divider}`, md: 'none' },
+                          pr: { md: 3 },
                         }}
                       >
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Ragione sociale
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.companyName}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Tipo impianto
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.systemType}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Indirizzo impianto
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.systemAddress}
-                          </Typography>
-                        </SummaryItem>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                        >
+                          Ragione sociale
+                        </Typography>
+                        <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                          {proposal.companyName}
+                        </Typography>
                       </Box>
-                    </Stack>
-                  </SectionBox>
-
-                  <SectionBox>
-                    <Stack spacing={2}>
                       <Box
                         sx={{
-                          display: 'grid',
-                          gridTemplateColumns: {
-                            xs: '1fr',
-                            md: 'repeat(2, minmax(0, 1fr))',
-                          },
-                          gap: 2,
+                          py: 2,
+                          borderBottom: { xs: (theme) => `1px solid ${theme.palette.divider}`, md: 'none' },
+                          px: { md: 3 },
+                          borderLeft: { md: (theme) => `1px solid ${theme.palette.divider}` },
                         }}
                       >
-                        <SummaryItem>
-                          <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                            Manutenzioni future
-                          </Typography>
-                          <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                            Se in futuro vorrai richiedere una manutenzione, il servizio sara disponibile ma senza il
-                            prezzo agevolato previsto per i clienti abbonati.
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                            Supporto telefonico
-                          </Typography>
-                          <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                            Non sara attiva la reperibilita telefonica 7 giorni su 7, H24, ma resteremo comunque
-                            raggiungibili e operativi in orario d&apos;ufficio.
-                          </Typography>
-                        </SummaryItem>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                        >
+                          Tipo impianto
+                        </Typography>
+                        <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                          {formatSystemLabel(proposal.systemType, proposal.systemDescription)}
+                        </Typography>
                       </Box>
-
-                      <Alert severity="warning" sx={{ alignItems: 'flex-start' }}>
-                        <Typography fontWeight={700} sx={{ mb: 0.75 }}>
-                          In ogni caso
+                      <Box
+                        sx={{
+                          py: 2,
+                          pl: { md: 3 },
+                          borderLeft: { md: (theme) => `1px solid ${theme.palette.divider}` },
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                        >
+                          Indirizzo impianto
                         </Typography>
-                        <Typography sx={{ lineHeight: 1.7 }}>
-                          Per qualsiasi esigenza, verifica o richiesta di intervento, il nostro team sara disponibile
-                          durante l&apos;orario d&apos;ufficio per supportarti nel modo piu rapido e chiaro possibile.
+                        <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                          {proposal.systemAddress}
                         </Typography>
-                      </Alert>
-                    </Stack>
-                  </SectionBox>
+                      </Box>
+                    </Box>
+                  </Box>
 
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'repeat(2, minmax(0, 1fr))',
+                      },
+                      gap: 2,
+                    }}
+                  >
+                    <InfoCard variant="outlined">
+                      <CardContent>
+                        <Stack direction="row" spacing={2}>
+                          <ScheduleOutlined color="primary" />
+                          <Box>
+                            <Typography fontWeight={700}>Manutenzioni future</Typography>
+                            <Typography color="text.secondary">
+                              Se in futuro vorrai richiedere una manutenzione, il servizio sara disponibile ma senza il
+                              prezzo agevolato previsto per i clienti abbonati.
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </InfoCard>
+                    <InfoCard variant="outlined">
+                      <CardContent>
+                        <Stack direction="row" spacing={2}>
+                          <PhoneInTalkOutlined color="primary" />
+                          <Box>
+                            <Typography fontWeight={700}>Supporto telefonico</Typography>
+                            <Typography color="text.secondary">
+                              Resteremo comunque raggiungibili e operativi in orario di ufficio. Non potra essere
+                              richiesta la reperibilita telefonica h24.
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </InfoCard>
+                  </Box>
+
+                  <Alert severity="info" sx={{ alignItems: 'flex-start' }}>
+                    Siamo sempre disponibili a chiarire ogni dubbio e a supportare la tua scelta in base alle tue
+                    esigenze.
+                  </Alert>
+                </Stack>
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      lg: 'minmax(0, 1.4fr) minmax(320px, 0.8fr)',
+                    },
+                    gap: 2.5,
+                    alignItems: 'stretch',
+                  }}
+                >
                   <SectionBox>
                     <Stack spacing={2}>
                       <Typography variant="h6" fontWeight={700}>
                         Lascia una nota
+                      </Typography>
+                      <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                        Puoi confermare la tua scelta e aggiungere un messaggio se vuoi comunicarci qualcosa di utile.
                       </Typography>
 
                       <TextField
@@ -353,33 +415,61 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                         label="Nota"
                         fullWidth
                         multiline
-                        minRows={4}
+                        minRows={5}
                         error={!!form.formState.errors.note}
                         helperText={form.formState.errors.note?.message}
                       />
+
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                        <Button type="submit" variant="contained" size="large" color="primary" loading={isRejecting}>
+                          Confermo che non sono interessato
+                        </Button>
+                      </Stack>
                     </Stack>
                   </SectionBox>
 
-                  {rejectError ? (
-                    <Alert severity="error">
-                      Non siamo riusciti a registrare la tua scelta. Riprova tra qualche istante.
-                    </Alert>
-                  ) : null}
+                  <ActionCard variant="outlined">
+                    <CardContent sx={{ p: 3, height: '100%' }}>
+                      <Stack spacing={2} justifyContent="space-between" height="100%">
+                        <Box>
+                          <Chip color="warning" variant="outlined" label="Alternativa disponibile" sx={{ mb: 2 }} />
+                          <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+                            Oppure prenota un check-up gratuito dell&apos;impianto
+                          </Typography>
+                          <Typography color="text.secondary" sx={{ lineHeight: 1.75, mb: 1.5 }}>
+                            Se preferisci non chiudere subito la proposta, puoi richiedere un sopralluogo gratuito per
+                            valutare meglio il tuo impianto prima di decidere.
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            * Non e una manutenzione.
+                          </Typography>
+                        </Box>
 
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
-                    <Button type="submit" variant="contained" size="large" color="primary" loading={isRejecting}>
-                      Non sono interessato
-                    </Button>
-                    <Typography variant="body2" color="text.secondary">
-                      Siamo sempre disponibili a chiarire ogni dubbio e a supportarti nella scelta piu adatta alle tue
-                      esigenze.
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </form>
-            </CardContent>
-          </FormCard>
-        </Stack>
+                        <Button
+                          variant="outlined"
+                          color="warning"
+                          size="large"
+                          endIcon={<ArrowForwardOutlined />}
+                          onClick={handleRequestFreeCheckup}
+                          loading={isRequestingMoreInfo}
+                        >
+                          Richiedi sopralluogo gratuito
+                        </Button>
+                      </Stack>
+                    </CardContent>
+                  </ActionCard>
+                </Box>
+
+                {rejectError || requestMoreInfoError ? (
+                  <Alert severity="error">
+                    Non siamo riusciti a registrare la tua richiesta. Riprova tra qualche istante.
+                  </Alert>
+                ) : null}
+              </Stack>
+            </form>
+          </CardContent>
+        </MainCard>
+        <LandingFooter companyInfo={proposal.companyInfo} hideLogo />
       </Container>
     </PageShell>
   );

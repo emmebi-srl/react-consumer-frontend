@@ -15,6 +15,8 @@ import {
   createCampaignPlaceholder,
   updateCampaignPlaceholder,
   getCampaignMails,
+  getCampaignMailStatuses,
+  getCampaignMailsMetadata,
   getCampaignMailById,
   createCampaignMail,
   updateCampaignMail,
@@ -30,6 +32,7 @@ import {
   CampaignMailCreate,
   CampaignMailDataCreate,
   CampaignMailDataUpdate,
+  CampaignMailSearchRequest,
   CampaignMailUpdate,
   CampaignPlaceholderCreate,
   CampaignPlaceholderSearchRequest,
@@ -41,6 +44,7 @@ import {
 } from '~/types/aries-proxy/campaigns';
 
 const CampaignSearchPageSize = 100;
+const CampaignMailSearchPageSize = 50;
 
 //
 // ------------------------------------------------------------
@@ -64,7 +68,9 @@ export const CampaignQueryKeys = {
   placeholderById: (id: number) => ['CampaignPlaceholder', id] as const,
 
   allMails: ['CampaignMails'] as const,
-  mails: (campaignId: number) => ['CampaignMails', campaignId] as const,
+  allMailStatuses: ['CampaignMailStatuses'] as const,
+  mails: (campaignId: number, params?: CampaignMailSearchRequest) => ['CampaignMails', campaignId, params] as const,
+  mailMetadata: (campaignId: number) => ['CampaignMailMetadata', campaignId] as const,
   mailById: (id: number) => ['CampaignMail', id] as const,
 
   allMailData: ['CampaignMailData'] as const,
@@ -302,10 +308,50 @@ export const useUpdateCampaignPlaceholder = () => {
 // ------------------------------------------------------------
 //
 
-export const useCampaignMails = (campaignId: number) => {
+export const useCampaignMails = (campaignId: number, params?: CampaignMailSearchRequest) => {
+  return useInfiniteQuery({
+    queryKey: CampaignQueryKeys.mails(campaignId, params),
+    queryFn: async ({ pageParam }) => {
+      const pageSize = params?.pageSize ?? CampaignMailSearchPageSize;
+      const pageIndex = pageParam ? Number(pageParam) : (params?.pageIndex ?? 1);
+      const res = await getCampaignMails(campaignId, {
+        ...params,
+        pageIndex,
+        pageSize,
+      });
+
+      return {
+        ...res.data,
+        pageParam: {
+          pageIndex,
+          pageSize,
+        },
+      };
+    },
+    enabled: !!campaignId,
+    initialPageParam: '',
+    getNextPageParam: (data) => {
+      if (data.campaignMails.length < (params?.pageSize ?? CampaignMailSearchPageSize)) {
+        return undefined;
+      }
+
+      const args = data.pageParam;
+      return (Number(args.pageIndex) + 1).toString();
+    },
+  });
+};
+
+export const useCampaignMailStatuses = () => {
   return useQuery({
-    queryKey: CampaignQueryKeys.mails(campaignId),
-    queryFn: async () => (await getCampaignMails(campaignId)).data,
+    queryKey: CampaignQueryKeys.allMailStatuses,
+    queryFn: async () => (await getCampaignMailStatuses()).data,
+  });
+};
+
+export const useCampaignMailsMetadata = (campaignId: number) => {
+  return useQuery({
+    queryKey: CampaignQueryKeys.mailMetadata(campaignId),
+    queryFn: async () => (await getCampaignMailsMetadata(campaignId)).data,
     enabled: !!campaignId,
   });
 };

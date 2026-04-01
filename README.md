@@ -7,6 +7,8 @@ To create a build you can use one of de following commands:
  * `npm run build:prod:siantel`
 
 ### SCP Release 
+delete everything inside build folder
+
 EMMEBI: scp -r /c/Users/MARIO/Documents/Projects/react-consumer-frontend/build mirco@192.168.12.204:/home/mirco/
 SIANTEL: scp -r /c/Users/MARIO/Documents/Projects/react-consumer-frontend/build adminsiantel@192.168.20.241:/home/adminsiantel/
 

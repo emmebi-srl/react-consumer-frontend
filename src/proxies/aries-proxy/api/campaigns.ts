@@ -12,7 +12,10 @@ import {
   CampaignPlaceholderCreate,
   CampaignPlaceholderUpdate,
   CampaignMailList,
+  CampaignMailMetadataResponse,
+  CampaignMailStatusList,
   CampaignMailCreate,
+  CampaignMailSearchRequest,
   CampaignMailUpdate,
   CampaignMailDataList,
   CampaignMailDataCreate,
@@ -109,10 +112,18 @@ export const updateCampaignPlaceholder = (id: number, model: CampaignPlaceholder
 // ------------------------------------------------------------
 //
 
-export const getCampaignMails = (campaignId: number) => {
-  return ariesServicesClient.get<CampaignMailList>('campaign/mail', {
-    params: { campaignId },
+export const getCampaignMails = (campaignId: number, req?: CampaignMailSearchRequest) => {
+  return ariesServicesClient.get<CampaignMailList>(`campaign/${campaignId}/mail`, {
+    params: req,
   });
+};
+
+export const getCampaignMailStatuses = () => {
+  return ariesServicesClient.get<CampaignMailStatusList>('campaign/mail/status');
+};
+
+export const getCampaignMailsMetadata = (campaignId: number) => {
+  return ariesServicesClient.get<CampaignMailMetadataResponse>(`campaign/${campaignId}/mail/metadata`);
 };
 
 export const getCampaignMailById = (id: number) => {
@@ -134,19 +145,17 @@ export const updateCampaignMail = (id: number, model: CampaignMailUpdate) => {
 //
 
 export const getCampaignMailData = (campaignMailId: number) => {
-  return ariesServicesClient.get<CampaignMailDataList>('campaign/mail-data', {
-    params: { campaignMailId },
-  });
+  return ariesServicesClient.get<CampaignMailDataList>(`campaign/mail/${campaignMailId}/data`);
 };
 
 export const getCampaignMailDataById = (id: number) => {
-  return ariesServicesClient.get<CampaignMailDataList>(`campaign/mail-data/${id}`);
+  return ariesServicesClient.get<CampaignMailDataList>(`campaign/maildata/${id}`);
 };
 
 export const createCampaignMailData = (model: CampaignMailDataCreate) => {
-  return ariesServicesClient.post<CampaignMailDataList>('campaign/mail-data', model);
+  return ariesServicesClient.post<CampaignMailDataList>('campaign/maildata', model);
 };
 
 export const updateCampaignMailData = (id: number, model: CampaignMailDataUpdate) => {
-  return ariesServicesClient.patch<CampaignMailDataList>(`campaign/mail-data/${id}`, model);
+  return ariesServicesClient.patch<CampaignMailDataList>(`campaign/maildata/${id}`, model);
 };

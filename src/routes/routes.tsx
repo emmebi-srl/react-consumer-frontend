@@ -9,20 +9,35 @@ import RedirectWithQueryParams from './RedirectWithQueryParams';
 
 const Login = asyncComponent(() => import('../views/auth/login/LoginView'));
 const Logout = asyncComponent(() => import('../views/auth/logout/LogoutView'));
+const LandingUnsubscribeCampaignView = asyncComponent(
+  () => import('../views/landing/unsubscribe-campaign/UnsubscribeCampaignView'),
+);
 const LandingAcceptSubscriptionProposalView = asyncComponent(
   () => import('../views/landing/accept-subscription-proposal/AcceptSubscriptionProposalView'),
 );
 const LandingRejectSubscriptionProposalView = asyncComponent(
   () => import('../views/landing/reject-subscription-proposal/RejectSubscriptionProposalView'),
 );
+const LandingSubscriptionProposalAlreadyHandledView = asyncComponent(
+  () => import('../views/landing/subscription-proposal-already-handled/SubscriptionProposalAlreadyHandledView'),
+);
 const LandingLinkExpiredView = asyncComponent(() => import('../views/landing/link-expired/LinkExpiredView'));
-const LandingDoneView = asyncComponent(() => import('../views/landing/done/LandingDoneView'));
+const LandingDoneSubscriptionActivatedView = asyncComponent(
+  () => import('../views/landing/done-subscription-activated/LandingDoneSubscriptionActivatedView'),
+);
+const LandingDoneNonSubscriberView = asyncComponent(
+  () => import('../views/landing/done-non-subscriber/LandingDoneNonSubscriberView'),
+);
+const LandingDoneFreeCheckupView = asyncComponent(
+  () => import('../views/landing/done-free-checkup/LandingDoneFreeCheckupView'),
+);
 const InterventionsNearby = asyncComponent(() => import('../views/interventions/nearby/InterventionsNearbyView'));
 const CustomerList = asyncComponent(() => import('../views/customers/list/CustomerListView'));
 const ChecklistListView = asyncComponent(() => import('../views/checklists/list/ChecklistListView'));
 const ChecklistDetailView = asyncComponent(() => import('../views/checklists/detail/ChecklistDetailView'));
 const CampaignListView = asyncComponent(() => import('../views/campaigns/list/CampaignListView'));
 const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/CampaignNewView'));
+const CampaignDetailView = asyncComponent(() => import('../views/campaigns/detail/CampaignDetailView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
 
@@ -44,6 +59,10 @@ const routes: RouteObject[] = [
         element: <Logout />,
       },
       {
+        path: RouteConfig.LandingUnsubscribeCampaign.template,
+        element: <LandingUnsubscribeCampaignView />,
+      },
+      {
         path: RouteConfig.LandingAcceptSubscriptionProposal.template,
         element: <LandingAcceptSubscriptionProposalView />,
       },
@@ -52,12 +71,24 @@ const routes: RouteObject[] = [
         element: <LandingRejectSubscriptionProposalView />,
       },
       {
+        path: RouteConfig.LandingSubscriptionProposalAlreadyHandled.template,
+        element: <LandingSubscriptionProposalAlreadyHandledView />,
+      },
+      {
         path: RouteConfig.LandingLinkExpired.template,
         element: <LandingLinkExpiredView />,
       },
       {
-        path: RouteConfig.LandingDone.template,
-        element: <LandingDoneView />,
+        path: RouteConfig.LandingDoneSubscriptionActivated.template,
+        element: <LandingDoneSubscriptionActivatedView />,
+      },
+      {
+        path: RouteConfig.LandingDoneNonSubscriber.template,
+        element: <LandingDoneNonSubscriberView />,
+      },
+      {
+        path: RouteConfig.LandingDoneFreeCheckup.template,
+        element: <LandingDoneFreeCheckupView />,
       },
       {
         path: '*',
@@ -90,6 +121,10 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.CampaignNew.template,
             element: <CampaignNewView />,
+          },
+          {
+            path: RouteConfig.CampaignDetail.template,
+            element: <CampaignDetailView />,
           },
           {
             path: RouteConfig.QuoteList.template,

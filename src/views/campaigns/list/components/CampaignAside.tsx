@@ -23,6 +23,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Delete, ToggleOff, ToggleOn } from '@mui/icons-material';
 import { resolveError } from '~/hooks/useExceptionLogger';
+import { Link as RouterLink } from 'react-router-dom';
+import { RouteConfig } from '~/routes/routeConfig';
 
 const EditCampaignFormSchema = z.object({
   name: z.string().min(1, { message: 'Nome è obbligatorio' }),
@@ -210,6 +212,13 @@ const CampaignActions: React.FC<{ campaign: Campaign }> = ({ campaign }) => {
         </Alert>
       )}
       <Stack gap={2} direction="row" justifyContent="center">
+        <Button
+          component={RouterLink}
+          to={RouteConfig.CampaignDetail.buildLink({ campaignId: String(campaign.id) })}
+          variant="contained"
+        >
+          Vedi dettagli
+        </Button>
         {campaign.active ? (
           <Button
             variant="outlined"

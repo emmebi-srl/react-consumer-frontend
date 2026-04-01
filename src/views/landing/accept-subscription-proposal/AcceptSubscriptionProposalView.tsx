@@ -4,26 +4,35 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Container,
+  Divider,
   MenuItem,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import { alpha, styled } from '@mui/material/styles';
-import { CalendarMonthOutlined, PhoneInTalkOutlined, VerifiedOutlined } from '@mui/icons-material';
+import {
+  BuildOutlined,
+  Inventory2Outlined,
+  PhoneInTalkOutlined,
+  RequestQuoteOutlined,
+  ScheduleOutlined,
+  SupportAgentOutlined,
+} from '@mui/icons-material';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import z from 'zod';
 import LandingAccessToken from '~/components/Landing/LandingAccessToken';
+import LandingFooter from '~/components/Landing/LandingFooter';
+import LandingServiceCards, { LandingServiceCardItem } from '~/components/Landing/LandingServiceCards';
+import Logo from '~/components/Layout/Logo';
 import LoadingScreen from '~/components/Loading/LoadingScreen';
 import { useAcceptSubscriptionProposal, useSubscriptionProposal } from '~/proxies/aries-proxy/landing';
 import { RouteConfig } from '~/routes/routeConfig';
 import { KEY_ARIES_LANDING_API_TOKEN, setLocalStorageItem } from '~/utils/local-storage';
-import Logo from '~/components/Layout/Logo';
 import AcceptanceCheckboxField from './components/AcceptanceCheckboxField';
 
 const monthOptions = [
@@ -39,6 +48,33 @@ const monthOptions = [
   { value: 10, label: 'Ottobre' },
   { value: 11, label: 'Novembre' },
   { value: 12, label: 'Dicembre' },
+];
+
+const serviceCards: LandingServiceCardItem[] = [
+  {
+    description: 'Priorita nelle urgenze, con gestione in giornata quando necessario.',
+    icon: <SupportAgentOutlined color="primary" fontSize="large" />,
+    title: 'Reperibilita telefonica h24',
+    value: 'H24 7/7',
+  },
+  {
+    description: 'Prezzo vantaggioso e gestione con priorita rispetto ai servizi fuori abbonamento.',
+    icon: <RequestQuoteOutlined color="primary" fontSize="large" />,
+    title: 'Costo per interventi',
+    value: 'Prezzo vantaggioso scontato',
+  },
+  {
+    description: 'Check-up pianificati secondo le scadenze programmate della proposta.',
+    icon: <BuildOutlined color="primary" fontSize="large" />,
+    title: 'Costo per manutenzione',
+    value: 'Prezzo vantaggioso e bloccato',
+  },
+  {
+    description: 'Disponibilita e fornitura gestite secondo magazzino, con condizioni agevolate.',
+    icon: <Inventory2Outlined color="primary" fontSize="large" />,
+    title: 'Costo materiale ricambio',
+    value: 'Prezzo vantaggioso scontato',
+  },
 ];
 
 const formatCurrency = (value: number) =>
@@ -77,30 +113,17 @@ const TopBar = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(4),
 }));
 
-const HeroCard = styled(Card)(({ theme }) => ({
+const MainCard = styled(Card)(({ theme }) => ({
   borderRadius: 24,
   border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
   boxShadow: '0 12px 30px rgba(15, 23, 42, 0.08)',
   overflow: 'hidden',
 }));
 
-const FormCard = styled(Card)(({ theme }) => ({
-  borderRadius: 24,
-  border: `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-  boxShadow: '0 18px 38px rgba(15, 23, 42, 0.1)',
-}));
-
 const InfoCard = styled(Card)(({ theme }) => ({
   borderRadius: 20,
   border: `1px solid ${theme.palette.divider}`,
   backgroundColor: alpha(theme.palette.primary.light, 0.08),
-}));
-
-const SummaryItem = styled(Box)(({ theme }) => ({
-  borderRadius: 16,
-  border: `1px solid ${theme.palette.divider}`,
-  backgroundColor: theme.palette.common.white,
-  padding: theme.spacing(2),
 }));
 
 const SectionBox = styled(Box)(({ theme }) => ({
@@ -112,7 +135,6 @@ const SectionBox = styled(Box)(({ theme }) => ({
 
 const AcceptSubscriptionProposalContent: React.FC = () => {
   const navigate = useNavigate();
-
   const [searchParams] = useSearchParams();
   const campaignAriesEmailId = Number(searchParams.get('campaignAriesEmailId'));
 
@@ -165,6 +187,13 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
     }
   }, [navigate, proposalError]);
 
+  useEffect(() => {
+    if (proposal?.isInFinalState) {
+      setLocalStorageItem(KEY_ARIES_LANDING_API_TOKEN, null);
+      navigate(RouteConfig.LandingSubscriptionProposalAlreadyHandled.buildLink(), { replace: true });
+    }
+  }, [navigate, proposal]);
+
   const handleSubmit = async (values: FormValues) => {
     if (!proposal) {
       return;
@@ -202,12 +231,15 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
     });
 
     setLocalStorageItem(KEY_ARIES_LANDING_API_TOKEN, null);
-    navigate(RouteConfig.LandingDone.buildLink(), { replace: true });
+    navigate(RouteConfig.LandingDoneSubscriptionActivated.buildLink(), {
+      replace: true,
+      state: { companyInfo: proposal.companyInfo ?? null },
+    });
   };
 
   if (!Number.isFinite(campaignAriesEmailId) || campaignAriesEmailId <= 0) {
     navigate(RouteConfig.LandingLinkExpired.buildLink(), { replace: true });
-    return;
+    return null;
   }
 
   if (isProposalLoading) {
@@ -217,6 +249,8 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
   if (!proposal) {
     return null;
   }
+
+  const systemLabel = [proposal.systemType, proposal.systemDescription].filter(Boolean).join(' - ');
 
   return (
     <PageShell>
@@ -229,55 +263,172 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
             alignItems={{ md: 'center' }}
             justifyContent="space-between"
           >
-            <Stack direction="row" spacing={4} alignItems="center">
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 1.5, md: 4 }} alignItems={{ md: 'center' }}>
               <Logo sx={{ height: 60 }} />
               <Box>
                 <Typography variant="h6" fontWeight={700}>
-                  Proposta abbonamento manutenzione
+                  Proteggi cio che conta di piu
                 </Typography>
-                <Typography color="text.secondary">Conferma guidata senza login</Typography>
+                <Typography color="text.secondary">Proposta di abbonamento, con informazioni chiare</Typography>
               </Box>
             </Stack>
-            <Chip color="primary" variant="outlined" label="Link riservato" />
           </Stack>
         </Container>
       </TopBar>
 
       <Container maxWidth="lg">
         <Stack spacing={3}>
-          <Stack direction={{ xs: 'column' }} spacing={3} alignItems="stretch">
-            <HeroCard sx={{ flex: 1.15 }}>
-              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                <Stack spacing={2.5}>
-                  <Stack
-                    direction={{ xs: 'column', md: 'row' }}
-                    spacing={1.5}
-                    justifyContent="space-between"
-                    alignItems={{ md: 'center' }}
-                  >
-                    <Chip
-                      icon={<VerifiedOutlined />}
-                      color="primary"
-                      label="Proposta personalizzabile di abbonamento"
-                    />
-                    <Chip variant="outlined" label="Servizio attivo" />
-                  </Stack>
+          <MainCard>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
+                <Stack spacing={3}>
                   <Box>
                     <Typography variant="h3" fontWeight={700} sx={{ lineHeight: 1.08, mb: 1.5 }}>
-                      Accetta la proposta di abbonamento
+                      SIAMO FELICI CHE TU STIA VALUTANDO DI ABBONARTI
                     </Typography>
-                    <Typography color="text.secondary" sx={{ fontSize: 16, lineHeight: 1.75 }}>
+                    <Typography color="text.secondary" sx={{ fontSize: 16, lineHeight: 1.8, maxWidth: 980 }}>
                       Qui puoi consultare il riepilogo della proposta ricevuta e indicare i mesi preferiti per le
                       manutenzioni previste.
                     </Typography>
                   </Box>
-                  <Stack spacing={1.5}>
+
+                  <Divider />
+
+                  <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                      MASSIMA TRASPARENZA
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ mt: 1.25, maxWidth: 920, lineHeight: 1.7 }}>
+                      Ti mostriamo in modo chiaro cosa include l&apos;abbonamento, cosi da poter confermare la proposta
+                      con tutte le informazioni utili.
+                    </Typography>
+                  </Box>
+
+                  <LandingServiceCards items={serviceCards} />
+
+                  <Divider />
+
+                  <SectionBox>
+                    <Stack spacing={2}>
+                      <Typography variant="h6" fontWeight={700}>
+                        Condizioni generali
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.4fr) minmax(220px, 0.8fr)' },
+                        }}
+                      >
+                        {[
+                          ['Reperibilita telefonica h24', `${formatCurrency(proposal.callRightPrice)} / anno`],
+                          ['Costo per interventi', 'EUR 44,00 anziche EUR 65,00'],
+                          [
+                            'Costo per manutenzione',
+                            `${formatCurrency(proposal.singleMaintenancePrice)} cad. - ${proposal.maintenanceCount} manutenzioni`,
+                          ],
+                          ['Automezzo / trasferta', 'EUR 0,75 Km / a pie di lista'],
+                          ['Costo materiale ricambio', 'A listino con sconto 10%'],
+                        ].map(([label, value], index) => (
+                          <React.Fragment key={label}>
+                            <Box
+                              sx={{
+                                py: 1.5,
+                                pr: { md: 3 },
+                                borderTop: index === 0 ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
+                              }}
+                            >
+                              <Typography fontWeight={600}>{label}</Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                py: 1.5,
+                                color: 'text.secondary',
+                                borderTop: index === 0 ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
+                              }}
+                            >
+                              <Typography>{value}</Typography>
+                            </Box>
+                          </React.Fragment>
+                        ))}
+                      </Box>
+                    </Stack>
+                  </SectionBox>
+
+                  <Box>
+                    <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                      Dati impianto
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: {
+                          xs: '1fr',
+                          md: 'repeat(3, minmax(0, 1fr))',
+                        },
+                        gap: { xs: 2, md: 0 },
+                        py: 1,
+                        borderTop: (theme) => `1px solid ${theme.palette.divider}`,
+                        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
+                      {[
+                        ['Ragione sociale', proposal.companyName],
+                        ['Descrizione', systemLabel],
+                        ['Indirizzo', proposal.systemAddress],
+                      ].map(([label, value], index) => {
+                        const isFirstColumn = index % 3 === 0;
+                        const isMiddleColumn = index % 3 === 1;
+                        const isLastColumn = index % 3 === 2;
+
+                        return (
+                          <Box
+                            key={label}
+                            sx={{
+                              py: 2,
+                              ...(isMiddleColumn ? { px: { md: 3 } } : {}),
+                              ...(isLastColumn ? { pl: { md: 3 } } : {}),
+                              ...(isFirstColumn ? { pr: { md: 3 } } : {}),
+                              borderBottom: {
+                                xs: index < 2 ? (theme) => `1px solid ${theme.palette.divider}` : 'none',
+                                md: 'none',
+                              },
+                              borderLeft: {
+                                md: isFirstColumn ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
+                              },
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                            >
+                              {label}
+                            </Typography>
+                            <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                              {value}
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: 'repeat(2, minmax(0, 1fr))',
+                      },
+                      gap: 2,
+                    }}
+                  >
                     <InfoCard variant="outlined">
                       <CardContent>
                         <Stack direction="row" spacing={2}>
-                          <VerifiedOutlined color="primary" />
+                          <ScheduleOutlined color="primary" />
                           <Box>
-                            <Typography fontWeight={700}>Manutenzione programmata</Typography>
+                            <Typography fontWeight={700}>Manutenzioni periodiche</Typography>
                             <Typography color="text.secondary">
                               Check-up periodici per mantenere il sistema affidabile e senza sorprese.
                             </Typography>
@@ -288,179 +439,23 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                     <InfoCard variant="outlined">
                       <CardContent>
                         <Stack direction="row" spacing={2}>
-                          <CalendarMonthOutlined color="primary" />
-                          <Box>
-                            <Typography fontWeight={700}>Proposta definita</Typography>
-                            <Typography color="text.secondary">
-                              La proposta prevede {proposal.maintenanceCount} manutenzioni al prezzo di{' '}
-                              {formatCurrency(proposal.singleMaintenancePrice)} ciascuna.
-                            </Typography>
-                          </Box>
-                        </Stack>
-                      </CardContent>
-                    </InfoCard>
-                    <InfoCard variant="outlined">
-                      <CardContent>
-                        <Stack direction="row" spacing={2}>
                           <PhoneInTalkOutlined color="primary" />
                           <Box>
-                            <Typography fontWeight={700}>Reperibilita telefonica inclusa 7 giorni su 7, H24</Typography>
+                            <Typography fontWeight={700}>Supporto telefonico incluso</Typography>
                             <Typography color="text.secondary">
-                              Servizio attivato con addebito iniziale di {formatCurrency(proposal.callRightPrice)} +
-                              fattura.
+                              Reperibilita telefonica inclusa h24, 7 giorni su 7.
                             </Typography>
                           </Box>
                         </Stack>
                       </CardContent>
                     </InfoCard>
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </HeroCard>
-
-            <InfoCard sx={{ flex: 0.85, alignSelf: 'stretch' }}>
-              <CardContent sx={{ p: { xs: 3, md: 4 }, display: 'flex', alignItems: 'center', height: '100%' }}>
-                <Typography color="text.secondary" sx={{ fontSize: 15, lineHeight: 1.8 }}>
-                  Una volta inviata la richiesta, il nostro team potra ricontattarti per confermare i dettagli e
-                  procedere con l'attivazione dell'abbonamento scelto.
-                </Typography>
-              </CardContent>
-            </InfoCard>
-          </Stack>
-
-          <FormCard>
-            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
-                <Stack spacing={3}>
-                  <Box>
-                    <Stack
-                      direction={{ xs: 'column', md: 'row' }}
-                      spacing={1.5}
-                      justifyContent="space-between"
-                      alignItems={{ md: 'center' }}
-                    >
-                      <Typography variant="h4" fontWeight={700}>
-                        Personalizza e accetta la proposta
-                      </Typography>
-                      <Chip variant="outlined" label="Step finale" />
-                    </Stack>
-                    <Typography color="text.secondary" sx={{ mt: 1.25, maxWidth: 820, lineHeight: 1.7 }}>
-                      Qui sotto trovi il riepilogo dei dati della proposta e puoi indicare i mesi preferiti per la
-                      pianificazione.
-                    </Typography>
                   </Box>
 
                   <SectionBox>
                     <Stack spacing={2}>
                       <Typography variant="h6" fontWeight={700}>
-                        Dati gia presenti
+                        Selezione mesi manutenzione
                       </Typography>
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns: {
-                            xs: '1fr',
-                            md: 'repeat(3, minmax(0, 1fr))',
-                          },
-                          gap: 2,
-                        }}
-                      >
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Ragione sociale
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.companyName}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Tipo impianto
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.systemType}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Descrizione impianto
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.systemDescription}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Indirizzo impianto
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.systemAddress}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Prezzo manutenzione
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {formatCurrency(proposal.singleMaintenancePrice)}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Numero manutenzioni consigliate
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {proposal.maintenanceCount}
-                          </Typography>
-                        </SummaryItem>
-                        <SummaryItem>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
-                          >
-                            Diritto di chiamata
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
-                            {formatCurrency(proposal.callRightPrice)}
-                          </Typography>
-                        </SummaryItem>
-                      </Box>
-                    </Stack>
-                  </SectionBox>
-
-                  <SectionBox>
-                    <Stack spacing={2}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h6" fontWeight={700}>
-                          Pianificazione manutenzioni
-                        </Typography>
-                        <Chip size="small" label="1" />
-                      </Stack>
                       <Box
                         sx={{
                           display: 'grid',
@@ -481,12 +476,6 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                               label="Numero manutenzioni"
                               value={field.value}
                               onChange={(event) => field.onChange(Number(event.target.value))}
-                              sx={{
-                                gridColumn: {
-                                  xs: 'span 1',
-                                  md: 'span 1',
-                                },
-                              }}
                             >
                               {Array.from({ length: proposal.maintenanceCount }, (_, index) => index + 1).map(
                                 (count) => (
@@ -569,15 +558,16 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                     </Stack>
                   </SectionBox>
 
-                  <SectionBox>
-                    <Stack spacing={2}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h6" fontWeight={700}>
-                          Note e accettazione
-                        </Typography>
-                        <Chip size="small" label="2" />
-                      </Stack>
+                  <Divider />
+                  <Box>
+                    <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                      Confermo la mia volonta di abbonarmi
+                    </Typography>
+                    <Typography color="text.secondary" sx={{ lineHeight: 1.75, mb: 2.5 }}>
+                      Bene, puoi confermare la proposta e inviarci eventuali note aggiuntive prima dell&apos;invio.
+                    </Typography>
 
+                    <Stack spacing={2}>
                       <TextField {...form.register('notes')} label="Note aggiuntive" fullWidth multiline minRows={4} />
 
                       <Alert severity="warning" sx={{ alignItems: 'flex-start' }}>
@@ -585,10 +575,10 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                           Informazione importante
                         </Typography>
                         <Typography sx={{ lineHeight: 1.7 }}>
-                          Con l'adesione all'abbonamento viene attivato il servizio di reperibilita telefonica 7 giorni
-                          su 7, H24, al costo di <strong>{formatCurrency(proposal.callRightPrice)} + fattura</strong>,
-                          con addebito immediato e relativa fattura. In caso di accettazione successiva al mese di
-                          gennaio, l'importo potra essere ridotto proporzionalmente.
+                          Con l&apos;adesione all&apos;abbonamento verra attivato il servizio di reperibilita telefonica
+                          H24 al costo di <strong>{formatCurrency(proposal.callRightPrice)}</strong> con fatturazione
+                          immediata. In caso di accettazione successiva al mese di gennaio, l&apos;importo verra ridotto
+                          proporzionalmente.
                         </Typography>
                       </Alert>
 
@@ -599,7 +589,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                           <AcceptanceCheckboxField
                             checked={field.value}
                             errorMessage={form.formState.errors.acceptFee?.message}
-                            label="Confermo di aver letto e accettato l'addebito iniziale relativo alla reperibilita telefonica 7 giorni su 7, H24."
+                            label="Confermo di aver letto e accettato l'addebito iniziale relativo alla reperibilita telefonica h24."
                             onChange={field.onChange}
                           />
                         )}
@@ -612,32 +602,30 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                           <AcceptanceCheckboxField
                             checked={field.value}
                             errorMessage={form.formState.errors.acceptProposal?.message}
-                            label="Accetto la proposta di abbonamento selezionata e autorizzo il contatto da parte del vostro team per completare l'attivazione."
+                            label="Accetto la proposta di abbonamento selezionata e autorizzo il contatto da parte vostra per completare l'attivazione."
                             onChange={field.onChange}
                           />
                         )}
                       />
+
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                        <Button type="submit" variant="contained" size="large" loading={isAccepting}>
+                          Conferma e aderisci
+                        </Button>
+                      </Stack>
                     </Stack>
-                  </SectionBox>
+                  </Box>
 
                   {acceptError ? (
                     <Alert severity="error">
-                      Non siamo riusciti a registrare l'accettazione della proposta. Riprova tra qualche istante.
+                      Non siamo riusciti a registrare l&apos;accettazione della proposta. Riprova tra qualche istante.
                     </Alert>
                   ) : null}
-
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
-                    <Button type="submit" variant="contained" size="large" loading={isAccepting}>
-                      Conferma la mia richiesta
-                    </Button>
-                    <Typography variant="body2" color="text.secondary">
-                      Dopo l'invio verrai reindirizzato a una pagina di conferma finale.
-                    </Typography>
-                  </Stack>
                 </Stack>
               </form>
             </CardContent>
-          </FormCard>
+          </MainCard>
+          <LandingFooter hideLogo companyInfo={proposal.companyInfo} />
         </Stack>
       </Container>
     </PageShell>
