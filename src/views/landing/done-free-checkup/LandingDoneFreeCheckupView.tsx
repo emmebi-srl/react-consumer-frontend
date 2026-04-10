@@ -16,7 +16,7 @@ const LandingDoneFreeCheckupView: React.FC = () => {
       alertText="Richiesta di sopralluogo inviata"
       companyInfo={state?.companyInfo}
       messages={[
-        'La tua richiesta di sopralluogo gratuito e stata registrata correttamente.',
+        'La tua richiesta di sopralluogo gratuito è stata registrata correttamente.',
         'A breve sarai contattato per concordare i dettagli del sopralluogo.',
       ]}
       severity="info"

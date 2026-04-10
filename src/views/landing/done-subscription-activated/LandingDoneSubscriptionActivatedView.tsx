@@ -18,8 +18,8 @@ const LandingDoneSubscriptionActivatedView: React.FC = () => {
       companyInfo={state?.companyInfo}
       messages={[
         companyName
-          ? `L'attivazione dell'abbonamento dovra essere convalidata da ${companyName}. A breve sarai contattato.`
-          : "L'attivazione dell'abbonamento dovra essere convalidata dal nostro team. A breve sarai contattato.",
+          ? `L'attivazione dell'abbonamento dovrà essere convalidata da ${companyName}. A breve sarai contattato.`
+          : "L'attivazione dell'abbonamento dovrà essere convalidata dal nostro team. A breve sarai contattato.",
       ]}
       severity="success"
       title="Grazie!"

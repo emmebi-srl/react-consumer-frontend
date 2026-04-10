@@ -30,8 +30,8 @@ export interface CampaignCreate {
   description: string;
   mailTemplate: string;
   mailSubject: string;
-  activationDate?: string | null;
-  deactivatioDate?: string | null;
+  activationDate?: number | null;
+  deactivationDate?: number | null;
   active: boolean;
 }
 
@@ -41,8 +41,8 @@ export interface CampaignUpdate {
   description?: string | null;
   mailSubject?: string | null;
   mailTemplatePath?: string;
-  activationDate?: string | null;
-  deactivatioDate?: string | null;
+  activationDate?: number | null;
+  deactivationDate?: number | null;
   active?: boolean | null;
 }
 
@@ -66,6 +66,18 @@ export interface CampaignTypeCreate {
 
 export interface CampaignTypeUpdate {
   name?: string | null;
+}
+
+// ==============================
+// Campaign Global Placeholder
+// ==============================
+export interface CampaignGlobalPlaceholderList {
+  campaignGlobalPlaceholders: CampaignGlobalPlaceholder[];
+}
+
+export interface CampaignGlobalPlaceholder {
+  name: string;
+  description: string;
 }
 
 // ==============================
@@ -109,12 +121,13 @@ export interface CampaignMail {
   mailId?: number | null;
   statusId?: number | null;
   email: string;
-  sendDate: string;
+  sendDate: number;
   isProcessed: boolean;
   isRead: boolean;
   hasInteracted: boolean;
+  isUnsubscribed: boolean;
   processingError: string;
-  insertionDate: string;
+  insertionDate: number;
   customer?: Customer;
   system?: System;
   status?: CampaignMailStatus;
@@ -155,7 +168,7 @@ export interface CampaignMailCreate {
   mailId?: number | null;
   statusId?: number | null;
   email: string;
-  sendDate?: string | null;
+  sendDate?: number | null;
   isProcessed?: boolean | null;
   processingError?: string | null;
 }
@@ -167,7 +180,7 @@ export interface CampaignMailUpdate {
   mailId?: number | null;
   statusId?: number | null;
   email?: string | null;
-  sendDate?: string | null;
+  sendDate?: number | null;
   isProcessed?: boolean | null;
   processingError?: string | null;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getMomentByUnixtimestamp, getStringDateByUnixtimestamp } from '../../../../utils/datetime-utils';
+import { getDateByUnixtimestamp, getStringDateByUnixtimestamp } from '../../../../utils/datetime-utils';
 import {
   Accordion,
   AccordionDetails,
@@ -21,7 +21,7 @@ import { Stack } from '@mui/system';
 import { formatLocaleNumber } from '~/utils/number-utils';
 import { ArrowDropDown } from '@mui/icons-material';
 import { getMonthName } from '~/utils/months-utils';
-import { getMonth } from 'date-fns';
+import { getMonth, getYear } from 'date-fns';
 
 const SearchItemList: React.FC<{
   work: Work;
@@ -33,7 +33,7 @@ const SearchItemList: React.FC<{
   const tickets = work.items.filter((el) => el.workType === WorkTypeEnum.Ticket);
 
   const maintenanceDate = maintenance?.expirationDate
-    ? getMomentByUnixtimestamp({ unixTimestamp: maintenance.expirationDate })
+    ? getDateByUnixtimestamp({ unixTimestamp: maintenance.expirationDate })
     : null;
 
   const bgcolor = isEven ? 'background.paper' : 'grey.100';
@@ -106,7 +106,7 @@ const SearchItemList: React.FC<{
                       {maintenanceDate ? (
                         <>
                           {' '}
-                          - {getMonthName(getMonth(maintenanceDate.toDate()))} {maintenanceDate.year()}
+                          - {getMonthName(getMonth(maintenanceDate))} {getYear(maintenanceDate)}
                         </>
                       ) : null}
                     </TableCell>

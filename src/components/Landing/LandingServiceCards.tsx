@@ -60,13 +60,13 @@ const LandingServiceCards: React.FC<LandingServiceCardsProps> = ({ items }) => {
                 >
                   {item.icon}
                 </Box>
-                <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ lineHeight: 1.2 }}>
                   {item.title}
                 </Typography>
               </Box>
 
               <Box sx={{ px: 2.5, py: 2.5 }}>
-                <Typography variant="h5" fontWeight={700} sx={{ mb: 0.75, fontSize: { xs: 22, md: 24 } }}>
+                <Typography variant="h6" fontWeight={700} sx={{ mb: 0.75 }}>
                   {item.value}
                 </Typography>
                 <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>

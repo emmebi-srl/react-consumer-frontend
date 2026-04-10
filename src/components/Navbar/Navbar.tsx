@@ -23,6 +23,7 @@ const Navbar = () => {
   const isInterventionsActive = Boolean(useRouteMatch([RouteConfig.InterventionsNearby.buildLink()]));
   const isChecklistListActive = Boolean(useRouteMatch([RouteConfig.ChecklistList.buildLink()]));
   const isCustomerListActive = Boolean(useRouteMatch([RouteConfig.CustomerList.buildLink()]));
+  const isSystemListActive = Boolean(useRouteMatch([RouteConfig.SystemList.buildLink()]));
   const isCampaignMailActive = Boolean(useRouteMatch([RouteConfig.CampaignList.buildLink()]));
   const isQuoteActive = Boolean(useRouteMatch([RouteConfig.QuoteList.buildLink()]));
 
@@ -47,6 +48,14 @@ const Navbar = () => {
               to={RouteConfig.CustomerList.buildLink()}
             >
               Clienti
+            </Button>
+            <Button
+              sx={{ my: 2, color: 'white', display: 'block' }}
+              component={Link}
+              variant={isSystemListActive ? 'outlined' : 'text'}
+              to={RouteConfig.SystemList.buildLink()}
+            >
+              Impianti
             </Button>
             <Button
               sx={{ my: 2, color: 'white', display: 'block' }}

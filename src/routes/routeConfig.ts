@@ -39,6 +39,7 @@ export const RouteConfig = {
   LandingDoneNonSubscriber: defineRoute('landing/done-non-subscriber'),
   LandingDoneFreeCheckup: defineRoute('landing/done-free-checkup'),
   CustomerList: defineRoute('customers'),
+  SystemList: defineRoute('systems'),
   ChecklistList: defineRoute('checklists'),
   ChecklistDetail: defineRoute('checklists/:checklistId'),
   InterventionsNearby: defineRoute('interventions/nearby'),

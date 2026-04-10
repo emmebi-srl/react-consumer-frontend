@@ -23,7 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '~/components/Layout/PageContainer';
-import { useCampaignPlaceholdersSearch, useCampaignTypes, useCreateCampaign } from '~/proxies/aries-proxy/campaigns';
+import { useCampaignAvailablePlaceholders, useCampaignTypes, useCreateCampaign } from '~/proxies/aries-proxy/campaigns';
 import { CampaignCreate } from '~/types/aries-proxy/campaigns';
 import CampaignTemplateDropZone from './components/CampaignTemplateDropZone';
 import { Grid } from '@mui/system';
@@ -63,9 +63,7 @@ const CampaignNewView = () => {
   });
 
   const campaignTypeId = form.watch('campaignTypeId');
-  const { data: placeholdersData } = useCampaignPlaceholdersSearch(campaignTypeId ? { campaignTypeId } : {}, {
-    enabled: Boolean(campaignTypeId),
-  });
+  const { data: placeholders, isLoading: arePlaceholdersLoading } = useCampaignAvailablePlaceholders(campaignTypeId);
 
   const handleSubmit = async (values: CampaignFormValues) => {
     const payload: CampaignCreate = {
@@ -200,8 +198,16 @@ const CampaignNewView = () => {
                       <TableCell>Descrizione</TableCell>
                     </TableHead>
                     <TableBody>
-                      {placeholdersData?.campaignPlaceholders.length ? (
-                        placeholdersData.campaignPlaceholders.map((placeholder) => (
+                      {arePlaceholdersLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={2}>
+                            <Typography variant="body2" color="textSecondary">
+                              Caricamento parametri configurabili...
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ) : placeholders.length ? (
+                        placeholders.map((placeholder) => (
                           <TableRow key={placeholder.name}>
                             <TableCell>
                               <code>{`{{${placeholder.name}}}`}</code>
@@ -213,7 +219,7 @@ const CampaignNewView = () => {
                         <TableRow>
                           <TableCell colSpan={2}>
                             <Typography variant="body2" color="textSecondary">
-                              Nessun parametro configurabile disponibile per questo tipo di campagna.
+                              Nessun parametro configurabile disponibile.
                             </Typography>
                           </TableCell>
                         </TableRow>

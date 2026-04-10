@@ -16,8 +16,11 @@ import { EmailOutlined, NotificationsOffOutlined } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import LandingAccessToken from '~/components/Landing/LandingAccessToken';
+import LandingFooter from '~/components/Landing/LandingFooter';
+import LandingPageHeader from '~/components/Landing/LandingPageHeader';
 import LoadingScreen from '~/components/Loading/LoadingScreen';
-import Logo from '~/components/Layout/Logo';
+import ConfirmationModal from '~/components/Modals/ConfirmationModal';
+import { useModal } from '~/modals/Modal';
 import { useCampaignUnsubscribeInfo, useUnsubscribeCampaign } from '~/proxies/aries-proxy/landing';
 import { RouteConfig } from '~/routes/routeConfig';
 import { KEY_ARIES_LANDING_API_TOKEN, setLocalStorageItem } from '~/utils/local-storage';
@@ -59,6 +62,7 @@ const SummaryItem = styled(Box)(({ theme }) => ({
 
 const UnsubscribeCampaignContent: React.FC = () => {
   const navigate = useNavigate();
+  const modal = useModal();
   const [searchParams] = useSearchParams();
   const [hasCompleted, setHasCompleted] = useState(false);
   const campaignAriesEmailId = Number(searchParams.get('campaignAriesEmailId'));
@@ -85,6 +89,20 @@ const UnsubscribeCampaignContent: React.FC = () => {
   }, [unsubscribeInfo]);
 
   const handleUnsubscribe = async () => {
+    const result = await modal.showModal({
+      component: ConfirmationModal,
+      props: {
+        title: 'Conferma disiscrizione',
+        text: `Sei sicuro di voler disiscriverti dalle comunicazioni relative a ${unsubscribeInfo?.campaignTypeName || 'questa campagna'}?`,
+        alertText: unsubscribeInfo?.unsubscribeWarning || undefined,
+        alertSeverity: 'warning',
+      },
+    });
+
+    if (result.action !== 'YES') {
+      return;
+    }
+
     await unsubscribe({ campaignAriesEmailId });
     setLocalStorageItem(KEY_ARIES_LANDING_API_TOKEN, null);
     setHasCompleted(true);
@@ -111,26 +129,12 @@ const UnsubscribeCampaignContent: React.FC = () => {
   return (
     <PageShell>
       <TopBar>
-        <Container maxWidth="md">
-          <Stack
-            direction={{ xs: 'column', md: 'row' }}
-            spacing={2}
-            py={2}
-            alignItems={{ md: 'center' }}
-            justifyContent="space-between"
-          >
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Logo sx={{ height: 60 }} />
-              <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  Gestione disiscrizione email
-                </Typography>
-                <Typography color="text.secondary">Comunicazioni per tipo campagna</Typography>
-              </Box>
-            </Stack>
-            <Chip color="error" variant="outlined" label="Disiscrizione mirata" />
-          </Stack>
-        </Container>
+        <LandingPageHeader
+          title="Gestione disiscrizione email"
+          subtitle="Comunicazioni per tipo campagna"
+          containerMaxWidth="md"
+          chipProps={{ color: 'error', label: 'Disiscrizione mirata' }}
+        />
       </TopBar>
 
       <Container maxWidth="md">
@@ -151,7 +155,7 @@ const UnsubscribeCampaignContent: React.FC = () => {
                     Disiscrivi questa email dalle future comunicazioni
                   </Typography>
                   <Typography color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                    Confermando la richiesta, l&apos;indirizzo <strong>{unsubscribeInfo.email}</strong> non ricevera piu
+                    Confermando la richiesta, l&apos;indirizzo <strong>{unsubscribeInfo.email}</strong> non ricevera più
                     campagne relative a <strong>{unsubscribeInfo.campaignTypeName}</strong>.
                   </Typography>
                 </Box>
@@ -224,6 +228,8 @@ const UnsubscribeCampaignContent: React.FC = () => {
               </Stack>
             </CardContent>
           </SummaryCard>
+
+          <LandingFooter companyInfo={unsubscribeInfo.companyInfo} hideLogo />
         </Stack>
       </Container>
     </PageShell>

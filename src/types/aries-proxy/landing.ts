@@ -25,6 +25,8 @@ export interface SubscriptionProposal {
   maintenanceCount: number;
   singleMaintenancePrice: number;
   callRightPrice: number;
+  subscriberInterventionPrice: number;
+  nonSubscriberInterventionPrice: number;
   isInFinalState: boolean;
   companyInfo?: CompanyInfo | null;
 }
@@ -32,10 +34,12 @@ export interface SubscriptionProposal {
 export interface CampaignUnsubscribeInfo {
   email: string;
   campaignTypeName: string;
+  unsubscribeWarning?: string | null;
   companyName?: string | null;
   systemType?: string | null;
   systemDescription?: string | null;
   isAlreadyUnsubscribed: boolean;
+  companyInfo?: CompanyInfo | null;
 }
 
 export interface AcceptSubscriptionProposalRequest {

@@ -28,9 +28,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import z from 'zod';
 import LandingAccessToken from '~/components/Landing/LandingAccessToken';
 import LandingFooter from '~/components/Landing/LandingFooter';
+import LandingPageHeader from '~/components/Landing/LandingPageHeader';
 import LandingServiceCards, { LandingServiceCardItem } from '~/components/Landing/LandingServiceCards';
 import LoadingScreen from '~/components/Loading/LoadingScreen';
-import Logo from '~/components/Layout/Logo';
 import {
   useRejectSubscriptionProposal,
   useRequestMoreInfo,
@@ -38,6 +38,8 @@ import {
 } from '~/proxies/aries-proxy/landing';
 import { RouteConfig } from '~/routes/routeConfig';
 import { KEY_ARIES_LANDING_API_TOKEN, setLocalStorageItem } from '~/utils/local-storage';
+import { SubscriptionProposal } from '~/types/aries-proxy/landing';
+import { formatMoney } from '~/utils/money';
 
 const FormSchema = z.object({
   note: z.string().trim().min(1, 'Inserisci una nota prima di continuare'),
@@ -45,28 +47,30 @@ const FormSchema = z.object({
 
 type FormValues = z.infer<typeof FormSchema>;
 
-const serviceCards: LandingServiceCardItem[] = [
+const formatCurrency = (value?: number) => formatMoney({ amount: value?.toString() ?? '0', currency: 'EUR' });
+
+const getServiceCards = (proposal: SubscriptionProposal | undefined): LandingServiceCardItem[] => [
   {
     icon: <SupportAgentOutlined color="primary" fontSize="large" />,
     description: 'Urgenze da valutare caso per caso.',
-    title: 'Reperibilita telefonica h24',
+    title: 'Reperibilità telefonica h24',
     value: 'Solo orario ufficio',
   },
   {
     icon: <RequestQuoteOutlined color="primary" fontSize="large" />,
-    description: 'Subordinato allo stato del momento e in coda a quelli gia programmati.',
+    description: 'Subordinato allo stato del momento e in coda a quelli già programmati.',
     title: 'Costo per interventi',
-    value: 'A listino',
+    value: `${formatCurrency(proposal?.nonSubscriberInterventionPrice)} anzichè ${formatCurrency(proposal?.subscriberInterventionPrice)}`,
   },
   {
     icon: <BuildOutlined color="primary" fontSize="large" />,
-    description: 'In coda a quelli gia programmati.',
+    description: 'Subordinato allo stato del momento e in coda a quelli già programmati.',
     title: 'Costo per manutenzione',
-    value: 'A listino',
+    value: 'Non agevolato',
   },
   {
     icon: <Inventory2Outlined color="primary" fontSize="large" />,
-    description: 'Secondo disponibilita.',
+    description: 'Secondo disponibilità.',
     title: 'Costo materiale ricambio',
     value: 'A listino',
   },
@@ -135,11 +139,12 @@ const RejectSubscriptionProposalContent: React.FC = () => {
   } = useSubscriptionProposal(campaignAriesEmailId, {
     enabled: Number.isFinite(campaignAriesEmailId) && campaignAriesEmailId > 0,
   });
+  const serviceCards = getServiceCards(proposal);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      note: 'Non sono interessato',
+      note: '',
     },
   });
 
@@ -203,31 +208,10 @@ const RejectSubscriptionProposalContent: React.FC = () => {
   return (
     <PageShell>
       <TopBar>
-        <Container maxWidth="lg">
-          <Stack
-            direction={{ xs: 'column', md: 'row' }}
-            spacing={2}
-            py={2}
-            alignItems={{ md: 'center' }}
-            justifyContent="space-between"
-          >
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 1.5, md: 4 }} alignItems={{ md: 'center' }}>
-              <Logo sx={{ height: 60 }} />
-              <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  Proteggi cio che conta di piu
-                </Typography>
-                <Typography color="text.secondary">Scelta senza abbonamento, con informazioni chiare</Typography>
-              </Box>
-            </Stack>
-            <Chip
-              color="primary"
-              variant="outlined"
-              label="Massima trasparenza"
-              sx={{ display: { xs: 'none', md: 'inline-flex' } }}
-            />
-          </Stack>
-        </Container>
+        <LandingPageHeader
+          title="Proteggi cio che conta di più"
+          subtitle="Scelta senza abbonamento, con informazioni chiare"
+        />
       </TopBar>
 
       <Container maxWidth="lg">
@@ -239,8 +223,8 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                   <Typography variant="h3" fontWeight={700} sx={{ lineHeight: 1.08, mb: 1.5 }}>
                     HAI SCELTO DI NON ABBONARTI
                   </Typography>
-                  <Typography color="text.secondary" sx={{ fontSize: 16, lineHeight: 1.8 }}>
-                    Ci dispiace MA NESSUN PROBLEMA! : resteremo comunque a disposizione. Se in questo momento,
+                  <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                    Ci dispiace MA NESSUN PROBLEMA, resteremo comunque a disposizione. Anche se in questo momento
                     preferisci non aderire all&apos;abbonamento, continueremo comunque ad essere disponibili per
                     assisterti quando ne avrai bisogno.
                   </Typography>
@@ -266,7 +250,7 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                       Cosa significa scegliere &quot;Non essere interessato&quot;
                     </Typography>
                     <Typography color="text.secondary" sx={{ mt: 1, lineHeight: 1.75 }}>
-                      La scelta di non aderire all&apos;abbonamento non blocca in alcun modo la possibilita di
+                      La scelta di non aderire all&apos;abbonamento non blocca in alcun modo la possibilità di
                       richiedere assistenza futura. Semplicemente gli interventi verranno gestiti fuori abbonamento, con
                       le condizioni applicate ai servizi non in abbonamento.
                     </Typography>
@@ -361,7 +345,7 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                           <Box>
                             <Typography fontWeight={700}>Manutenzioni future</Typography>
                             <Typography color="text.secondary">
-                              Se in futuro vorrai richiedere una manutenzione, il servizio sara disponibile ma senza il
+                              Se in futuro vorrai richiedere una manutenzione, il servizio saràdisponibile ma senza il
                               prezzo agevolato previsto per i clienti abbonati.
                             </Typography>
                           </Box>
@@ -375,8 +359,8 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                           <Box>
                             <Typography fontWeight={700}>Supporto telefonico</Typography>
                             <Typography color="text.secondary">
-                              Resteremo comunque raggiungibili e operativi in orario di ufficio. Non potra essere
-                              richiesta la reperibilita telefonica h24.
+                              Resteremo comunque raggiungibili e operativi in orario di ufficio. Non portà essere
+                              richiesta la reperibilità telefonica h24.
                             </Typography>
                           </Box>
                         </Stack>
@@ -401,13 +385,20 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                     alignItems: 'stretch',
                   }}
                 >
-                  <SectionBox>
+                  <SectionBox
+                    sx={{
+                      order: {
+                        xs: 2,
+                        lg: 1,
+                      },
+                    }}
+                  >
                     <Stack spacing={2}>
                       <Typography variant="h6" fontWeight={700}>
                         Lascia una nota
                       </Typography>
                       <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
-                        Puoi confermare la tua scelta e aggiungere un messaggio se vuoi comunicarci qualcosa di utile.
+                        Saremo interessati a conoscere i motivi della tua scelta.
                       </Typography>
 
                       <TextField
@@ -428,20 +419,28 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                     </Stack>
                   </SectionBox>
 
-                  <ActionCard variant="outlined">
+                  <ActionCard
+                    variant="outlined"
+                    sx={{
+                      order: {
+                        xs: 1,
+                        lg: 2,
+                      },
+                    }}
+                  >
                     <CardContent sx={{ p: 3, height: '100%' }}>
                       <Stack spacing={2} justifyContent="space-between" height="100%">
                         <Box>
                           <Chip color="warning" variant="outlined" label="Alternativa disponibile" sx={{ mb: 2 }} />
                           <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
-                            Oppure prenota un check-up gratuito dell&apos;impianto
+                            Oppure prenota un sopralluogo gratuito
                           </Typography>
                           <Typography color="text.secondary" sx={{ lineHeight: 1.75, mb: 1.5 }}>
                             Se preferisci non chiudere subito la proposta, puoi richiedere un sopralluogo gratuito per
                             valutare meglio il tuo impianto prima di decidere.
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            * Non e una manutenzione.
+                            * Non è una manutenzione.
                           </Typography>
                         </Box>
 

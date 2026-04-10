@@ -27,13 +27,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import z from 'zod';
 import LandingAccessToken from '~/components/Landing/LandingAccessToken';
 import LandingFooter from '~/components/Landing/LandingFooter';
+import LandingPageHeader from '~/components/Landing/LandingPageHeader';
 import LandingServiceCards, { LandingServiceCardItem } from '~/components/Landing/LandingServiceCards';
-import Logo from '~/components/Layout/Logo';
 import LoadingScreen from '~/components/Loading/LoadingScreen';
 import { useAcceptSubscriptionProposal, useSubscriptionProposal } from '~/proxies/aries-proxy/landing';
 import { RouteConfig } from '~/routes/routeConfig';
 import { KEY_ARIES_LANDING_API_TOKEN, setLocalStorageItem } from '~/utils/local-storage';
 import AcceptanceCheckboxField from './components/AcceptanceCheckboxField';
+import { getSuggestedSecondMaintenanceMonth } from './utils';
+import { formatMoney } from '~/utils/money';
 
 const monthOptions = [
   { value: 1, label: 'Gennaio' },
@@ -52,37 +54,32 @@ const monthOptions = [
 
 const serviceCards: LandingServiceCardItem[] = [
   {
-    description: 'Priorita nelle urgenze, con gestione in giornata quando necessario.',
+    description: 'priorità nelle urgenze, con gestione in giornata quando necessario.',
     icon: <SupportAgentOutlined color="primary" fontSize="large" />,
-    title: 'Reperibilita telefonica h24',
+    title: 'Reperibilità telefonica h24',
     value: 'H24 7/7',
   },
   {
-    description: 'Prezzo vantaggioso e gestione con priorita rispetto ai servizi fuori abbonamento.',
+    description: 'Prezzo vantaggioso e gestione con priorità rispetto ai servizi fuori abbonamento.',
     icon: <RequestQuoteOutlined color="primary" fontSize="large" />,
     title: 'Costo per interventi',
     value: 'Prezzo vantaggioso scontato',
   },
   {
-    description: 'Check-up pianificati secondo le scadenze programmate della proposta.',
+    description: 'Check-up e manutenzioni pianificati secondo le scadenze programmate nella proposta.',
     icon: <BuildOutlined color="primary" fontSize="large" />,
     title: 'Costo per manutenzione',
     value: 'Prezzo vantaggioso e bloccato',
   },
   {
-    description: 'Disponibilita e fornitura gestite secondo magazzino, con condizioni agevolate.',
+    description: 'Disponibilità e fornitura gestite secondo magazzino, con condizioni agevolate.',
     icon: <Inventory2Outlined color="primary" fontSize="large" />,
     title: 'Costo materiale ricambio',
     value: 'Prezzo vantaggioso scontato',
   },
 ];
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('it-IT', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(value);
+const formatCurrency = (value: number) => formatMoney({ amount: value.toString(), currency: 'EUR' });
 
 const FormSchema = z.object({
   maintenanceCount: z.number().min(1).max(2),
@@ -160,12 +157,32 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
   });
 
   const maintenanceCount = form.watch('maintenanceCount');
+  const preferredMonth1 = form.watch('preferredMonth1');
 
   useEffect(() => {
     if (maintenanceCount !== 2 && form.getValues('preferredMonth2')) {
       form.setValue('preferredMonth2', undefined);
     }
   }, [form, maintenanceCount]);
+
+  useEffect(() => {
+    if (maintenanceCount !== 2) {
+      return;
+    }
+
+    if (form.getValues('preferredMonth2')) {
+      return;
+    }
+
+    const suggestedMonth = getSuggestedSecondMaintenanceMonth(preferredMonth1);
+
+    if (!suggestedMonth) {
+      return;
+    }
+
+    form.setValue('preferredMonth2', suggestedMonth, { shouldValidate: true });
+    form.clearErrors('preferredMonth2');
+  }, [form, maintenanceCount, preferredMonth1]);
 
   useEffect(() => {
     if (proposal) {
@@ -255,25 +272,10 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
   return (
     <PageShell>
       <TopBar>
-        <Container maxWidth="lg">
-          <Stack
-            direction={{ xs: 'column', md: 'row' }}
-            spacing={2}
-            py={2}
-            alignItems={{ md: 'center' }}
-            justifyContent="space-between"
-          >
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 1.5, md: 4 }} alignItems={{ md: 'center' }}>
-              <Logo sx={{ height: 60 }} />
-              <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  Proteggi cio che conta di piu
-                </Typography>
-                <Typography color="text.secondary">Proposta di abbonamento, con informazioni chiare</Typography>
-              </Box>
-            </Stack>
-          </Stack>
-        </Container>
+        <LandingPageHeader
+          title="Proteggi cio che conta di più"
+          subtitle="Proposta di abbonamento, con informazioni chiare"
+        />
       </TopBar>
 
       <Container maxWidth="lg">
@@ -286,7 +288,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                     <Typography variant="h3" fontWeight={700} sx={{ lineHeight: 1.08, mb: 1.5 }}>
                       SIAMO FELICI CHE TU STIA VALUTANDO DI ABBONARTI
                     </Typography>
-                    <Typography color="text.secondary" sx={{ fontSize: 16, lineHeight: 1.8, maxWidth: 980 }}>
+                    <Typography color="text.secondary" sx={{ lineHeight: 1.7, maxWidth: 980 }}>
                       Qui puoi consultare il riepilogo della proposta ricevuta e indicare i mesi preferiti per le
                       manutenzioni previste.
                     </Typography>
@@ -307,52 +309,6 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                   <LandingServiceCards items={serviceCards} />
 
                   <Divider />
-
-                  <SectionBox>
-                    <Stack spacing={2}>
-                      <Typography variant="h6" fontWeight={700}>
-                        Condizioni generali
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.4fr) minmax(220px, 0.8fr)' },
-                        }}
-                      >
-                        {[
-                          ['Reperibilita telefonica h24', `${formatCurrency(proposal.callRightPrice)} / anno`],
-                          ['Costo per interventi', 'EUR 44,00 anziche EUR 65,00'],
-                          [
-                            'Costo per manutenzione',
-                            `${formatCurrency(proposal.singleMaintenancePrice)} cad. - ${proposal.maintenanceCount} manutenzioni`,
-                          ],
-                          ['Automezzo / trasferta', 'EUR 0,75 Km / a pie di lista'],
-                          ['Costo materiale ricambio', 'A listino con sconto 10%'],
-                        ].map(([label, value], index) => (
-                          <React.Fragment key={label}>
-                            <Box
-                              sx={{
-                                py: 1.5,
-                                pr: { md: 3 },
-                                borderTop: index === 0 ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
-                              }}
-                            >
-                              <Typography fontWeight={600}>{label}</Typography>
-                            </Box>
-                            <Box
-                              sx={{
-                                py: 1.5,
-                                color: 'text.secondary',
-                                borderTop: index === 0 ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
-                              }}
-                            >
-                              <Typography>{value}</Typography>
-                            </Box>
-                          </React.Fragment>
-                        ))}
-                      </Box>
-                    </Stack>
-                  </SectionBox>
 
                   <Box>
                     <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
@@ -443,7 +399,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                           <Box>
                             <Typography fontWeight={700}>Supporto telefonico incluso</Typography>
                             <Typography color="text.secondary">
-                              Reperibilita telefonica inclusa h24, 7 giorni su 7.
+                              reperibilità telefonica inclusa h24, 7 giorni su 7.
                             </Typography>
                           </Box>
                         </Stack>
@@ -541,7 +497,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                                   form.formState.errors.preferredMonth2?.message ??
                                   (maintenanceCount === 2
                                     ? 'Indica un mese preferito anche per la seconda manutenzione.'
-                                    : 'Se scegli una sola manutenzione, questo campo non e necessario.')
+                                    : 'Se scegli una sola manutenzione, questo campo non è necessario.')
                                 }
                               >
                                 <MenuItem value="">Seleziona un mese</MenuItem>
@@ -558,13 +514,62 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                     </Stack>
                   </SectionBox>
 
+                  <SectionBox>
+                    <Stack spacing={2}>
+                      <Typography variant="h6" fontWeight={700}>
+                        Condizioni generali
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.4fr) minmax(220px, 0.8fr)' },
+                        }}
+                      >
+                        {[
+                          ['Reperibilità telefonica h24', `${formatCurrency(proposal.callRightPrice)} / anno`],
+                          [
+                            'Costo per interventi',
+                            `${formatCurrency(proposal.subscriberInterventionPrice)} anzichè ${formatCurrency(proposal.nonSubscriberInterventionPrice)}`,
+                          ],
+                          [
+                            'Costo per manutenzione',
+                            `${formatCurrency(proposal.singleMaintenancePrice)} cad. - ${maintenanceCount} manutenzioni`,
+                          ],
+                          ['Automezzo / trasferta', '0,75 €/Km a piè di lista'],
+                          ['Costo materiale ricambio', 'A listino con sconto 10%'],
+                        ].map(([label, value], index) => (
+                          <React.Fragment key={label}>
+                            <Box
+                              sx={{
+                                py: 1.5,
+                                pr: { md: 3 },
+                                borderTop: index === 0 ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
+                              }}
+                            >
+                              <Typography fontWeight={600}>{label}</Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                py: 1.5,
+                                color: 'text.secondary',
+                                borderTop: index === 0 ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
+                              }}
+                            >
+                              <Typography>{value}</Typography>
+                            </Box>
+                          </React.Fragment>
+                        ))}
+                      </Box>
+                    </Stack>
+                  </SectionBox>
+
                   <Divider />
                   <Box>
                     <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
                       Confermo la mia volonta di abbonarmi
                     </Typography>
                     <Typography color="text.secondary" sx={{ lineHeight: 1.75, mb: 2.5 }}>
-                      Bene, puoi confermare la proposta e inviarci eventuali note aggiuntive prima dell&apos;invio.
+                      Bene, puoi confermare la proposta e inviarci eventuali note aggiuntive.
                     </Typography>
 
                     <Stack spacing={2}>
@@ -575,7 +580,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                           Informazione importante
                         </Typography>
                         <Typography sx={{ lineHeight: 1.7 }}>
-                          Con l&apos;adesione all&apos;abbonamento verra attivato il servizio di reperibilita telefonica
+                          Con l&apos;adesione all&apos;abbonamento verra attivato il servizio di reperibilità telefonica
                           H24 al costo di <strong>{formatCurrency(proposal.callRightPrice)}</strong> con fatturazione
                           immediata. In caso di accettazione successiva al mese di gennaio, l&apos;importo verra ridotto
                           proporzionalmente.
@@ -589,7 +594,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                           <AcceptanceCheckboxField
                             checked={field.value}
                             errorMessage={form.formState.errors.acceptFee?.message}
-                            label="Confermo di aver letto e accettato l'addebito iniziale relativo alla reperibilita telefonica h24."
+                            label="Confermo di aver letto e accettato l'addebito iniziale relativo alla reperibilità telefonica h24."
                             onChange={field.onChange}
                           />
                         )}

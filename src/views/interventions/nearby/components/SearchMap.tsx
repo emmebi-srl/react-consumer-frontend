@@ -3,7 +3,7 @@ import _isNil from 'lodash/isNil';
 import _isEmpty from 'lodash/isEmpty';
 import _get from 'lodash/get';
 import { renderToString } from 'react-dom/server';
-import { getMomentByUnixtimestamp } from '../../../../utils/datetime-utils';
+import { getDateByUnixtimestamp } from '../../../../utils/datetime-utils';
 import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 import Map from '~/components/Maps/Map';
 import { Work, WorkTypeEnum } from '~/types/aries-proxy/works';
@@ -105,7 +105,7 @@ const SearchMap: React.FC<{
         formattedResults.map((result) => {
           const { maintenance, tickets = [] } = result.items;
           const maintenanceDate = maintenance?.expirationDate
-            ? getMomentByUnixtimestamp({ unixTimestamp: maintenance.expirationDate })
+            ? getDateByUnixtimestamp({ unixTimestamp: maintenance.expirationDate })
             : null;
 
           const popup = renderToString(
@@ -129,7 +129,7 @@ const SearchMap: React.FC<{
                   Controllo Periodico{' '}
                   {maintenanceDate ? (
                     <>
-                      <span style={{ fontWeight: 600 }}> {getMonthName(getMonth(maintenanceDate.toDate()))}</span>
+                      <span style={{ fontWeight: 600 }}> {getMonthName(getMonth(maintenanceDate))}</span>
                     </>
                   ) : null}
                 </TooltipDetailsText>

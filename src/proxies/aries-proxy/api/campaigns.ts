@@ -8,6 +8,7 @@ import {
   CampaignTypeList,
   CampaignTypeCreate,
   CampaignTypeUpdate,
+  CampaignGlobalPlaceholderList,
   CampaignPlaceholderList,
   CampaignPlaceholderCreate,
   CampaignPlaceholderUpdate,
@@ -83,6 +84,10 @@ export const updateCampaignType = (id: number, model: CampaignTypeUpdate) => {
 // CAMPAIGN PLACEHOLDERS
 // ------------------------------------------------------------
 //
+
+export const getCampaignGlobalPlaceholders = () => {
+  return ariesServicesClient.get<CampaignGlobalPlaceholderList>('campaign/global-placeholder');
+};
 
 export const getCampaignPlaceholders = () => {
   return ariesServicesClient.get<CampaignPlaceholderList>('campaign/placeholder');

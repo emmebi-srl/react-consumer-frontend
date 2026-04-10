@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import useExceptionLogger from '~/hooks/useExceptionLogger';
 
 import {
@@ -10,6 +11,7 @@ import {
   getCampaignTypeById,
   createCampaignType,
   updateCampaignType,
+  getCampaignGlobalPlaceholders,
   getCampaignPlaceholders,
   getCampaignPlaceholderById,
   createCampaignPlaceholder,
@@ -29,6 +31,7 @@ import {
 } from './api/campaigns';
 import {
   CampaignCreate,
+  CampaignGlobalPlaceholder,
   CampaignMailCreate,
   CampaignMailDataCreate,
   CampaignMailDataUpdate,
@@ -61,6 +64,9 @@ export const CampaignQueryKeys = {
   allTypes: ['CampaignTypes'] as const,
   types: ['CampaignTypes'] as const,
   typeById: (id: number) => ['CampaignType', id] as const,
+
+  allGlobalPlaceholders: ['CampaignGlobalPlaceholders'] as const,
+  globalPlaceholders: ['CampaignGlobalPlaceholders'] as const,
 
   allPlaceholders: ['CampaignPlaceholders'] as const,
   placeholdersSearch: (params: CampaignPlaceholderSearchRequest) => ['CampaignPlaceholders', 'search', params] as const,
@@ -241,6 +247,13 @@ export const useUpdateCampaignType = () => {
 // ------------------------------------------------------------
 //
 
+export const useCampaignGlobalPlaceholders = () => {
+  return useQuery({
+    queryKey: CampaignQueryKeys.globalPlaceholders,
+    queryFn: async () => (await getCampaignGlobalPlaceholders()).data,
+  });
+};
+
 export const useCampaignPlaceholders = () => {
   return useQuery({
     queryKey: CampaignQueryKeys.placeholders,
@@ -259,6 +272,38 @@ export const useCampaignPlaceholdersSearch = (
     queryFn: async () => (await searchCampaignPlaceholders(params)).data,
     enabled: options?.enabled ?? true,
   });
+};
+
+export const useCampaignAvailablePlaceholders = (campaignTypeId?: number) => {
+  const globalPlaceholdersQuery = useCampaignGlobalPlaceholders();
+  const typePlaceholdersQuery = useCampaignPlaceholdersSearch(campaignTypeId ? { campaignTypeId } : {}, {
+    enabled: Boolean(campaignTypeId),
+  });
+
+  const data = useMemo<CampaignGlobalPlaceholder[]>(() => {
+    const merged = new Map<string, CampaignGlobalPlaceholder>();
+
+    for (const placeholder of globalPlaceholdersQuery.data?.campaignGlobalPlaceholders ?? []) {
+      merged.set(placeholder.name.toLowerCase(), placeholder);
+    }
+
+    for (const placeholder of typePlaceholdersQuery.data?.campaignPlaceholders ?? []) {
+      merged.set(placeholder.name.toLowerCase(), {
+        name: placeholder.name,
+        description: placeholder.description,
+      });
+    }
+
+    return [...merged.values()].sort((left, right) => left.name.localeCompare(right.name));
+  }, [globalPlaceholdersQuery.data?.campaignGlobalPlaceholders, typePlaceholdersQuery.data?.campaignPlaceholders]);
+
+  return {
+    data,
+    isLoading: globalPlaceholdersQuery.isLoading || (Boolean(campaignTypeId) && typePlaceholdersQuery.isLoading),
+    isFetching: globalPlaceholdersQuery.isFetching || typePlaceholdersQuery.isFetching,
+    isError: globalPlaceholdersQuery.isError || typePlaceholdersQuery.isError,
+    refetch: () => Promise.all([globalPlaceholdersQuery.refetch(), typePlaceholdersQuery.refetch()]),
+  };
 };
 
 export const useCampaignPlaceholderById = (id: number) => {

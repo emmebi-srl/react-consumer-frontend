@@ -1,6 +1,26 @@
-import moment from 'moment';
+import { format, fromUnixTime } from 'date-fns';
 
-export const getMomentByUnixtimestamp = ({ unixTimestamp }: { unixTimestamp: number }) => moment(unixTimestamp * 1000);
+const getTimestampDateParts = (unixTimestamp: number) => {
+  const date = fromUnixTime(unixTimestamp);
+
+  return {
+    year: date.getUTCFullYear(),
+    month: date.getUTCMonth(),
+    day: date.getUTCDate(),
+    hour: date.getUTCHours(),
+    minute: date.getUTCMinutes(),
+    second: date.getUTCSeconds(),
+    millisecond: date.getUTCMilliseconds(),
+  };
+};
+
+export const getDateByUnixtimestamp = ({ unixTimestamp }: { unixTimestamp: number }): Date => {
+  const parts = getTimestampDateParts(unixTimestamp);
+
+  // Backend timestamps represent an Italy local date/time encoded as Unix seconds.
+  // We preserve those calendar fields and avoid re-applying the browser timezone offset.
+  return new Date(parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second, parts.millisecond);
+};
 
 export const getStringDateByUnixtimestamp = (
   params: { format?: string; unixTimestamp: number } | number | null | undefined,
@@ -11,9 +31,9 @@ export const getStringDateByUnixtimestamp = (
     params = { unixTimestamp: params };
   }
 
-  const { unixTimestamp, format } = params;
-  const mFormat = format || 'L';
-  return getMomentByUnixtimestamp({ unixTimestamp }).format(mFormat);
+  const { unixTimestamp, format: fmt } = params;
+  const dateFormat = fmt || 'dd/MM/yyyy';
+  return format(getDateByUnixtimestamp({ unixTimestamp }), dateFormat);
 };
 
 export const getStringDateTimeByUnixtimestamp = (
@@ -25,7 +45,7 @@ export const getStringDateTimeByUnixtimestamp = (
     params = { unixTimestamp: params };
   }
 
-  const { unixTimestamp, format } = params;
-  const mFormat = format || 'MM/DD/YYYY HH:mm';
-  return getMomentByUnixtimestamp({ unixTimestamp }).format(mFormat);
+  const { unixTimestamp, format: fmt } = params;
+  const dateFormat = fmt || 'MM/dd/yyyy HH:mm';
+  return format(getDateByUnixtimestamp({ unixTimestamp }), dateFormat);
 };

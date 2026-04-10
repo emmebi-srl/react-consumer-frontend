@@ -17,7 +17,6 @@ import {
 import { useMemo, useRef, useState } from 'react';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import { Link as RouterLink, Navigate, useParams } from 'react-router-dom';
-import moment from 'moment';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -30,6 +29,8 @@ import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
+import CreateSystemSubscriptionModal from '~/components/Modals/CreateSystemSubscriptionModal';
+import { useModal } from '~/modals/Modal';
 import {
   useCampaignById,
   useCampaignMailStatuses,
@@ -39,6 +40,7 @@ import {
 import { RouteConfig } from '~/routes/routeConfig';
 import { CampaignMail, CampaignMailSearchRequest } from '~/types/aries-proxy/campaigns';
 import { getReadableTextColor, normalizeToHexColor } from '~/utils/color-utils';
+import { getStringDateTimeByUnixtimestamp } from '~/utils/datetime-utils';
 
 interface CampaignMailFilters {
   search: string;
@@ -67,15 +69,6 @@ const getCampaignStateLabel = (active: boolean | undefined) => {
 
 const getCampaignMailStatusLabel = (mail: Pick<CampaignMail, 'status'>) => {
   return mail.status?.name || 'Senza stato';
-};
-
-const formatDateTime = (value: string | null | undefined) => {
-  if (!value) {
-    return '-';
-  }
-
-  const parsed = moment(value);
-  return parsed.isValid() ? parsed.format('DD/MM/YYYY HH:mm') : '-';
 };
 
 const getStatusCount = (
@@ -120,7 +113,7 @@ const CampaignMailFiltersBar: React.FC<{
   return (
     <Box display="flex" flexDirection="column" pt={1.5} bgcolor="white" borderBottom="1px solid" borderColor="grey.300">
       <CollapsibleFilters onClearFilters={onReset} isDirty={isDirty}>
-        <PrimaryFilters dirtyState={filters} additionalFilters={['status']}>
+        <PrimaryFilters dirtyState={filters} additionalFilters={[]}>
           <InlineSearchFilter<CampaignMailFilters>
             name="search"
             value={filters.search}
@@ -128,8 +121,6 @@ const CampaignMailFiltersBar: React.FC<{
             customLabel="Cerca cliente o impianto"
             sx={{ maxWidth: 480 }}
           />
-        </PrimaryFilters>
-        <AdditionalFilters>
           <TextField
             select
             size="small"
@@ -145,7 +136,8 @@ const CampaignMailFiltersBar: React.FC<{
               </MenuItem>
             ))}
           </TextField>
-        </AdditionalFilters>
+        </PrimaryFilters>
+        <AdditionalFilters />
       </CollapsibleFilters>
       <Metadata filteredCount={filteredCount} totalCount={totalCount} />
     </Box>
@@ -161,10 +153,12 @@ const CampaignMailTableHeading: React.FC<{ children: React.ReactNode }> = ({ chi
       headLabel={[
         { id: 'id', label: 'ID', align: 'right' },
         { id: 'status', label: 'Stato', align: 'left' },
+        { id: 'isUnsubscribed', label: 'Disiscritta', align: 'center' },
         { id: 'customer', label: 'Cliente', align: 'left' },
         { id: 'system', label: 'Impianto', align: 'left' },
         { id: 'email', label: 'Email', align: 'left' },
         { id: 'sendDate', label: 'Invio', align: 'right' },
+        { id: 'actions', label: 'Azioni', align: 'center' },
       ]}
       numSelected={0}
       onRequestSort={() => {}}
@@ -176,12 +170,16 @@ const CampaignMailTableHeading: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 };
 
-const CampaignMailTableRowContent: React.FC<{ mail: CampaignMail }> = ({ mail }) => {
+const CampaignMailTableRowContent: React.FC<{
+  mail: CampaignMail;
+  onCreateSubscription: (mail: CampaignMail) => void;
+}> = ({ mail, onCreateSubscription }) => {
   const customerName = mail.customer?.companyName ?? `Cliente ${mail.customerId}`;
   const systemDescription = mail.system?.description ?? (mail.systemId ? `Impianto ${mail.systemId}` : 'N/D');
   const systemType = mail.system?.typeDescription ?? '';
   const statusLabel = getCampaignMailStatusLabel(mail);
   const statusColor = normalizeToHexColor(mail.status?.color);
+  const canCreateSubscription = mail.status?.applicationReference === 'positive_outcome';
 
   return (
     <>
@@ -205,6 +203,14 @@ const CampaignMailTableRowContent: React.FC<{ mail: CampaignMail }> = ({ mail })
           />
         </Stack>
       </TableCell>
+      <TableCell align="center" width={130}>
+        <Chip
+          size="small"
+          label={mail.isUnsubscribed ? 'Si' : 'No'}
+          color={mail.isUnsubscribed ? 'warning' : 'default'}
+          variant={mail.isUnsubscribed ? 'filled' : 'outlined'}
+        />
+      </TableCell>
       <TableCell sx={{ maxWidth: 0 }}>
         <MainLabel>{customerName}</MainLabel>
         <SecondaryLabel>Cliente #{mail.customerId}</SecondaryLabel>
@@ -220,7 +226,14 @@ const CampaignMailTableRowContent: React.FC<{ mail: CampaignMail }> = ({ mail })
         <SecondaryLabel>{mail.processingError || ''}</SecondaryLabel>
       </TableCell>
       <TableCell align="right" width={200}>
-        <MainLabel>{formatDateTime(mail.sendDate)}</MainLabel>
+        <MainLabel>{getStringDateTimeByUnixtimestamp(mail.sendDate)}</MainLabel>
+      </TableCell>
+      <TableCell align="center" width={180}>
+        {canCreateSubscription ? (
+          <Button size="small" variant="contained" onClick={() => onCreateSubscription(mail)}>
+            Crea abbonamento
+          </Button>
+        ) : null}
       </TableCell>
     </>
   );
@@ -229,6 +242,7 @@ const CampaignMailTableRowContent: React.FC<{ mail: CampaignMail }> = ({ mail })
 const CampaignDetailView = () => {
   const params = useParams<{ campaignId: string }>();
   const campaignId = Number(params.campaignId);
+  const modal = useModal();
   const [topReached, setTopReached] = useState(true);
   const [filters, setFilters] = useState<CampaignMailFilters>(defaultFilters);
   const virtuoso = useRef<TableVirtuosoHandle>(null);
@@ -410,7 +424,17 @@ const CampaignDetailView = () => {
               </CampaignMailTableHeading>
             )}
             computeItemKey={(_index, mail) => mail.id}
-            itemContent={(_index, mail) => <CampaignMailTableRowContent mail={mail} />}
+            itemContent={(_index, mail) => (
+              <CampaignMailTableRowContent
+                mail={mail}
+                onCreateSubscription={() =>
+                  modal.showModal({
+                    component: CreateSystemSubscriptionModal,
+                    props: {},
+                  })
+                }
+              />
+            )}
           />
         </DataTableContainer>
       </Stack>

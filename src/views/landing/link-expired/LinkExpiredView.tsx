@@ -21,10 +21,10 @@ const LinkExpiredView: React.FC = () => {
           <CardContent sx={{ p: 4 }}>
             <Stack spacing={2.5}>
               <Typography variant="h4" fontWeight={700}>
-                Link non piu disponibile
+                Link non più disponibile
               </Typography>
               <Alert severity="warning">
-                La pagina non e piu disponibile perche il link utilizzato e scaduto oppure non e valido.
+                La pagina non è più disponibile perché il link utilizzato è scaduto oppure non è valido.
               </Alert>
               <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
                 Se hai ancora bisogno di completare il flusso, ti chiediamo di contattare il nostro team per ricevere un
