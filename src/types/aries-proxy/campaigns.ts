@@ -121,12 +121,14 @@ export interface CampaignMail {
   mailId?: number | null;
   statusId?: number | null;
   email: string;
-  sendDate: number;
+  sendDate?: number | null;
+  plannedSendDate: number;
   isProcessed: boolean;
   isRead: boolean;
   hasInteracted: boolean;
   isUnsubscribed: boolean;
-  processingError: string;
+  processingError?: string | null;
+  note?: string | null;
   insertionDate: number;
   customer?: Customer;
   system?: System;
@@ -169,8 +171,10 @@ export interface CampaignMailCreate {
   statusId?: number | null;
   email: string;
   sendDate?: number | null;
+  plannedSendDate?: number | null;
   isProcessed?: boolean | null;
   processingError?: string | null;
+  note?: string | null;
 }
 
 export interface CampaignMailUpdate {
@@ -181,8 +185,10 @@ export interface CampaignMailUpdate {
   statusId?: number | null;
   email?: string | null;
   sendDate?: number | null;
+  plannedSendDate?: number | null;
   isProcessed?: boolean | null;
   processingError?: string | null;
+  note?: string | null;
 }
 
 export interface CampaignMailSearchRequest {

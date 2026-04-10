@@ -1,10 +1,11 @@
-import { ArrowBack, Refresh } from '@mui/icons-material';
+import { Add, ArrowBack, Refresh } from '@mui/icons-material';
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
+  Checkbox,
   Chip,
   CircularProgress,
   IconButton,
@@ -153,11 +154,11 @@ const CampaignMailTableHeading: React.FC<{ children: React.ReactNode }> = ({ chi
       headLabel={[
         { id: 'id', label: 'ID', align: 'right' },
         { id: 'status', label: 'Stato', align: 'left' },
-        { id: 'isUnsubscribed', label: 'Disiscritta', align: 'center' },
+        { id: 'isUnsubscribed', label: 'Disisc.', align: 'center' },
         { id: 'customer', label: 'Cliente', align: 'left' },
         { id: 'system', label: 'Impianto', align: 'left' },
-        { id: 'email', label: 'Email', align: 'left' },
-        { id: 'sendDate', label: 'Invio', align: 'right' },
+        { id: 'send', label: 'Invio', align: 'left' },
+        { id: 'note', label: 'Note', align: 'left' },
         { id: 'actions', label: 'Azioni', align: 'center' },
       ]}
       numSelected={0}
@@ -180,6 +181,7 @@ const CampaignMailTableRowContent: React.FC<{
   const statusLabel = getCampaignMailStatusLabel(mail);
   const statusColor = normalizeToHexColor(mail.status?.color);
   const canCreateSubscription = mail.status?.applicationReference === 'positive_outcome';
+  const displayedSendDate = mail.sendDate ?? mail.plannedSendDate;
 
   return (
     <>
@@ -203,12 +205,12 @@ const CampaignMailTableRowContent: React.FC<{
           />
         </Stack>
       </TableCell>
-      <TableCell align="center" width={130}>
-        <Chip
-          size="small"
-          label={mail.isUnsubscribed ? 'Si' : 'No'}
-          color={mail.isUnsubscribed ? 'warning' : 'default'}
-          variant={mail.isUnsubscribed ? 'filled' : 'outlined'}
+      <TableCell align="center" width={60}>
+        <Checkbox
+          checked={mail.isUnsubscribed}
+          disableRipple
+          inputProps={{ readOnly: true, 'aria-label': 'Disiscritta' }}
+          sx={{ p: 0, pointerEvents: 'none' }}
         />
       </TableCell>
       <TableCell sx={{ maxWidth: 0 }}>
@@ -221,17 +223,29 @@ const CampaignMailTableRowContent: React.FC<{
           {mail.systemId ? `Impianto #${mail.systemId}${systemType ? ` - ${systemType}` : ''}` : 'Nessun impianto'}
         </SecondaryLabel>
       </TableCell>
-      <TableCell sx={{ maxWidth: 0 }}>
+      <TableCell sx={{ maxWidth: 0, minWidth: 120 }}>
         <MainLabel>{mail.email}</MainLabel>
-        <SecondaryLabel>{mail.processingError || ''}</SecondaryLabel>
+        <SecondaryLabel>{getStringDateTimeByUnixtimestamp(displayedSendDate)}</SecondaryLabel>
       </TableCell>
-      <TableCell align="right" width={200}>
-        <MainLabel>{getStringDateTimeByUnixtimestamp(mail.sendDate)}</MainLabel>
+      <TableCell sx={{ width: 280 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            display: '-webkit-box',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 3,
+            whiteSpace: 'normal',
+          }}
+        >
+          {mail.note || 'N/D'}
+        </Typography>
       </TableCell>
       <TableCell align="center" width={180}>
         {canCreateSubscription ? (
-          <Button size="small" variant="contained" onClick={() => onCreateSubscription(mail)}>
-            Crea abbonamento
+          <Button startIcon={<Add />} size="small" variant="contained" onClick={() => onCreateSubscription(mail)}>
+            Abbonamento
           </Button>
         ) : null}
       </TableCell>
