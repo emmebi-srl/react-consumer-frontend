@@ -41,6 +41,7 @@ const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/Camp
 const CampaignDetailView = asyncComponent(() => import('../views/campaigns/detail/CampaignDetailView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
+const DashboardView = asyncComponent(() => import('../views/dashboard/DashboardView'));
 
 const routes: RouteObject[] = [
   {
@@ -100,6 +101,10 @@ const routes: RouteObject[] = [
         ),
         children: [
           {
+            path: RouteConfig.Dashboard.template,
+            element: <DashboardView />,
+          },
+          {
             path: RouteConfig.CustomerList.template,
             element: <CustomerList />,
           },
@@ -141,7 +146,7 @@ const routes: RouteObject[] = [
           },
           {
             path: '*',
-            element: <RedirectWithQueryParams path={RouteConfig.InterventionsNearby.buildLink()} />,
+            element: <RedirectWithQueryParams path={RouteConfig.Dashboard.buildLink()} />,
           },
         ],
       },

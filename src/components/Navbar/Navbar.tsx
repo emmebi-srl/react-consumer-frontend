@@ -31,14 +31,19 @@ const Navbar = () => {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Logo
-            sx={{
-              mr: 2,
-              backgroundColor: 'common.white',
-              borderRadius: 1,
-              padding: 0.5,
-            }}
-          />
+          <Box
+            component={Link}
+            to={RouteConfig.Dashboard.buildLink()}
+            sx={{ mr: 2, display: 'flex', textDecoration: 'none' }}
+          >
+            <Logo
+              sx={{
+                backgroundColor: 'common.white',
+                borderRadius: 1,
+                padding: 0.5,
+              }}
+            />
+          </Box>
 
           <Box sx={{ flexGrow: 1, display: 'flex' }}>
             <Button

@@ -12,7 +12,7 @@ export const PublicGuard: React.FC<{ children: ReactNode }> = ({ children }) => 
   }
 
   if (data && status === 'success') {
-    return <Navigate to={RouteConfig.InterventionsNearby.buildLink()} />;
+    return <Navigate to={RouteConfig.Dashboard.buildLink()} />;
   }
 
   return <>{children}</>;
