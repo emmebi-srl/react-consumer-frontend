@@ -401,11 +401,11 @@ export const useCampaignMailsMetadata = (campaignId: number) => {
   });
 };
 
-export const useCampaignMailById = (id: number) => {
+export const useCampaignMailById = (id: number, options?: { includes?: string; enabled?: boolean }) => {
   return useQuery({
-    queryKey: CampaignQueryKeys.mailById(id),
-    queryFn: async () => (await getCampaignMailById(id)).data,
-    enabled: !!id,
+    queryKey: ['CampaignMail', id, options?.includes ?? ''],
+    queryFn: async () => (await getCampaignMailById(id, { includes: options?.includes })).data,
+    enabled: !!id && (options?.enabled ?? true),
   });
 };
 

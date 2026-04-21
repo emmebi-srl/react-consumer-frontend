@@ -1,15 +1,14 @@
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties, PropsWithChildren } from 'react';
 import { Container, ContainerProps } from '@mui/material';
 
 interface Props {
-  children: ReactNode;
   fullWidth?: boolean;
   dataTestId?: string;
   style?: CSSProperties;
   sx?: ContainerProps['sx'];
 }
 
-const PageContainer: React.FC<Props> = ({ children, sx, style, fullWidth }) => {
+const PageContainer: React.FC<PropsWithChildren<Props>> = ({ children, sx, style, fullWidth }) => {
   return (
     <Container
       sx={{

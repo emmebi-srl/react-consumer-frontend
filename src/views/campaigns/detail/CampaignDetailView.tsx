@@ -15,9 +15,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
-import { Link as RouterLink, Navigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -34,6 +34,7 @@ import CreateSystemSubscriptionModal from '~/components/Modals/CreateSystemSubsc
 import { useModal } from '~/modals/Modal';
 import {
   useCampaignById,
+  useCampaignMailById,
   useCampaignMailStatuses,
   useCampaignMails,
   useCampaignMailsMetadata,
@@ -81,6 +82,9 @@ const getStatusCount = (
       ?.totalCount ?? 0
   );
 };
+
+const positiveOutcomeApplicationReference = 'positive_outcome';
+const systemSubscriptionCampaignTypeApplicationReference = 'system_subscription';
 
 const StatCard: React.FC<{ label: string; value: number | string }> = ({ label, value }) => {
   return (
@@ -172,15 +176,15 @@ const CampaignMailTableHeading: React.FC<{ children: React.ReactNode }> = ({ chi
 };
 
 const CampaignMailTableRowContent: React.FC<{
+  canCreateSubscription: boolean;
   mail: CampaignMail;
   onCreateSubscription: (mail: CampaignMail) => void;
-}> = ({ mail, onCreateSubscription }) => {
+}> = ({ canCreateSubscription, mail, onCreateSubscription }) => {
   const customerName = mail.customer?.companyName ?? `Cliente ${mail.customerId}`;
   const systemDescription = mail.system?.description ?? (mail.systemId ? `Impianto ${mail.systemId}` : 'N/D');
   const systemType = mail.system?.typeDescription ?? '';
   const statusLabel = getCampaignMailStatusLabel(mail);
   const statusColor = normalizeToHexColor(mail.status?.color);
-  const canCreateSubscription = mail.status?.applicationReference === 'positive_outcome';
   const displayedSendDate = mail.sendDate ?? mail.plannedSendDate;
 
   return (
@@ -257,9 +261,14 @@ const CampaignDetailView = () => {
   const params = useParams<{ campaignId: string }>();
   const campaignId = Number(params.campaignId);
   const modal = useModal();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [topReached, setTopReached] = useState(true);
   const [filters, setFilters] = useState<CampaignMailFilters>(defaultFilters);
   const virtuoso = useRef<TableVirtuosoHandle>(null);
+  const hasHandledAutoOpenRef = useRef(false);
+
+  const shouldOpenCreateSubscriptionModal = searchParams.get('openCreateSubscriptionModal') === '1';
+  const queryCampaignMailId = Number(searchParams.get('campaignMailId') ?? 0);
 
   const campaignQuery = useCampaignById(campaignId, { includes: 'campaign_type' });
   const queryParams = useMemo<CampaignMailSearchRequest>(
@@ -273,11 +282,25 @@ const CampaignDetailView = () => {
   const campaignMailStatusesQuery = useCampaignMailStatuses();
   const campaignMailMetadataQuery = useCampaignMailsMetadata(campaignId);
   const campaignMailsQuery = useCampaignMails(campaignId, queryParams);
+  const campaignMailByIdQuery = useCampaignMailById(queryCampaignMailId, {
+    includes: 'customer,system,status',
+    enabled: shouldOpenCreateSubscriptionModal && queryCampaignMailId > 0,
+  });
 
   const campaign = campaignQuery.data?.campaigns[0];
+  const isSystemSubscriptionCampaign =
+    campaign?.campaignType?.applicationReference === systemSubscriptionCampaignTypeApplicationReference;
   const campaignMails = useMemo(
     () => campaignMailsQuery.data?.pages.flatMap((page) => page.campaignMails) ?? [],
     [campaignMailsQuery.data?.pages],
+  );
+  const queriedCampaignMail = campaignMailByIdQuery.data?.campaignMails[0] ?? null;
+  const autoOpenCampaignMail = useMemo(
+    () =>
+      queryCampaignMailId > 0
+        ? (campaignMails.find((mail) => mail.id === queryCampaignMailId) ?? queriedCampaignMail)
+        : null,
+    [campaignMails, queryCampaignMailId, queriedCampaignMail],
   );
   const campaignMailMetadata = campaignMailMetadataQuery.data?.metadata;
 
@@ -312,6 +335,87 @@ const CampaignDetailView = () => {
     campaignMailMetadataQuery.isError ||
     campaignMailsQuery.isError;
   const isDirty = filters.search !== defaultFilters.search || filters.status !== defaultFilters.status;
+
+  const clearCreateSubscriptionModalParams = useCallback(() => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.delete('openCreateSubscriptionModal');
+    nextSearchParams.delete('campaignMailId');
+    setSearchParams(nextSearchParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  const showCreateSubscriptionModal = useCallback(
+    (mail: CampaignMail) => {
+      if (!isSystemSubscriptionCampaign || mail.status?.applicationReference !== positiveOutcomeApplicationReference) {
+        return;
+      }
+
+      modal.showModal({
+        component: CreateSystemSubscriptionModal,
+        props: {
+          campaign,
+          mail,
+        },
+      });
+    },
+    [campaign, isSystemSubscriptionCampaign, modal],
+  );
+
+  useEffect(() => {
+    if (!shouldOpenCreateSubscriptionModal || hasHandledAutoOpenRef.current) {
+      return;
+    }
+
+    if (!queryCampaignMailId || !campaignId) {
+      hasHandledAutoOpenRef.current = true;
+      clearCreateSubscriptionModalParams();
+      return;
+    }
+
+    if (campaignQuery.isLoading || campaignMailsQuery.isLoading || campaignMailByIdQuery.isLoading) {
+      return;
+    }
+
+    if (!autoOpenCampaignMail) {
+      if (campaignMailsQuery.isFetched || campaignMailByIdQuery.isFetched) {
+        hasHandledAutoOpenRef.current = true;
+        clearCreateSubscriptionModalParams();
+      }
+
+      return;
+    }
+
+    if (autoOpenCampaignMail.campaignId !== campaignId) {
+      hasHandledAutoOpenRef.current = true;
+      clearCreateSubscriptionModalParams();
+      return;
+    }
+
+    if (
+      !isSystemSubscriptionCampaign ||
+      autoOpenCampaignMail.status?.applicationReference !== positiveOutcomeApplicationReference
+    ) {
+      hasHandledAutoOpenRef.current = true;
+      clearCreateSubscriptionModalParams();
+      return;
+    }
+
+    hasHandledAutoOpenRef.current = true;
+    clearCreateSubscriptionModalParams();
+    showCreateSubscriptionModal(autoOpenCampaignMail);
+  }, [
+    autoOpenCampaignMail,
+    campaignId,
+    campaignMailByIdQuery.isFetched,
+    campaignMailByIdQuery.isLoading,
+    campaignMailsQuery.isFetched,
+    campaignMailsQuery.isLoading,
+    campaignQuery.isLoading,
+    clearCreateSubscriptionModalParams,
+    isSystemSubscriptionCampaign,
+    queryCampaignMailId,
+    shouldOpenCreateSubscriptionModal,
+    showCreateSubscriptionModal,
+  ]);
 
   if (!Number.isInteger(campaignId) || campaignId <= 0) {
     return <Navigate to={RouteConfig.CampaignList.buildLink()} replace />;
@@ -440,13 +544,12 @@ const CampaignDetailView = () => {
             computeItemKey={(_index, mail) => mail.id}
             itemContent={(_index, mail) => (
               <CampaignMailTableRowContent
-                mail={mail}
-                onCreateSubscription={() =>
-                  modal.showModal({
-                    component: CreateSystemSubscriptionModal,
-                    props: {},
-                  })
+                canCreateSubscription={
+                  isSystemSubscriptionCampaign &&
+                  mail.status?.applicationReference === positiveOutcomeApplicationReference
                 }
+                mail={mail}
+                onCreateSubscription={() => showCreateSubscriptionModal(mail)}
               />
             )}
           />

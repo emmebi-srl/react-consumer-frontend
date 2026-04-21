@@ -46,6 +46,6 @@ export const getStringDateTimeByUnixtimestamp = (
   }
 
   const { unixTimestamp, format: fmt } = params;
-  const dateFormat = fmt || 'MM/dd/yyyy HH:mm';
+  const dateFormat = fmt || 'dd/MM/yyyy HH:mm';
   return format(getDateByUnixtimestamp({ unixTimestamp }), dateFormat);
 };

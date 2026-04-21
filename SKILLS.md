@@ -24,6 +24,13 @@ Workflow:
 3. Add a React Query hook in `src/proxies/aries-proxy`.
 4. Consume the hook in the view or modal.
 
+Prefer:
+
+- searchable list endpoints with filter params
+- newer `/new` endpoints over legacy endpoints when the backend exposes both for the same resource
+
+Before introducing a dedicated client method for routes like `latest` or `system/{id}`, check whether the backend already exposes a general `GET` endpoint that can be filtered and sorted on the client.
+
 ### 2. Add A List View
 
 Use when:
@@ -50,6 +57,11 @@ Preferred approach:
 - place API interaction in proxy hooks or small helper logic
 - use typed props and predictable close actions
 - reuse the existing dialog/button patterns from `src/components/Modals`
+- when the modal can initialize from previous records, keep that logic in dedicated helper functions instead of spreading it across JSX
+- if the backend create endpoint can upsert, explicitly verify that the prefilled identity fields still represent a new record
+- when the modal shows one business concept composed from multiple sources, pick one primary card title and gate secondary values/actions behind the relevant business status
+- if accepted-proposal data is campaign-specific, fetch it with the campaign mail id instead of treating "latest by system" as equivalent
+- if a modal can be opened from a backend-generated link, read the trigger from query string, resolve the exact entity by id when needed, and clear the params after the modal opens
 
 Good candidate:
 
@@ -118,6 +130,9 @@ Checklist:
 2. Check `src/proxies/aries-proxy/api`
 3. Check Axios object mapping in `src/clients`
 4. Check whether the backend returns snake_case transformed by the client layer
+5. Check whether labels in the UI match the actual source data
+   Example: do not label a proposal acceptance summary as a campaign card unless campaign data is really being shown.
+6. Check whether a "latest" secondary record really belongs to the current campaign context before using it for initialization.
 
 ### 8. Validate A Change Safely
 

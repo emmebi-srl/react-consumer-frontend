@@ -131,8 +131,10 @@ export const getCampaignMailsMetadata = (campaignId: number) => {
   return ariesServicesClient.get<CampaignMailMetadataResponse>(`campaign/${campaignId}/mail/metadata`);
 };
 
-export const getCampaignMailById = (id: number) => {
-  return ariesServicesClient.get<CampaignMailList>(`campaign/mail/${id}`);
+export const getCampaignMailById = (id: number, options?: { includes?: string }) => {
+  return ariesServicesClient.get<CampaignMailList>(`campaign/mail/${id}`, {
+    params: options,
+  });
 };
 
 export const createCampaignMail = (model: CampaignMailCreate) => {

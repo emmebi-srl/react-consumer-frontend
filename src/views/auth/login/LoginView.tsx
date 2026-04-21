@@ -9,6 +9,8 @@ import { useAuthenticate } from '~/proxies/aries-proxy/authenticator';
 import { PersonRounded } from '@mui/icons-material';
 import { UsersQueryKeys } from '~/proxies/aries-proxy/users';
 import queryClient from '~/clients/query-client';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getPostLoginRedirectPath } from '~/routes/loginRedirect';
 
 const LoginSchema = z.object({
   username: z.string().min(1, { message: 'Nome utente obbligatorio' }),
@@ -19,6 +21,9 @@ type LoginFormModel = z.infer<typeof LoginSchema>;
 
 const LoginView: React.FC = () => {
   const { isPending, mutate: login, error: loginError } = useAuthenticate();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = getPostLoginRedirectPath(searchParams);
 
   const form = useForm<LoginFormModel>({
     defaultValues: {
@@ -32,10 +37,11 @@ const LoginView: React.FC = () => {
     login(
       { username, password },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
             queryKey: UsersQueryKeys.me,
           });
+          navigate(redirectPath, { replace: true });
         },
       },
     );

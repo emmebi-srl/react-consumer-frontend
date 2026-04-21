@@ -44,8 +44,9 @@ export interface CampaignUnsubscribeInfo {
 
 export interface AcceptSubscriptionProposalRequest {
   selectedMonthIndexes: number[];
-  termsAndConditionsAcceptanceDate: string;
-  immediateCallRightInvoicingAcceptanceDate: string;
+  termsAndConditionsAcceptanceDate: number;
+  subscriptionTermsAcceptanceDate: number;
+  immediateCallRightInvoicingAcceptanceDate: number;
   note?: string | null;
 }
 

@@ -89,6 +89,7 @@ const FormSchema = z.object({
   preferredMonth2: z.number().optional(),
   notes: z.string().optional(),
   acceptFee: z.boolean().refine((value) => value, "Devi confermare la presa visione dell'addebito iniziale"),
+  acceptSubscriptionTerms: z.boolean().refine((value) => value, "Devi accettare i termini dell'abbonamento"),
   acceptProposal: z.boolean().refine((value) => value, 'Devi accettare la proposta per proseguire'),
 });
 
@@ -151,6 +152,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
       preferredMonth2: undefined,
       notes: '',
       acceptFee: false,
+      acceptSubscriptionTerms: false,
       acceptProposal: false,
       maintenanceCount: proposal?.maintenanceCount ?? 1,
     },
@@ -191,6 +193,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
         preferredMonth2: undefined,
         notes: '',
         acceptFee: false,
+        acceptSubscriptionTerms: false,
         acceptProposal: false,
         maintenanceCount: proposal.maintenanceCount,
       });
@@ -232,12 +235,13 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
       return;
     }
 
-    const acceptanceDate = new Date().toISOString();
+    const acceptanceDate = Math.floor(Date.now() / 1000);
 
     await acceptProposal({
       campaignAriesEmailId,
       model: {
         termsAndConditionsAcceptanceDate: acceptanceDate,
+        subscriptionTermsAcceptanceDate: acceptanceDate,
         immediateCallRightInvoicingAcceptanceDate: acceptanceDate,
         note: values.notes || null,
         selectedMonthIndexes:
@@ -595,6 +599,19 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                             checked={field.value}
                             errorMessage={form.formState.errors.acceptFee?.message}
                             label="Confermo di aver letto e accettato l'addebito iniziale relativo alla reperibilità telefonica h24."
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+
+                      <Controller
+                        control={form.control}
+                        name="acceptSubscriptionTerms"
+                        render={({ field }) => (
+                          <AcceptanceCheckboxField
+                            checked={field.value}
+                            errorMessage={form.formState.errors.acceptSubscriptionTerms?.message}
+                            label="Accetto i termini dell'abbonamento e confermo di averne preso piena visione."
                             onChange={field.onChange}
                           />
                         )}

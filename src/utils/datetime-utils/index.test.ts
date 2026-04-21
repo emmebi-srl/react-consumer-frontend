@@ -40,5 +40,9 @@ describe('datetime-utils', () => {
         '01/07/2024 00:00',
       );
     });
+
+    it('should use the shared italian datetime format by default', () => {
+      expect(getStringDateTimeByUnixtimestamp(1704067200)).toBe('01/01/2024 00:00');
+    });
   });
 });
