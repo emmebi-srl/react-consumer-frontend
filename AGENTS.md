@@ -120,6 +120,8 @@ When a backend resource exposes both a legacy endpoint and a newer `/new` endpoi
 - Put route-specific helper components under the local `views/.../components` folder.
 - Put generic reusable components under `src/components`.
 - Keep types in `src/types`, not mixed into view files unless they are strictly local.
+- Prefer English API-facing field names in `src/types/aries-proxy`, even when on-screen labels remain Italian.
+  Example: use `reportGroupCount`, `invoiceCount`, and `jobCount`.
 
 ## Existing Patterns To Preserve
 
