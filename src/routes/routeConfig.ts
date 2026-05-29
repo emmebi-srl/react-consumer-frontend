@@ -40,6 +40,7 @@ export const RouteConfig = {
   LandingDoneNonSubscriber: defineRoute('landing/done-non-subscriber'),
   LandingDoneFreeCheckup: defineRoute('landing/done-free-checkup'),
   CustomerList: defineRoute('customers'),
+  CustomerDetail: defineRoute('customers/:customerId'),
   SystemList: defineRoute('systems'),
   ChecklistList: defineRoute('checklists'),
   ChecklistDetail: defineRoute('checklists/:checklistId'),
@@ -49,4 +50,8 @@ export const RouteConfig = {
   CampaignDetail: defineRoute('campaigns/:campaignId'),
   QuoteList: defineRoute('quotes'),
   QuoteDetail: defineRoute('quotes/:year/:quoteId'),
+  SupplierInvoiceList: defineRoute('supplier-invoices'),
+  SupplierInvoicePeriodicConfigurationList: defineRoute('supplier-invoices/periodic-configurations'),
+  SupplierList: defineRoute('suppliers'),
+  SupplierDetail: defineRoute('suppliers/:supplierId'),
 };

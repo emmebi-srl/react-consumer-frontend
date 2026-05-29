@@ -4,6 +4,9 @@ import { Alert, Box, Card, CardContent, CircularProgress, Typography } from '@mu
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
 import { DashboardMonthlyStat } from '~/types/aries-proxy/dashboard';
+import { useSetDashboardAsideItem } from '../state';
+import { CategoricalChartFunc } from 'recharts/types/chart/types';
+import { MouseEvent } from 'react';
 
 const series = [
   {
@@ -165,6 +168,8 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
 };
 
 const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading, onDateRangeChange, stats }) => {
+  const setAsideItem = useSetDashboardAsideItem();
+
   const chartData = stats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
 
@@ -178,6 +183,18 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
     };
   });
+
+  const onBarChartClick: CategoricalChartFunc<MouseEvent<SVGGraphicsElement>> = (dataParams) => {
+    if (dataParams.activeIndex === undefined) return;
+    const selected = stats[Number(dataParams.activeIndex)];
+    if (!selected) return;
+
+    setAsideItem({
+      type: 'monthly-stats',
+      year: selected.year,
+      month: selected.month,
+    });
+  };
 
   return (
     <Card variant="outlined">
@@ -226,7 +243,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
         {!isLoading && !isError && chartData.length > 0 ? (
           <Box sx={{ width: '100%', height: { xs: 320, md: 380 } }}>
             <ResponsiveContainer>
-              <BarChart data={chartData} barGap={2} barCategoryGap="24%">
+              <BarChart data={chartData} barGap={2} barCategoryGap="24%" onClick={onBarChartClick}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="label" />
                 <YAxis allowDecimals={false} />

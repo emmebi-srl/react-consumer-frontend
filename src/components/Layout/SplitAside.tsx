@@ -42,7 +42,14 @@ const CloseIconContainer = styled('div')(({ theme }) => ({
 
 const SplitAside = ({ children, onClose, width, open, zIndex = 1200 }: PropsWithChildren<Props>) => {
   return (
-    <Slide in={open} direction="left" style={{ position: 'absolute', right: 0, top: 0, width: width ?? 300, zIndex }}>
+    <Slide
+      appear={false}
+      direction="left"
+      in={open}
+      mountOnEnter
+      style={{ position: 'fixed', right: 0, top: 0, width: open ? (width ?? 300) : 0, zIndex }}
+      unmountOnExit
+    >
       <Container sx={{ maxWidth: width ?? 300 }}>
         <CloseIconContainer onClick={onClose}>
           <Close sx={{ color: 'white' }} />

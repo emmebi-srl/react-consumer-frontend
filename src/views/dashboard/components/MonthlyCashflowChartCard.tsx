@@ -2,9 +2,13 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Alert, Box, Card, CardContent, CircularProgress, Typography } from '@mui/material';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import type { BarShapeProps } from 'recharts';
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
 import { DashboardMonthlyCashflowStat } from '~/types/aries-proxy/dashboard';
 import { formatMoney, formatMoneyShort, newMoney } from '~/utils/money';
+import { CategoricalChartFunc } from 'recharts/types/chart/types';
+import { MouseEvent } from 'react';
+import { useSetDashboardAsideItem } from '../state';
 
 const series = [
   {
@@ -30,6 +34,8 @@ const series = [
 ] as const;
 
 const capitalize = (value: string) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
+const scheduledSupplierInvoicePaymentsDataKey = 'scheduledSupplierInvoicePaymentsAmount';
+const scheduledSupplierInvoicePaymentsColor = '#92400E';
 const toPendingAmount = (total: number, paid: number) => Math.max(total - paid, 0);
 const formatCurrency = (value: number | string) => formatMoney(newMoney(value, 'EUR'));
 const formatAxisCurrency = (value: unknown) =>
@@ -62,16 +68,43 @@ interface TooltipContentProps {
   payload?: TooltipEntry[];
 }
 
-const tooltipPriorityByDataKey = Object.fromEntries(
-  series.flatMap((item) => [
+const tooltipPriorityByDataKey = Object.fromEntries([
+  ...series.flatMap((item) => [
     [item.paidAmountDataKey, item.priority],
     [item.pendingAmountDataKey, item.priority + 1],
   ]),
-) as Record<string, number>;
+  [scheduledSupplierInvoicePaymentsDataKey, 5],
+]) as Record<string, number>;
 
 const tooltipTotalDataKeyByDataKey = Object.fromEntries(
   series.map((item) => [item.paidAmountDataKey, item.totalAmountDataKey]),
 ) as Record<string, string>;
+
+const ScheduledSupplierInvoiceBarShape: React.FC<Partial<BarShapeProps>> = (props) => {
+  const x = Number(props.x ?? 0);
+  const y = Number(props.y ?? 0);
+  const width = Number(props.width ?? 0);
+  const height = Number(props.height ?? 0);
+
+  return (
+    <g>
+      {height > 0 ? (
+        <rect
+          fill="transparent"
+          height={height}
+          pointerEvents="none"
+          stroke={scheduledSupplierInvoicePaymentsColor}
+          strokeDasharray="5 4"
+          strokeWidth={2}
+          vectorEffect="non-scaling-stroke"
+          width={width}
+          x={x}
+          y={y}
+        />
+      ) : null}
+    </g>
+  );
+};
 
 const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, payload }) => {
   if (!active || !payload?.length) {
@@ -103,6 +136,7 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
 
       {sortedPayload.map((entry) => {
         const isOutlined = entry.fill === 'transparent';
+        const isScheduled = entry.dataKey === scheduledSupplierInvoicePaymentsDataKey;
         const color = entry.stroke || entry.color || 'currentColor';
         const totalDataKey = tooltipTotalDataKeyByDataKey[entry.dataKey ?? ''];
         const displayedValue = totalDataKey ? (entry.payload?.[totalDataKey] ?? entry.value) : entry.value;
@@ -125,6 +159,7 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
                 border: 2,
                 borderColor: color,
                 borderRadius: 0.5,
+                borderStyle: isScheduled ? 'dashed' : 'solid',
                 height: 12,
                 width: 12,
               }}
@@ -149,6 +184,8 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
 };
 
 const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoading, onDateRangeChange, stats }) => {
+  const setAsideItem = useSetDashboardAsideItem();
+
   const chartData = stats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
 
@@ -161,8 +198,24 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
         stat.supplierInvoicePaymentsAmount,
         stat.paidSupplierInvoicePaymentsAmount,
       ),
+      scheduledSupplierInvoicePaymentsAmount: stat.scheduledSupplierInvoicePaymentsAmount ?? 0,
     };
   });
+  const maxScheduledSupplierInvoicePaymentsAmount = Math.max(
+    0,
+    ...chartData.map((item) => item.scheduledSupplierInvoicePaymentsAmount),
+  );
+  const onBarChartClick: CategoricalChartFunc<MouseEvent<SVGGraphicsElement>> = (dataParams) => {
+    if (dataParams.activeIndex === undefined) return;
+    const selected = stats[Number(dataParams.activeIndex)];
+    if (!selected) return;
+
+    setAsideItem({
+      type: 'monthly-cashflow',
+      year: selected.year,
+      month: selected.month,
+    });
+  };
 
   return (
     <Card variant="outlined">
@@ -213,10 +266,14 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
         {!isLoading && !isError && chartData.length > 0 ? (
           <Box sx={{ width: '100%', height: { xs: 320, md: 380 } }}>
             <ResponsiveContainer>
-              <BarChart data={chartData} barGap={4} barCategoryGap="36%">
+              <BarChart data={chartData} barGap={4} barCategoryGap="36%" onClick={onBarChartClick}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="label" />
-                <YAxis allowDecimals={false} tickFormatter={formatAxisCurrency} />
+                <YAxis
+                  allowDecimals={false}
+                  domain={[0, (dataMax: number) => Math.max(dataMax, maxScheduledSupplierInvoicePaymentsAmount)]}
+                  tickFormatter={formatAxisCurrency}
+                />
                 <Tooltip content={<ChartTooltipContent />} />
                 {series.map((item) => (
                   <Bar
@@ -241,6 +298,16 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
                     strokeWidth={2}
                   />
                 ))}
+                <Bar
+                  barSize={24}
+                  dataKey={scheduledSupplierInvoicePaymentsDataKey}
+                  fill="transparent"
+                  name="Spese future programmate"
+                  shape={<ScheduledSupplierInvoiceBarShape />}
+                  stackId="supplier-invoice-payments"
+                  stroke={scheduledSupplierInvoicePaymentsColor}
+                  strokeWidth={2}
+                />
               </BarChart>
             </ResponsiveContainer>
           </Box>

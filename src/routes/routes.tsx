@@ -41,6 +41,10 @@ const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/Camp
 const CampaignDetailView = asyncComponent(() => import('../views/campaigns/detail/CampaignDetailView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
+const SupplierInvoiceListView = asyncComponent(() => import('../views/supplier-invoices/list/SupplierInvoiceListView'));
+const SupplierInvoicePeriodicConfigurationListView = asyncComponent(
+  () => import('../views/supplier-invoices/periodic-configurations/SupplierInvoicePeriodicConfigurationListView'),
+);
 const DashboardView = asyncComponent(() => import('../views/dashboard/DashboardView'));
 
 const routes: RouteObject[] = [
@@ -143,6 +147,14 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.QuoteDetail.template,
             element: <QuoteDetailView />,
+          },
+          {
+            path: RouteConfig.SupplierInvoiceList.template,
+            element: <SupplierInvoiceListView />,
+          },
+          {
+            path: RouteConfig.SupplierInvoicePeriodicConfigurationList.template,
+            element: <SupplierInvoicePeriodicConfigurationListView />,
           },
           {
             path: '*',

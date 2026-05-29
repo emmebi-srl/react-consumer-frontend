@@ -3,7 +3,7 @@ import z from 'zod';
 import { useActiveId, useIsSidebarOpen, useResetSelection } from '../state';
 import { AsideSummaryView } from '~/components/Layout/SplitAside/AsideSummaryView';
 import { useCampaignById, useCampaignTypes, useUpdateCampaign } from '~/proxies/aries-proxy/campaigns';
-import { AsideContentView } from '~/components/Layout/SplitAside/AsideSummaryView copy';
+import { AsideContentView } from '~/components/Layout/SplitAside/AsideContentView';
 import { useFilesExplorerDownloadFile } from '~/proxies/aries-proxy/files-explorer';
 import {
   Alert,
@@ -248,7 +248,7 @@ const CampaignAsideContent: React.FC<{ campaignId: number }> = ({ campaignId }) 
   return (
     <>
       <AsideSummaryView title={campaign?.name ?? 'Caricamento...'} subtitle={campaign?.description ?? ''} />
-      <AsideContentView sx={{ flexDirection: 'column', gap: 3 }}>
+      <AsideContentView sx={{ flexDirection: 'column', gap: 3, overflowY: 'scroll' }}>
         {campaign && (
           <>
             <CampaignActions campaign={campaign} />

@@ -6,6 +6,61 @@ export interface DashboardMonthlyCashflowStatsList {
   monthlyCashflowStats: DashboardMonthlyCashflowStat[];
 }
 
+export interface DashboardTimelineList {
+  items: DashboardTimelineItem[];
+}
+
+export interface DashboardMonthlyStatsDetails {
+  year: number;
+  month: number;
+  sections: DashboardAsideSection[];
+}
+
+export interface DashboardMonthlyCashflowDetails {
+  year: number;
+  month: number;
+  sections: DashboardAsideSection[];
+}
+
+export interface DashboardAsideSection {
+  key: string;
+  title: string;
+  hasMore: boolean;
+  moreUrl?: string;
+  items: DashboardAsideItem[];
+}
+
+export interface DashboardAsideItem {
+  id: number;
+  year: number;
+  date: number;
+  title: string;
+  subtitle?: string;
+  counterpartName?: string;
+  counterpartId?: number;
+  counterpartType?: 'customer' | 'supplier';
+  statusId?: number;
+  statusName?: string;
+  isOpen: boolean;
+  amount?: number;
+}
+
+export interface DashboardTimelineItem {
+  id: number;
+  type: 'periodic-check' | 'expiring-ticket' | 'expiring-material';
+  typeLabel: string;
+  title: string;
+  subtitle?: string;
+  dueDate: number;
+  customerId?: number;
+  customerName?: string;
+  systemId?: number;
+  systemDescription?: string;
+  urgency?: number;
+  urgencyLabel?: string;
+  isOpen: boolean;
+}
+
 export interface DashboardMonthlyStat {
   year: number;
   month: number;
@@ -32,9 +87,16 @@ export interface DashboardMonthlyCashflowStat {
   paidSupplierInvoicePaymentsCount: number;
   supplierInvoicePaymentsAmount: number;
   paidSupplierInvoicePaymentsAmount: number;
+  scheduledSupplierInvoicePaymentsCount?: number;
+  scheduledSupplierInvoicePaymentsAmount?: number;
 }
 
 export interface DashboardMonthlyStatsRequest {
   fromDate?: string;
   toDate?: string;
+}
+
+export interface DashboardMonthlyDetailsRequest {
+  year: number;
+  month: number;
 }

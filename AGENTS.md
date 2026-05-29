@@ -70,6 +70,8 @@ This file defines project-specific guardrails so changes stay consistent with th
 - For backend date formatting/parsing, reuse the helpers in `src/utils/datetime-utils`.
 - Aries backend `DateTime` values are serialized as Unix timestamps in seconds from `1970-01-01T00:00:00Z`, so frontend API-facing date fields should normally be typed as `number`, not `string`.
 - Do not use `new Date(apiValue)` directly on Aries API date fields unless you have first verified that the specific endpoint returns an ISO string instead of the standard Unix-seconds contract.
+- When converting an Aries API timestamp for rendering or sorting, prefer `getDateByUnixtimestamp({ unixTimestamp })` from `src/utils/datetime-utils` instead of `new Date(...)`.
+- If a response model in `src/types/aries-proxy` represents a standard Aries API date, type it as `number`, not `number | string`.
 
 Preferred flow:
 
