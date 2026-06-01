@@ -4,7 +4,11 @@ import {
   createQuote,
   createQuoteItem,
   createQuoteLot,
+  createNextQuoteRevision,
   createQuoteRevision,
+  deleteQuoteItem,
+  deleteQuoteLot,
+  deleteQuoteRevision,
   getQuoteById,
   getQuoteItemById,
   getQuoteItems,
@@ -158,7 +162,7 @@ export const useQuoteRevisionById = (year: number, id: number, revisionId: numbe
   return useQuery({
     queryKey: QuoteQueryKeys.revisionById(year, id, revisionId),
     queryFn: async () => (await getQuoteRevisionById(year, id, revisionId)).data,
-    enabled: !!year && !!id && !!revisionId,
+    enabled: year > 0 && id > 0 && revisionId >= 0,
   });
 };
 
@@ -173,6 +177,21 @@ export const useCreateQuoteRevision = () => {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.revisions(variables.year, variables.id) }),
         queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
+      ]),
+  });
+};
+
+export const useCreateNextQuoteRevision = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ year, id }: { year: number; id: number }) => (await createNextQuoteRevision(year, id)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_res, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.revisions(variables.year, variables.id) }),
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.all }),
       ]),
   });
 };
@@ -204,11 +223,28 @@ export const useUpdateQuoteRevision = () => {
   });
 };
 
+export const useDeleteQuoteRevision = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ year, id, revisionId }: { year: number; id: number; revisionId: number }) => {
+      await deleteQuoteRevision(year, id, revisionId);
+    },
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_res, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.revisions(variables.year, variables.id) }),
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.all }),
+      ]),
+  });
+};
+
 export const useQuoteLots = (year: number, id: number, revisionId: number) => {
   return useQuery({
     queryKey: QuoteQueryKeys.lots(year, id, revisionId),
     queryFn: async () => (await getQuoteLots(year, id, revisionId)).data,
-    enabled: !!year && !!id && !!revisionId,
+    enabled: year > 0 && id > 0 && revisionId >= 0,
   });
 };
 
@@ -216,7 +252,7 @@ export const useQuoteLotById = (year: number, id: number, revisionId: number, po
   return useQuery({
     queryKey: QuoteQueryKeys.lotById(year, id, revisionId, position),
     queryFn: async () => (await getQuoteLotById(year, id, revisionId, position)).data,
-    enabled: !!year && !!id && !!revisionId && !!position,
+    enabled: year > 0 && id > 0 && revisionId >= 0 && position > 0,
   });
 };
 
@@ -277,11 +313,70 @@ export const useUpdateQuoteLot = () => {
   });
 };
 
+export const useDeleteQuoteLot = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      year,
+      id,
+      revisionId,
+      position,
+    }: {
+      year: number;
+      id: number;
+      revisionId: number;
+      position: number;
+    }) => {
+      await deleteQuoteLot(year, id, revisionId, position);
+    },
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_res, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: QuoteQueryKeys.lots(variables.year, variables.id, variables.revisionId),
+        }),
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.all }),
+      ]),
+  });
+};
+
 export const useQuoteItems = (year: number, id: number, revisionId: number, position: number) => {
   return useQuery({
     queryKey: QuoteQueryKeys.items(year, id, revisionId, position),
     queryFn: async () => (await getQuoteItems(year, id, revisionId, position)).data,
-    enabled: !!year && !!id && !!revisionId,
+    enabled: year > 0 && id > 0 && revisionId >= 0 && position > 0,
+  });
+};
+
+export const useDeleteQuoteItem = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      year,
+      id,
+      revisionId,
+      position,
+      tabId,
+    }: {
+      year: number;
+      id: number;
+      revisionId: number;
+      position: number;
+      tabId: number;
+    }) => {
+      await deleteQuoteItem(year, id, revisionId, position, tabId);
+    },
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_res, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: QuoteQueryKeys.items(variables.year, variables.id, variables.revisionId, variables.position),
+        }),
+        queryClient.invalidateQueries({ queryKey: QuoteQueryKeys.byId(variables.year, variables.id) }),
+      ]),
   });
 };
 
@@ -289,7 +384,7 @@ export const useQuoteItemById = (year: number, id: number, revisionId: number, p
   return useQuery({
     queryKey: QuoteQueryKeys.itemById(year, id, revisionId, position, tabId),
     queryFn: async () => (await getQuoteItemById(year, id, revisionId, position, tabId)).data,
-    enabled: !!year && !!id && !!revisionId && !!position && !!tabId,
+    enabled: year > 0 && id > 0 && revisionId >= 0 && position > 0 && tabId > 0,
   });
 };
 

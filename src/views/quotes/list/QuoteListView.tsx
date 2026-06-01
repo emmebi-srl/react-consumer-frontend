@@ -6,7 +6,6 @@ import DataTableContainer from '~/components/Table/DataTableContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableHead from '~/components/Table/DataTableHead';
 import DataTableBody from '~/components/Table/DataTableBody';
-import DataTableRow from '~/components/Table/DataTableRow';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
 import { useQuotesSearch } from '~/proxies/aries-proxy/quotes';
@@ -18,12 +17,14 @@ import { Link as RouterLink } from 'react-router-dom';
 import QuoteTableHeading from './components/QuoteTableHeading';
 import QuoteBar from './components/QuoteBar';
 import { useFilterState } from './state';
+import QuoteTableRow from './components/QuoteTableRow';
+import QuoteAside from './components/QuoteAside';
 
 const QuoteTableComponents: TableComponents<Quote> = {
   Table: DataTable,
   TableHead: DataTableHead,
   TableBody: DataTableBody,
-  TableRow: DataTableRow,
+  TableRow: ({ item, ...props }) => <QuoteTableRow entity={item} {...props} />,
 };
 
 const QuoteTableRowContent: React.FC<{ quote: Quote }> = ({ quote }) => {
@@ -64,6 +65,7 @@ const QuoteTableRowContent: React.FC<{ quote: Quote }> = ({ quote }) => {
           to={RouteConfig.QuoteDetail.buildLink({ year: String(quote.year), quoteId: String(quote.id) })}
           size="small"
           variant="outlined"
+          onClick={(event) => event.stopPropagation()}
         >
           Dettaglio
         </Button>
@@ -137,6 +139,7 @@ const QuoteListView = () => {
             </DataTableContainer>
           </Stack>
         </PageContainer>
+        <QuoteAside />
       </SplitMain>
     </SplitLayout>
   );

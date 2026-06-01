@@ -58,8 +58,16 @@ export const createQuoteRevision = (year: number, id: number, model: QuoteRevisi
   return ariesServicesClient.post<QuoteRevisionList>(`quote/${year}/${id}/revisions`, model);
 };
 
+export const createNextQuoteRevision = (year: number, id: number) => {
+  return ariesServicesClient.post<QuoteRevisionList>(`quote/${year}/${id}/revisions/from-current`);
+};
+
 export const updateQuoteRevision = (year: number, id: number, revisionId: number, model: QuoteRevisionUpdate) => {
   return ariesServicesClient.patch<QuoteRevisionList>(`quote/${year}/${id}/revisions/${revisionId}`, model);
+};
+
+export const deleteQuoteRevision = (year: number, id: number, revisionId: number) => {
+  return ariesServicesClient.delete(`quote/${year}/${id}/revisions/${revisionId}`);
 };
 
 export const getQuoteLots = (year: number, id: number, revisionId: number) => {
@@ -82,6 +90,10 @@ export const updateQuoteLot = (
   model: QuoteLotUpdate,
 ) => {
   return ariesServicesClient.patch<QuoteLotList>(`quote/${year}/${id}/revisions/${revisionId}/lots/${position}`, model);
+};
+
+export const deleteQuoteLot = (year: number, id: number, revisionId: number, position: number) => {
+  return ariesServicesClient.delete(`quote/${year}/${id}/revisions/${revisionId}/lots/${position}`);
 };
 
 export const getQuoteItems = (year: number, id: number, revisionId: number, position: number) => {
@@ -119,4 +131,8 @@ export const updateQuoteItem = (
     `quote/${year}/${id}/revisions/${revisionId}/lots/${position}/items/${tabId}`,
     model,
   );
+};
+
+export const deleteQuoteItem = (year: number, id: number, revisionId: number, position: number, tabId: number) => {
+  return ariesServicesClient.delete(`quote/${year}/${id}/revisions/${revisionId}/lots/${position}/items/${tabId}`);
 };

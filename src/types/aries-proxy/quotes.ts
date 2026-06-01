@@ -100,6 +100,7 @@ export interface QuoteLot {
   revisionId: number;
   year: number;
   lotId: number;
+  lotName?: string | null;
   note?: string | null;
   preface?: string | null;
   systemId?: number | null;
@@ -247,7 +248,8 @@ export interface QuoteRevisionUpdate {
 
 export interface QuoteLotCreate {
   position?: number;
-  lotId: number;
+  lotId?: number | null;
+  lotName?: string | null;
   note?: string | null;
   preface?: string | null;
   systemId?: number | null;
@@ -262,7 +264,8 @@ export interface QuoteLotCreate {
 }
 
 export interface QuoteLotUpdate {
-  lotId?: number;
+  lotId?: number | null;
+  lotName?: string | null;
   note?: string | null;
   preface?: string | null;
   systemId?: number | null;

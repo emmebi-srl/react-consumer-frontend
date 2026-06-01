@@ -41,6 +41,8 @@ const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/Camp
 const CampaignDetailView = asyncComponent(() => import('../views/campaigns/detail/CampaignDetailView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
+const QuoteRevisionEditView = asyncComponent(() => import('../views/quotes/revision-edit/QuoteRevisionEditView'));
+const QuoteLotEditView = asyncComponent(() => import('../views/quotes/lot-edit/QuoteLotEditView'));
 const SupplierInvoiceListView = asyncComponent(() => import('../views/supplier-invoices/list/SupplierInvoiceListView'));
 const SupplierInvoicePeriodicConfigurationListView = asyncComponent(
   () => import('../views/supplier-invoices/periodic-configurations/SupplierInvoicePeriodicConfigurationListView'),
@@ -147,6 +149,18 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.QuoteDetail.template,
             element: <QuoteDetailView />,
+          },
+          {
+            path: RouteConfig.QuoteRevisionEdit.template,
+            element: <QuoteRevisionEditView />,
+          },
+          {
+            path: RouteConfig.QuoteLotNew.template,
+            element: <QuoteLotEditView />,
+          },
+          {
+            path: RouteConfig.QuoteLotEdit.template,
+            element: <QuoteLotEditView />,
           },
           {
             path: RouteConfig.SupplierInvoiceList.template,
