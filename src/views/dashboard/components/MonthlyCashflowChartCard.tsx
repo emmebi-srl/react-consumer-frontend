@@ -76,9 +76,77 @@ const tooltipPriorityByDataKey = Object.fromEntries([
   [scheduledSupplierInvoicePaymentsDataKey, 5],
 ]) as Record<string, number>;
 
-const tooltipTotalDataKeyByDataKey = Object.fromEntries(
-  series.map((item) => [item.paidAmountDataKey, item.totalAmountDataKey]),
-) as Record<string, string>;
+interface AxisSummaryRow {
+  borderStyle?: 'dashed' | 'solid';
+  color: string;
+  fill?: string;
+  isZero: boolean;
+  label: string;
+  value: string;
+}
+
+interface ChartDataItem extends DashboardMonthlyCashflowStat {
+  fullLabel: string;
+  label: string;
+  pendingInvoicePaymentsAmount: number;
+  pendingSupplierInvoicePaymentsAmount: number;
+  scheduledSupplierInvoicePaymentsAmount: number;
+  summaryRows: AxisSummaryRow[];
+}
+
+interface AxisTickProps {
+  payload?: {
+    index?: number;
+    value?: string;
+  };
+  x?: number;
+  y?: number;
+}
+
+const MonthlyCashflowAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] }> = ({
+  data,
+  payload,
+  x = 0,
+  y = 0,
+}) => {
+  const item =
+    typeof payload?.index === 'number'
+      ? data[payload.index]
+      : data.find((chartDataItem) => chartDataItem.label === payload?.value);
+
+  if (!item) {
+    return null;
+  }
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text fill="#374151" fontSize={12} fontWeight={700} textAnchor="middle" y={12}>
+        {item.label}
+      </text>
+      {item.summaryRows.map((row, index) => (
+        <g key={row.label} opacity={row.isZero ? 0.45 : 1} transform={`translate(0,${32 + index * 14})`}>
+          <rect
+            fill={row.fill ?? row.color}
+            height={8}
+            rx={2}
+            stroke={row.color}
+            strokeDasharray={row.borderStyle === 'dashed' ? '4 3' : undefined}
+            strokeWidth={1.5}
+            width={8}
+            x={-47}
+            y={-7}
+          />
+          <text fill="#4B5563" fontSize={10.5} textAnchor="start" x={-34} y={0}>
+            {row.label}
+          </text>
+          <text fill="#111827" fontSize={10.5} fontWeight={700} textAnchor="end" x={68} y={0}>
+            {row.value}
+          </text>
+        </g>
+      ))}
+    </g>
+  );
+};
 
 const ScheduledSupplierInvoiceBarShape: React.FC<Partial<BarShapeProps>> = (props) => {
   const x = Number(props.x ?? 0);
@@ -138,8 +206,7 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
         const isOutlined = entry.fill === 'transparent';
         const isScheduled = entry.dataKey === scheduledSupplierInvoicePaymentsDataKey;
         const color = entry.stroke || entry.color || 'currentColor';
-        const totalDataKey = tooltipTotalDataKeyByDataKey[entry.dataKey ?? ''];
-        const displayedValue = totalDataKey ? (entry.payload?.[totalDataKey] ?? entry.value) : entry.value;
+        const displayedValue = entry.value;
 
         return (
           <Box
@@ -186,19 +253,58 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
 const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoading, onDateRangeChange, stats }) => {
   const setAsideItem = useSetDashboardAsideItem();
 
-  const chartData = stats.map((stat) => {
+  const chartData: ChartDataItem[] = stats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
+    const pendingInvoicePaymentsAmount = toPendingAmount(stat.invoicePaymentsAmount, stat.paidInvoicePaymentsAmount);
+    const pendingSupplierInvoicePaymentsAmount = toPendingAmount(
+      stat.supplierInvoicePaymentsAmount,
+      stat.paidSupplierInvoicePaymentsAmount,
+    );
+    const scheduledSupplierInvoicePaymentsAmount = stat.scheduledSupplierInvoicePaymentsAmount ?? 0;
 
     return {
       ...stat,
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
-      label: capitalize(format(monthDate, 'MMM yy', { locale: it })),
-      pendingInvoicePaymentsAmount: toPendingAmount(stat.invoicePaymentsAmount, stat.paidInvoicePaymentsAmount),
-      pendingSupplierInvoicePaymentsAmount: toPendingAmount(
-        stat.supplierInvoicePaymentsAmount,
-        stat.paidSupplierInvoicePaymentsAmount,
-      ),
-      scheduledSupplierInvoicePaymentsAmount: stat.scheduledSupplierInvoicePaymentsAmount ?? 0,
+      label: capitalize(format(monthDate, 'MMM yyyy', { locale: it })),
+      pendingInvoicePaymentsAmount,
+      pendingSupplierInvoicePaymentsAmount,
+      scheduledSupplierInvoicePaymentsAmount,
+      summaryRows: [
+        {
+          color: series[0].color,
+          isZero: stat.paidInvoicePaymentsAmount <= 0,
+          label: 'Inc.',
+          value: formatAxisCurrency(stat.paidInvoicePaymentsAmount),
+        },
+        {
+          color: series[0].color,
+          fill: 'transparent',
+          isZero: pendingInvoicePaymentsAmount <= 0,
+          label: 'Da inc.',
+          value: formatAxisCurrency(pendingInvoicePaymentsAmount),
+        },
+        {
+          color: series[1].color,
+          isZero: stat.paidSupplierInvoicePaymentsAmount <= 0,
+          label: 'Pag.',
+          value: formatAxisCurrency(stat.paidSupplierInvoicePaymentsAmount),
+        },
+        {
+          color: series[1].color,
+          fill: 'transparent',
+          isZero: pendingSupplierInvoicePaymentsAmount <= 0,
+          label: 'Da pag.',
+          value: formatAxisCurrency(pendingSupplierInvoicePaymentsAmount),
+        },
+        {
+          borderStyle: 'dashed',
+          color: scheduledSupplierInvoicePaymentsColor,
+          fill: 'transparent',
+          isZero: scheduledSupplierInvoicePaymentsAmount <= 0,
+          label: 'Prog.',
+          value: formatAxisCurrency(scheduledSupplierInvoicePaymentsAmount),
+        },
+      ],
     };
   });
   const maxScheduledSupplierInvoicePaymentsAmount = Math.max(
@@ -264,52 +370,60 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
         ) : null}
 
         {!isLoading && !isError && chartData.length > 0 ? (
-          <Box sx={{ width: '100%', height: { xs: 320, md: 380 } }}>
-            <ResponsiveContainer>
-              <BarChart data={chartData} barGap={4} barCategoryGap="36%" onClick={onBarChartClick}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="label" />
-                <YAxis
-                  allowDecimals={false}
-                  domain={[0, (dataMax: number) => Math.max(dataMax, maxScheduledSupplierInvoicePaymentsAmount)]}
-                  tickFormatter={formatAxisCurrency}
-                />
-                <Tooltip content={<ChartTooltipContent />} />
-                {series.map((item) => (
-                  <Bar
-                    key={item.paidAmountDataKey}
-                    barSize={24}
-                    dataKey={item.paidAmountDataKey}
-                    fill={item.color}
-                    name={item.label}
-                    stackId={item.stackId}
-                    stroke={item.color}
+          <Box sx={{ overflowX: 'auto', width: '100%' }}>
+            <Box sx={{ height: { xs: 405, md: 450 }, minWidth: Math.max(chartData.length * 164, 640), width: '100%' }}>
+              <ResponsiveContainer>
+                <BarChart data={chartData} barGap={4} barCategoryGap="36%" onClick={onBarChartClick}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="label"
+                    height={105}
+                    interval={0}
+                    tick={<MonthlyCashflowAxisTick data={chartData} />}
+                    tickLine={false}
                   />
-                ))}
-                {series.map((item) => (
+                  <YAxis
+                    allowDecimals={false}
+                    domain={[0, (dataMax: number) => Math.max(dataMax, maxScheduledSupplierInvoicePaymentsAmount)]}
+                    tickFormatter={formatAxisCurrency}
+                  />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  {series.map((item) => (
+                    <Bar
+                      key={item.paidAmountDataKey}
+                      barSize={24}
+                      dataKey={item.paidAmountDataKey}
+                      fill={item.color}
+                      name={item.label}
+                      stackId={item.stackId}
+                      stroke={item.color}
+                    />
+                  ))}
+                  {series.map((item) => (
+                    <Bar
+                      key={item.pendingAmountDataKey}
+                      barSize={24}
+                      dataKey={item.pendingAmountDataKey}
+                      fill="transparent"
+                      name={item.pendingLabel}
+                      stackId={item.stackId}
+                      stroke={item.color}
+                      strokeWidth={2}
+                    />
+                  ))}
                   <Bar
-                    key={item.pendingAmountDataKey}
                     barSize={24}
-                    dataKey={item.pendingAmountDataKey}
+                    dataKey={scheduledSupplierInvoicePaymentsDataKey}
                     fill="transparent"
-                    name={item.pendingLabel}
-                    stackId={item.stackId}
-                    stroke={item.color}
+                    name="Spese future programmate"
+                    shape={<ScheduledSupplierInvoiceBarShape />}
+                    stackId="supplier-invoice-payments"
+                    stroke={scheduledSupplierInvoicePaymentsColor}
                     strokeWidth={2}
                   />
-                ))}
-                <Bar
-                  barSize={24}
-                  dataKey={scheduledSupplierInvoicePaymentsDataKey}
-                  fill="transparent"
-                  name="Spese future programmate"
-                  shape={<ScheduledSupplierInvoiceBarShape />}
-                  stackId="supplier-invoice-payments"
-                  stroke={scheduledSupplierInvoicePaymentsColor}
-                  strokeWidth={2}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
           </Box>
         ) : null}
       </CardContent>

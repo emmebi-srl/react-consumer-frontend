@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowBack, Delete, Save } from '@mui/icons-material';
 import {
   Alert,
@@ -25,10 +25,11 @@ import {
   useDeleteQuoteItem,
   useQuoteItems,
   useQuoteLotById,
+  useUpdateQuoteItem,
   useUpdateQuoteLot,
 } from '~/proxies/aries-proxy/quotes';
 import { RouteConfig } from '~/routes/routeConfig';
-import { QuoteLotCreate, QuoteLotUpdate } from '~/types/aries-proxy/quotes';
+import { QuoteItem, QuoteLotCreate, QuoteLotUpdate } from '~/types/aries-proxy/quotes';
 
 interface FormValues {
   chargePercentage: string;
@@ -65,6 +66,185 @@ const defaultValues: FormValues = {
 const toNullableNumber = (value: string) => {
   const trimmed = value.trim();
   return trimmed ? Number(trimmed) : null;
+};
+
+const rtfControlDestinations = new Set(['colortbl', 'fonttbl', 'info', 'pict', 'stylesheet']);
+
+const decodeRtf = (value?: string | null) => {
+  if (!value) return '';
+  if (!value.trimStart().startsWith('{\\rtf')) return value;
+
+  const stack: boolean[] = [];
+  let ignore = false;
+  let result = '';
+
+  for (let index = 0; index < value.length; index += 1) {
+    const char = value[index];
+
+    if (char === '{') {
+      const groupStart = /^\\\*?([a-zA-Z]+)/.exec(value.slice(index + 1));
+      const destination = groupStart?.[1] ?? '';
+      stack.push(ignore);
+      ignore = ignore || rtfControlDestinations.has(destination);
+      continue;
+    }
+
+    if (char === '}') {
+      ignore = stack.pop() ?? false;
+      continue;
+    }
+
+    if (ignore) continue;
+
+    if (char !== '\\') {
+      if (char !== '\r' && char !== '\n') result += char;
+      continue;
+    }
+
+    const next = value[index + 1];
+    if (next === '\\' || next === '{' || next === '}') {
+      result += next;
+      index += 1;
+      continue;
+    }
+
+    if (next === "'") {
+      const hex = value.slice(index + 2, index + 4);
+      const code = Number.parseInt(hex, 16);
+      if (!Number.isNaN(code)) result += String.fromCharCode(code);
+      index += 3;
+      continue;
+    }
+
+    const match = /^([a-zA-Z]+)(-?\d+)? ?/.exec(value.slice(index + 1));
+    if (!match) {
+      index += 1;
+      continue;
+    }
+
+    const [, word, parameter] = match;
+    if (word === 'par' || word === 'line') result += '\n';
+    if (word === 'tab') result += '\t';
+    if (word === 'u' && parameter) result += String.fromCharCode(Number(parameter));
+
+    index += match[0].length;
+  }
+
+  return result
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .trim();
+};
+
+const encodeRtfText = (value: string) => {
+  const encodeChar = (char: string) => {
+    if (char === '\\' || char === '{' || char === '}') return `\\${char}`;
+
+    const code = char.charCodeAt(0);
+    if (code > 127) {
+      const signedCode = code > 32767 ? code - 65536 : code;
+      return `\\u${signedCode}?`;
+    }
+
+    return char;
+  };
+
+  const body = value
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((line) => line.split('').map(encodeChar).join(''))
+    .join('\\par\n');
+
+  return `{\\rtf1\\ansi\\ansicpg1252\\deff0{\\fonttbl{\\f0\\fnil Arial;}}\\viewkind4\\uc1\\f0\\fs20 ${body}}`;
+};
+
+interface ItemRowProps {
+  deletePending: boolean;
+  item: QuoteItem;
+  lotPosition: number;
+  onDelete: (tabId: number) => void;
+  quoteId: number;
+  revisionId: number;
+  year: number;
+}
+
+const QuoteLotItemRow: React.FC<ItemRowProps> = ({
+  deletePending,
+  item,
+  lotPosition,
+  onDelete,
+  quoteId,
+  revisionId,
+  year,
+}) => {
+  const updateItem = useUpdateQuoteItem();
+  const [description, setDescription] = useState(() => decodeRtf(item.shortDescription));
+
+  useEffect(() => {
+    setDescription(decodeRtf(item.shortDescription));
+  }, [item.shortDescription]);
+
+  const originalDescription = decodeRtf(item.shortDescription);
+  const hasChanges = description !== originalDescription;
+
+  const handleSave = async () => {
+    await updateItem.mutateAsync({
+      data: {
+        shortDescription: encodeRtfText(description),
+      },
+      id: quoteId,
+      position: lotPosition,
+      revisionId,
+      tabId: item.tabId,
+      year,
+    });
+  };
+
+  return (
+    <TableRow>
+      <TableCell>{item.tabId}</TableCell>
+      <TableCell>{item.articleId ?? '-'}</TableCell>
+      <TableCell sx={{ minWidth: 520 }}>
+        <TextField
+          fullWidth
+          minRows={4}
+          multiline
+          onChange={(event) => setDescription(event.target.value)}
+          value={description}
+        />
+      </TableCell>
+      <TableCell align="right">{item.quantity ?? 0}</TableCell>
+      <TableCell align="right">{item.price ?? 0}</TableCell>
+      <TableCell align="right">
+        <Stack direction="row" justifyContent="flex-end" spacing={0.5}>
+          <Tooltip title="Salva descrizione">
+            <span>
+              <IconButton
+                aria-label="Salva descrizione"
+                disabled={!hasChanges || updateItem.isPending}
+                onClick={handleSave}
+                size="small"
+              >
+                <Save fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Elimina riga">
+            <span>
+              <IconButton
+                aria-label="Elimina riga"
+                disabled={deletePending || updateItem.isPending}
+                onClick={() => onDelete(item.tabId)}
+                size="small"
+              >
+                <Delete fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Stack>
+      </TableCell>
+    </TableRow>
+  );
 };
 
 const QuoteLotEditView = () => {
@@ -241,27 +421,16 @@ const QuoteLotEditView = () => {
                 </TableHead>
                 <TableBody>
                   {items.map((item) => (
-                    <TableRow key={item.tabId}>
-                      <TableCell>{item.tabId}</TableCell>
-                      <TableCell>{item.articleId ?? '-'}</TableCell>
-                      <TableCell>{item.shortDescription ?? '-'}</TableCell>
-                      <TableCell align="right">{item.quantity ?? 0}</TableCell>
-                      <TableCell align="right">{item.price ?? 0}</TableCell>
-                      <TableCell align="right">
-                        <Tooltip title="Elimina riga">
-                          <span>
-                            <IconButton
-                              aria-label="Elimina riga"
-                              disabled={deleteItem.isPending}
-                              onClick={() => handleDeleteItem(item.tabId)}
-                              size="small"
-                            >
-                              <Delete fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
+                    <QuoteLotItemRow
+                      key={item.tabId}
+                      deletePending={deleteItem.isPending}
+                      item={item}
+                      lotPosition={lotPosition}
+                      onDelete={handleDeleteItem}
+                      quoteId={quoteId}
+                      revisionId={revisionId}
+                      year={year}
+                    />
                   ))}
                   {items.length === 0 && !itemsQuery.isLoading ? (
                     <TableRow>

@@ -11,6 +11,7 @@ import {
 import DeadlineTimelineCard from './components/DeadlineTimelineCard';
 import MonthlyCashflowChartCard from './components/MonthlyCashflowChartCard';
 import MonthlyStatsChartCard from './components/MonthlyStatsChartCard';
+import WeeklyEventsCard from './components/WeeklyEventsCard';
 import SplitMain from '~/components/Layout/SplitMain';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import DashboardAside from './components/DashboardAside';
@@ -85,13 +86,7 @@ const DashboardView = () => {
       <SplitMain>
         <PageContainer>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <MonthlyStatsChartCard
-              dateRange={statsDateRange}
-              isError={dashboardQuery.isError}
-              isLoading={dashboardQuery.isLoading}
-              onDateRangeChange={setStatsDateRange}
-              stats={dashboardQuery.data?.monthlyStats ?? []}
-            />
+            <WeeklyEventsCard />
             <MonthlyCashflowChartCard
               dateRange={cashflowDateRange}
               isError={cashflowQuery.isError}
@@ -105,6 +100,13 @@ const DashboardView = () => {
               isLoading={timelineQuery.isLoading}
               items={timelineQuery.data?.items ?? []}
               onDateRangeChange={setTimelineDateRange}
+            />
+            <MonthlyStatsChartCard
+              dateRange={statsDateRange}
+              isError={dashboardQuery.isError}
+              isLoading={dashboardQuery.isLoading}
+              onDateRangeChange={setStatsDateRange}
+              stats={dashboardQuery.data?.monthlyStats ?? []}
             />
           </Box>
         </PageContainer>

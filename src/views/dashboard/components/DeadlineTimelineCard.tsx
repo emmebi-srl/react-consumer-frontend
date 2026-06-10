@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import SimCardOutlinedIcon from '@mui/icons-material/SimCardOutlined';
 import ViewTimelineRoundedIcon from '@mui/icons-material/ViewTimelineRounded';
 import {
   Alert,
@@ -12,8 +13,10 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  FormControlLabel,
   Link,
   Stack,
+  Switch,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -62,6 +65,12 @@ const timelineTypeOptions: TimelineTypeOption<TimelineFilter>[] = [
     key: 'expiring-material',
     label: 'Materiali in scadenza',
   },
+  {
+    color: '#00897B',
+    icon: SimCardOutlinedIcon,
+    key: 'expiring-system-sim',
+    label: 'SIM impianto in scadenza',
+  },
 ];
 
 const urgencySxByLevel = {
@@ -79,7 +88,20 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
 
   return (
     <>
-      <Typography sx={{ fontSize: 15, fontWeight: 700, lineHeight: 1.25 }} variant="body1">
+      <Typography
+        sx={{
+          color: item.isOpen ? 'text.primary' : 'text.secondary',
+          display: '-webkit-box',
+          fontSize: 15,
+          fontWeight: 700,
+          lineHeight: 1.25,
+          overflow: 'hidden',
+          textDecoration: item.isOpen ? 'none' : 'line-through',
+          WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: 2,
+        }}
+        variant="body1"
+      >
         {item.title}
       </Typography>
 
@@ -93,6 +115,7 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
               fontSize: 13,
               fontWeight: 600,
               mt: 0.5,
+              opacity: item.isOpen ? 1 : 0.75,
               textDecorationColor: alpha('#000000', 0.25),
             }}
             to={customerLink}
@@ -101,14 +124,23 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
             {item.customerName}
           </Link>
         ) : (
-          <Typography noWrap sx={{ fontSize: 13, fontWeight: 600, mt: 0.5 }} variant="body2">
+          <Typography
+            noWrap
+            sx={{ fontSize: 13, fontWeight: 600, mt: 0.5, opacity: item.isOpen ? 1 : 0.75 }}
+            variant="body2"
+          >
             {item.customerName}
           </Typography>
         )
       ) : null}
 
       {item.systemDescription ? (
-        <Typography noWrap color="text.secondary" sx={{ display: 'block', mt: 0.35 }} variant="caption">
+        <Typography
+          noWrap
+          color="text.secondary"
+          sx={{ display: 'block', mt: 0.35, opacity: item.isOpen ? 1 : 0.72 }}
+          variant="caption"
+        >
           {item.systemDescription}
         </Typography>
       ) : null}
@@ -121,6 +153,7 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
             fontSize: 12,
             lineHeight: 1.35,
             mt: 0.75,
+            opacity: item.isOpen ? 1 : 0.72,
             overflow: 'hidden',
             WebkitBoxOrient: 'vertical',
             WebkitLineClamp: 2,
@@ -175,12 +208,25 @@ const renderDeadlineSchedulerItemContent = ({
 
 const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, items, onDateRangeChange }) => {
   const [timelineView, setTimelineView] = useState<DeadlineTimelineView>('horizontal');
+  const [showOnlyPending, setShowOnlyPending] = useState(false);
+
+  const filteredItems = useMemo(() => {
+    if (!showOnlyPending) {
+      return items;
+    }
+
+    return items.filter((item) => item.isOpen);
+  }, [items, showOnlyPending]);
 
   const handleTimelineViewChange = (_event: React.MouseEvent<HTMLElement>, nextView: DeadlineTimelineView | null) => {
     if (nextView) {
       setTimelineView(nextView);
     }
   };
+
+  const emptyMessage = showOnlyPending
+    ? "Non ci sono scadenze pendenti disponibili per l'intervallo selezionato."
+    : "Non ci sono scadenze disponibili per l'intervallo selezionato.";
 
   return (
     <Card variant="outlined">
@@ -201,12 +247,48 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
             </Typography>
             <Typography color="text.secondary" variant="body2">
               Timeline orizzontale unica con tutte le scadenze del periodo, compresi ticket, controlli periodici e
-              materiali in scadenza. Il marker di oggi viene evidenziato e la vista si posiziona automaticamente su di
-              lui.
+              materiali e SIM impianto in scadenza. Il marker di oggi viene evidenziato e la vista si posiziona
+              automaticamente su di lui.
             </Typography>
           </Box>
 
           <Stack alignItems={{ md: 'flex-end', xs: 'stretch' }} spacing={1.25}>
+            <Stack
+              alignItems={{ md: 'center', xs: 'stretch' }}
+              direction={{ md: 'row', xs: 'column' }}
+              justifyContent="flex-end"
+              spacing={1.25}
+              sx={{
+                width: { md: 'auto', xs: '100%' },
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showOnlyPending}
+                    inputProps={{ 'aria-label': 'Mostra solo scadenze pendenti' }}
+                    onChange={(_event, checked) => setShowOnlyPending(checked)}
+                    size="small"
+                  />
+                }
+                label="Solo pendenti"
+                sx={{
+                  alignSelf: { md: 'center', xs: 'flex-start' },
+                  mr: 0,
+                  '& .MuiFormControlLabel-label': {
+                    fontSize: 13,
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                  },
+                }}
+              />
+              <DateRangePicker
+                allowFuture
+                dataTestId="dashboard-deadline-timeline-date-range"
+                onChange={onDateRangeChange}
+                value={dateRange}
+              />
+            </Stack>
             <ToggleButtonGroup
               exclusive
               onChange={handleTimelineViewChange}
@@ -230,12 +312,6 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
                 </ToggleButton>
               </Tooltip>
             </ToggleButtonGroup>
-            <DateRangePicker
-              allowFuture
-              dataTestId="dashboard-deadline-timeline-date-range"
-              onChange={onDateRangeChange}
-              value={dateRange}
-            />
           </Stack>
         </Box>
 
@@ -252,14 +328,16 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
         {!isLoading && !isError && timelineView === 'horizontal' ? (
           <HorizontalTimeline
             dateRange={dateRange}
-            emptyMessage="Non ci sono scadenze disponibili per l'intervallo selezionato."
+            emptyMessage={emptyMessage}
             filteredEmptyMessage="Nessuna scadenza corrisponde ai filtri attivi."
             getItemDate={(item) => getDateByUnixtimestamp({ unixTimestamp: item.dueDate })}
+            getItemIsOpen={(item) => item.isOpen}
             getItemKey={(item) => `${item.type}-${item.id}-${item.dueDate}-${item.title}`}
+            getItemPosition={(item) => (item.isOpen ? 'top' : 'bottom')}
             getItemSortLabel={(item) => item.title}
             getItemType={(item) => item.type}
-            initialVisibleTypes={['periodic-check', 'expiring-ticket', 'expiring-material']}
-            items={items}
+            initialVisibleTypes={['periodic-check', 'expiring-ticket', 'expiring-material', 'expiring-system-sim']}
+            items={filteredItems}
             renderItemCard={renderDeadlineTimelineCardContent}
             typeOptions={timelineTypeOptions}
           />
@@ -268,12 +346,14 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
         {!isLoading && !isError && timelineView === 'scheduler' ? (
           <TimelineScheduler
             dateRange={dateRange}
-            emptyMessage="Non ci sono scadenze disponibili per l'intervallo selezionato."
+            emptyMessage={emptyMessage}
+            filteredEmptyMessage="Nessuna scadenza corrisponde ai filtri attivi."
             getItemDate={(item) => getDateByUnixtimestamp({ unixTimestamp: item.dueDate })}
+            getItemIsOpen={(item) => item.isOpen}
             getItemKey={(item) => `${item.type}-${item.id}-${item.dueDate}-${item.title}`}
             getItemSortLabel={(item) => item.title}
             getItemType={(item) => item.type}
-            items={items}
+            items={filteredItems}
             renderItem={renderDeadlineSchedulerItemContent}
             typeOptions={timelineTypeOptions}
           />

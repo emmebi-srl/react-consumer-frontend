@@ -92,6 +92,64 @@ const tooltipTotalDataKeyByDataKey = Object.fromEntries(
   series.map((item) => [item.closedDataKey, item.totalDataKey]),
 ) as Record<string, string>;
 
+interface AxisSummaryRow {
+  color: string;
+  isZero: boolean;
+  label: string;
+  open: number;
+  total: number;
+}
+
+interface ChartDataItem extends DashboardMonthlyStat {
+  closedInvoiceCount: number;
+  closedJobCount: number;
+  closedReportCount: number;
+  closedReportGroupCount: number;
+  fullLabel: string;
+  label: string;
+  summaryRows: AxisSummaryRow[];
+}
+
+interface AxisTickProps {
+  payload?: {
+    index?: number;
+    value?: string;
+  };
+  x?: number;
+  y?: number;
+}
+
+const MonthlyStatsAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] }> = ({ data, payload, x = 0, y = 0 }) => {
+  const item =
+    typeof payload?.index === 'number'
+      ? data[payload.index]
+      : data.find((chartDataItem) => chartDataItem.label === payload?.value);
+
+  if (!item) {
+    return null;
+  }
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text fill="#374151" fontSize={12} fontWeight={700} textAnchor="middle" y={12}>
+        {item.label}
+      </text>
+      {item.summaryRows.map((row, index) => (
+        <g key={row.label} opacity={row.isZero ? 0.45 : 1} transform={`translate(0,${32 + index * 15})`}>
+          <rect fill={row.color} height={8} rx={2} width={8} x={-42} y={-7} />
+          <text fill="#4B5563" fontSize={11} textAnchor="start" x={-29} y={0}>
+            {row.label}{' '}
+            <tspan fill="#111827" fontWeight={700}>
+              {row.total}
+            </tspan>{' '}
+            <tspan fill="#6B7280">({row.open} ap.)</tspan>
+          </text>
+        </g>
+      ))}
+    </g>
+  );
+};
+
 const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, payload }) => {
   if (!active || !payload?.length) {
     return null;
@@ -170,7 +228,7 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
 const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading, onDateRangeChange, stats }) => {
   const setAsideItem = useSetDashboardAsideItem();
 
-  const chartData = stats.map((stat) => {
+  const chartData: ChartDataItem[] = stats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
 
     return {
@@ -179,8 +237,38 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
       closedReportCount: toClosedCount(stat.reportCount, stat.openReportCount),
       closedReportGroupCount: toClosedCount(stat.reportGroupCount, stat.openReportGroupCount),
       ...stat,
-      label: capitalize(format(monthDate, 'MMM yy', { locale: it })),
+      label: capitalize(format(monthDate, 'MMM yyyy', { locale: it })),
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
+      summaryRows: [
+        {
+          color: series[0].color,
+          isZero: stat.reportGroupCount <= 0 && stat.openReportGroupCount <= 0,
+          label: 'Res.',
+          open: stat.openReportGroupCount,
+          total: stat.reportGroupCount,
+        },
+        {
+          color: series[1].color,
+          isZero: stat.reportCount <= 0 && stat.openReportCount <= 0,
+          label: 'Rap.',
+          open: stat.openReportCount,
+          total: stat.reportCount,
+        },
+        {
+          color: series[2].color,
+          isZero: stat.invoiceCount <= 0 && stat.openInvoiceCount <= 0,
+          label: 'Fat.',
+          open: stat.openInvoiceCount,
+          total: stat.invoiceCount,
+        },
+        {
+          color: series[3].color,
+          isZero: stat.jobCount <= 0 && stat.openJobCount <= 0,
+          label: 'Com.',
+          open: stat.openJobCount,
+          total: stat.jobCount,
+        },
+      ],
     };
   });
 
@@ -241,38 +329,46 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
         ) : null}
 
         {!isLoading && !isError && chartData.length > 0 ? (
-          <Box sx={{ width: '100%', height: { xs: 320, md: 380 } }}>
-            <ResponsiveContainer>
-              <BarChart data={chartData} barGap={2} barCategoryGap="24%" onClick={onBarChartClick}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="label" />
-                <YAxis allowDecimals={false} />
-                <Tooltip content={<ChartTooltipContent />} />
-                {series.map((item) => (
-                  <Bar
-                    key={item.closedDataKey}
-                    barSize={16}
-                    dataKey={item.closedDataKey}
-                    fill={item.color}
-                    name={item.label}
-                    stackId={item.stackId}
-                    stroke={item.color}
+          <Box sx={{ overflowX: 'auto', width: '100%' }}>
+            <Box sx={{ height: { xs: 395, md: 440 }, minWidth: Math.max(chartData.length * 140, 640), width: '100%' }}>
+              <ResponsiveContainer>
+                <BarChart data={chartData} barGap={2} barCategoryGap="24%" onClick={onBarChartClick}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="label"
+                    height={92}
+                    interval={0}
+                    tick={<MonthlyStatsAxisTick data={chartData} />}
+                    tickLine={false}
                   />
-                ))}
-                {series.map((item) => (
-                  <Bar
-                    key={item.openDataKey}
-                    barSize={16}
-                    dataKey={item.openDataKey}
-                    fill="transparent"
-                    name={item.openLabel}
-                    stackId={item.stackId}
-                    stroke={item.color}
-                    strokeWidth={2}
-                  />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
+                  <YAxis allowDecimals={false} />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  {series.map((item) => (
+                    <Bar
+                      key={item.closedDataKey}
+                      barSize={16}
+                      dataKey={item.closedDataKey}
+                      fill={item.color}
+                      name={item.label}
+                      stackId={item.stackId}
+                      stroke={item.color}
+                    />
+                  ))}
+                  {series.map((item) => (
+                    <Bar
+                      key={item.openDataKey}
+                      barSize={16}
+                      dataKey={item.openDataKey}
+                      fill="transparent"
+                      name={item.openLabel}
+                      stackId={item.stackId}
+                      stroke={item.color}
+                      strokeWidth={2}
+                    />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
           </Box>
         ) : null}
       </CardContent>

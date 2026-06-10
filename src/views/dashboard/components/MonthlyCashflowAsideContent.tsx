@@ -1,9 +1,13 @@
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Link as RouterLink } from 'react-router-dom';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import { Alert, Box, Button, Chip, CircularProgress, Divider, Stack, Typography } from '@mui/material';
 import { AsideSummaryView } from '~/components/Layout/SplitAside/AsideSummaryView';
 import { AsideContentView } from '~/components/Layout/SplitAside/AsideContentView';
+import InvoicePaymentModal from '~/components/Modals/InvoicePaymentModal';
+import SupplierInvoicePaymentModal from '~/components/Modals/SupplierInvoicePaymentModal';
+import { useModal } from '~/modals/Modal';
 import { useDashboardMonthlyCashflowDetails } from '~/proxies/aries-proxy/dashboard';
 import { RouteConfig } from '~/routes/routeConfig';
 import { DashboardAsideItem, DashboardAsideSection } from '~/types/aries-proxy/dashboard';
@@ -47,10 +51,15 @@ const getStatusLabel = (sectionKey: string, isOpen: boolean) => {
   return isOpen ? 'Aperto' : 'Chiuso';
 };
 
-const CashflowRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = ({ item, sectionKey }) => {
+const CashflowRow: React.FC<{
+  item: DashboardAsideItem;
+  onMarkAsPaid: (item: DashboardAsideItem, sectionKey: string) => void;
+  sectionKey: string;
+}> = ({ item, onMarkAsPaid, sectionKey }) => {
   const date = getDateByUnixtimestamp({ unixTimestamp: item.date });
   const statusLabel = getStatusLabel(sectionKey, item.isOpen);
   const counterpartLink = getCounterpartLink(item);
+  const canMarkAsPaid = item.isOpen && !!item.paymentId;
 
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', py: 1.25 }}>
@@ -112,13 +121,26 @@ const CashflowRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = 
           <Typography fontWeight={700} variant="body2">
             {formatMoney(newMoney(item.amount ?? 0, 'EUR'))}
           </Typography>
+          {canMarkAsPaid ? (
+            <Button
+              onClick={() => onMarkAsPaid(item, sectionKey)}
+              size="small"
+              startIcon={<CheckCircleOutlinedIcon fontSize="small" />}
+              variant="outlined"
+            >
+              Segna pagato
+            </Button>
+          ) : null}
         </Stack>
       </Stack>
     </Box>
   );
 };
 
-const AsideSection: React.FC<{ section: DashboardAsideSection }> = ({ section }) => (
+const AsideSection: React.FC<{
+  onMarkAsPaid: (item: DashboardAsideItem, sectionKey: string) => void;
+  section: DashboardAsideSection;
+}> = ({ onMarkAsPaid, section }) => (
   <Box>
     <Stack alignItems="center" direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
       <Typography fontWeight={700} variant="subtitle1">
@@ -131,7 +153,12 @@ const AsideSection: React.FC<{ section: DashboardAsideSection }> = ({ section })
 
     {section.items.length > 0 ? (
       section.items.map((item) => (
-        <CashflowRow key={`${section.key}-${item.year}-${item.id}`} item={item} sectionKey={section.key} />
+        <CashflowRow
+          key={`${section.key}-${item.year}-${item.id}-${item.paymentId ?? 'no-payment'}`}
+          item={item}
+          onMarkAsPaid={onMarkAsPaid}
+          sectionKey={section.key}
+        />
       ))
     ) : (
       <Alert severity="info">Nessuno scaduto aperto nel mese selezionato.</Alert>
@@ -146,8 +173,34 @@ const AsideSection: React.FC<{ section: DashboardAsideSection }> = ({ section })
 );
 
 const MonthlyCashflowAsideContent: React.FC<MonthlyCashflowAsideContentProps> = ({ item }) => {
+  const modal = useModal();
   const detailsQuery = useDashboardMonthlyCashflowDetails({ month: item.month, year: item.year });
   const monthDate = new Date(item.year, item.month - 1, 1);
+
+  const openPaymentModal = (payment: DashboardAsideItem, sectionKey: string) => {
+    if (!payment.paymentId) return;
+
+    const modalProps = {
+      counterpartName: payment.counterpartName,
+      id: payment.id,
+      paymentId: payment.paymentId,
+      title: payment.title,
+      year: payment.year,
+    };
+
+    if (sectionKey === 'supplier-invoice-payments') {
+      void modal.showModal({
+        component: SupplierInvoicePaymentModal,
+        props: modalProps,
+      });
+      return;
+    }
+
+    void modal.showModal({
+      component: InvoicePaymentModal,
+      props: modalProps,
+    });
+  };
 
   return (
     <>
@@ -167,7 +220,7 @@ const MonthlyCashflowAsideContent: React.FC<MonthlyCashflowAsideContentProps> = 
           ? detailsQuery.data?.sections.map((section, index) => (
               <Box key={section.key}>
                 {index > 0 ? <Divider sx={{ mb: 2 }} /> : null}
-                <AsideSection section={section} />
+                <AsideSection onMarkAsPaid={openPaymentModal} section={section} />
               </Box>
             ))
           : null}

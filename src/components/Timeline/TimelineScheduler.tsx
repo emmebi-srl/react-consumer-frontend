@@ -27,6 +27,7 @@ export interface TimelineSchedulerProps<TItem, TType extends string> {
   emptyMessage?: string;
   filteredEmptyMessage?: string;
   getItemDate: (item: TItem) => Date;
+  getItemIsOpen?: (item: TItem) => boolean;
   getItemKey: (item: TItem) => string | number;
   getItemSortLabel?: (item: TItem) => string;
   getItemType: (item: TItem) => TType;
@@ -41,6 +42,7 @@ export interface TimelineSchedulerProps<TItem, TType extends string> {
 interface SchedulerItemNode<TItem, TType extends string> {
   color: string;
   date: Date;
+  isOpen: boolean;
   item: TItem;
   sortLabel: string;
   type: TType;
@@ -57,6 +59,7 @@ const TimelineScheduler = <TItem, TType extends string>({
   emptyMessage = "Non ci sono elementi disponibili per l'intervallo selezionato.",
   filteredEmptyMessage = 'Nessun elemento corrisponde ai filtri attivi.',
   getItemDate,
+  getItemIsOpen,
   getItemKey,
   getItemSortLabel,
   getItemType,
@@ -132,6 +135,7 @@ const TimelineScheduler = <TItem, TType extends string>({
       monthNodes.push({
         color: option.color,
         date,
+        isOpen: getItemIsOpen?.(item) ?? true,
         item,
         sortLabel: getItemSortLabel?.(item) ?? '',
         type,
@@ -152,6 +156,7 @@ const TimelineScheduler = <TItem, TType extends string>({
     return groupedNodes;
   }, [
     getItemDate,
+    getItemIsOpen,
     getItemSortLabel,
     getItemType,
     items,
@@ -342,20 +347,22 @@ const TimelineScheduler = <TItem, TType extends string>({
                       <Box
                         key={`${node.type}-${getItemKey(node.item)}`}
                         sx={{
-                          bgcolor: alpha(node.color, 0.08),
+                          bgcolor: node.isOpen ? alpha(node.color, 0.08) : alpha('#ECEFF1', 0.72),
                           border: 1,
-                          borderColor: alpha(node.color, 0.28),
+                          borderColor: node.isOpen ? alpha(node.color, 0.28) : alpha('#607D8B', 0.45),
                           borderLeft: 4,
-                          borderLeftColor: node.color,
+                          borderLeftColor: node.isOpen ? node.color : '#78909C',
+                          borderStyle: node.isOpen ? 'solid' : 'dashed',
                           borderRadius: 1,
                           minHeight: 94,
+                          opacity: node.isOpen ? 1 : 0.82,
                           overflow: 'hidden',
                           p: 1.25,
                         }}
                       >
                         <Typography
                           sx={{
-                            color: node.color,
+                            color: node.isOpen ? node.color : 'text.secondary',
                             fontSize: 12,
                             fontWeight: 800,
                             mb: 0.75,

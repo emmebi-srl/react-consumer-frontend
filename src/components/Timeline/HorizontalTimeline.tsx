@@ -41,7 +41,9 @@ export interface HorizontalTimelineProps<TItem, TType extends string> {
   emptyMessage?: string;
   filteredEmptyMessage?: string;
   getItemDate: (item: TItem) => Date;
+  getItemIsOpen?: (item: TItem) => boolean;
   getItemKey: (item: TItem) => string | number;
+  getItemPosition?: (item: TItem) => 'bottom' | 'top';
   getItemSortLabel?: (item: TItem) => string;
   getItemType: (item: TItem) => TType;
   initialVisibleTypes?: TType[];
@@ -57,8 +59,10 @@ type TimelineNode<TItem, TType extends string> =
   | {
       date: Date;
       item: TItem;
+      isOpen: boolean;
       kind: 'item';
       option: TimelineTypeOption<TType>;
+      position?: 'bottom' | 'top';
       sortLabel: string;
       sortTime: number;
     }
@@ -68,8 +72,8 @@ type TimelineNode<TItem, TType extends string> =
     };
 
 const defaultCardHeight = 154;
-const defaultCardWidth = 210;
-const defaultColumnWidth = 250;
+const defaultCardWidth = 196;
+const defaultColumnWidth = 232;
 const defaultDotSize = 22;
 const defaultItemHeight = 480;
 const defaultLineTop = 240;
@@ -82,7 +86,9 @@ const HorizontalTimeline = <TItem, TType extends string>({
   emptyMessage = "Non ci sono elementi disponibili per l'intervallo selezionato.",
   filteredEmptyMessage = 'Nessun elemento corrisponde ai filtri attivi.',
   getItemDate,
+  getItemIsOpen,
   getItemKey,
+  getItemPosition,
   getItemSortLabel,
   getItemType,
   initialVisibleTypes,
@@ -96,6 +102,7 @@ const HorizontalTimeline = <TItem, TType extends string>({
   const [visibleTypes, setVisibleTypes] = useState<TType[]>(
     () => initialVisibleTypes ?? typeOptions.map(({ key }) => key),
   );
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const todayMarkerRef = useRef<HTMLDivElement | null>(null);
 
   const cardHeight = layout?.cardHeight ?? defaultCardHeight;
@@ -140,8 +147,10 @@ const HorizontalTimeline = <TItem, TType extends string>({
         acc.push({
           date,
           item,
+          isOpen: getItemIsOpen?.(item) ?? true,
           kind: 'item',
           option,
+          position: getItemPosition?.(item),
           sortLabel: getItemSortLabel?.(item) ?? '',
           sortTime: date.getTime(),
         });
@@ -160,7 +169,7 @@ const HorizontalTimeline = <TItem, TType extends string>({
 
         return left.sortLabel.localeCompare(right.sortLabel);
       });
-  }, [getItemDate, getItemSortLabel, getItemType, items, optionByType, visibleTypes]);
+  }, [getItemDate, getItemIsOpen, getItemPosition, getItemSortLabel, getItemType, items, optionByType, visibleTypes]);
 
   const timelineNodes = useMemo(() => {
     const nodes: TimelineNode<TItem, TType>[] = [...filteredNodes];
@@ -179,14 +188,17 @@ const HorizontalTimeline = <TItem, TType extends string>({
   }, [dateRange?.endDate, dateRange?.startDate, filteredNodes, showTodayMarker]);
 
   useEffect(() => {
-    if (!todayMarkerRef.current) {
+    if (!scrollContainerRef.current || !todayMarkerRef.current) {
       return;
     }
 
-    todayMarkerRef.current.scrollIntoView({
+    const scrollContainer = scrollContainerRef.current;
+    const todayMarker = todayMarkerRef.current;
+    const nextScrollLeft = todayMarker.offsetLeft + todayMarker.offsetWidth / 2 - scrollContainer.clientWidth / 2;
+
+    scrollContainer.scrollTo({
       behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center',
+      left: Math.max(0, nextScrollLeft),
     });
   }, [timelineNodes]);
 
@@ -204,13 +216,15 @@ const HorizontalTimeline = <TItem, TType extends string>({
   const renderCard = (node: Extract<TimelineNode<TItem, TType>, { kind: 'item' }>, isTop: boolean) => (
     <Box
       sx={{
-        bgcolor: 'background.paper',
+        bgcolor: node.isOpen ? 'background.paper' : alpha('#ECEFF1', 0.72),
         border: 1,
-        borderColor: alpha(node.option.color, 0.3),
+        borderColor: node.isOpen ? alpha(node.option.color, 0.3) : alpha('#607D8B', 0.45),
+        borderStyle: node.isOpen ? 'solid' : 'dashed',
         borderRadius: 3,
-        boxShadow: 1,
+        boxShadow: node.isOpen ? 1 : 'none',
         height: cardHeight,
         left: '50%',
+        opacity: node.isOpen ? 1 : 0.82,
         overflow: 'hidden',
         p: 1.5,
         position: 'absolute',
@@ -304,6 +318,7 @@ const HorizontalTimeline = <TItem, TType extends string>({
   return (
     <>
       <Box
+        ref={scrollContainerRef}
         sx={{
           overflowX: 'auto',
           pb: 1,
@@ -331,8 +346,6 @@ const HorizontalTimeline = <TItem, TType extends string>({
 
           <Box sx={{ display: 'flex', px: 2 }}>
             {timelineNodes.map((node, index) => {
-              const isTop = index % 2 === 0;
-
               if (node.kind === 'today') {
                 const todayDate = new Date(node.sortTime);
 
@@ -399,6 +412,9 @@ const HorizontalTimeline = <TItem, TType extends string>({
               }
 
               const Icon = node.option.icon;
+              const isTop = node.position ? node.position === 'top' : index % 2 === 0;
+              const nodeColor = node.isOpen ? node.option.color : '#78909C';
+              const connectorColor = node.isOpen ? alpha(node.option.color, 0.24) : alpha('#78909C', 0.44);
 
               return (
                 <Box
@@ -414,7 +430,9 @@ const HorizontalTimeline = <TItem, TType extends string>({
                       {renderCard(node, true)}
                       <Box
                         sx={{
-                          bgcolor: alpha(node.option.color, 0.24),
+                          bgcolor: connectorColor,
+                          borderLeft: node.isOpen ? undefined : '1px dashed',
+                          borderColor: alpha('#78909C', 0.55),
                           height: topConnectorHeight,
                           left: '50%',
                           position: 'absolute',
@@ -429,11 +447,11 @@ const HorizontalTimeline = <TItem, TType extends string>({
                   <Box
                     sx={{
                       alignItems: 'center',
-                      bgcolor: node.option.color,
+                      bgcolor: nodeColor,
                       border: '4px solid',
                       borderColor: 'background.paper',
                       borderRadius: '50%',
-                      boxShadow: `0 0 0 3px ${alpha(node.option.color, 0.18)}`,
+                      boxShadow: node.isOpen ? `0 0 0 3px ${alpha(node.option.color, 0.18)}` : 'none',
                       display: 'flex',
                       height: dotSize,
                       justifyContent: 'center',
@@ -470,7 +488,9 @@ const HorizontalTimeline = <TItem, TType extends string>({
                     <>
                       <Box
                         sx={{
-                          bgcolor: alpha(node.option.color, 0.24),
+                          bgcolor: connectorColor,
+                          borderLeft: node.isOpen ? undefined : '1px dashed',
+                          borderColor: alpha('#78909C', 0.55),
                           height: bottomConnectorHeight,
                           left: '50%',
                           position: 'absolute',

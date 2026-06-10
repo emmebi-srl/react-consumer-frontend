@@ -32,6 +32,7 @@ export interface DashboardAsideSection {
 
 export interface DashboardAsideItem {
   id: number;
+  paymentId?: number;
   year: number;
   date: number;
   title: string;
@@ -47,7 +48,7 @@ export interface DashboardAsideItem {
 
 export interface DashboardTimelineItem {
   id: number;
-  type: 'periodic-check' | 'expiring-ticket' | 'expiring-material';
+  type: 'periodic-check' | 'expiring-ticket' | 'expiring-material' | 'expiring-system-sim';
   typeLabel: string;
   title: string;
   subtitle?: string;
