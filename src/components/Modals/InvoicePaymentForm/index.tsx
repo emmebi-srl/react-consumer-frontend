@@ -29,6 +29,7 @@ export interface InvoicePaymentFormPayment {
   paymentTypeId?: number | null;
   notes?: string | null;
   totalPayment?: number | null;
+  totalPrepayment?: number | null;
   unsolved?: boolean | null;
   firstNoteEmployeeId?: number | null;
   addTransferTo?: boolean | null;

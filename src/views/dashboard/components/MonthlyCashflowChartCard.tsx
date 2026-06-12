@@ -68,6 +68,15 @@ interface TooltipContentProps {
   payload?: TooltipEntry[];
 }
 
+interface TooltipDisplayRow {
+  color: string;
+  dataKey: string;
+  fill?: string;
+  isScheduled?: boolean;
+  label: string;
+  value: number | string;
+}
+
 const tooltipPriorityByDataKey = Object.fromEntries([
   ...series.flatMap((item) => [
     [item.paidAmountDataKey, item.priority],
@@ -186,6 +195,44 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
 
     return leftPriority - rightPriority;
   });
+  const rows = sortedPayload.flatMap<TooltipDisplayRow>((entry) => {
+    const color = entry.stroke || entry.color || 'currentColor';
+    const chartItem = entry.payload;
+    const displayRows: TooltipDisplayRow[] = [
+      {
+        color,
+        dataKey: entry.dataKey ?? '',
+        fill: entry.fill,
+        isScheduled: entry.dataKey === scheduledSupplierInvoicePaymentsDataKey,
+        label: entry.name ?? '',
+        value: entry.value ?? 0,
+      },
+    ];
+
+    if (entry.dataKey === 'paidInvoicePaymentsAmount') {
+      const invoicePrepaymentsAmount = Number(chartItem?.invoicePrepaymentsAmount ?? 0);
+
+      displayRows.push({
+        color,
+        dataKey: 'invoicePrepaymentsAmount',
+        label: 'Acconti fatture',
+        value: invoicePrepaymentsAmount,
+      });
+    }
+
+    if (entry.dataKey === 'paidSupplierInvoicePaymentsAmount') {
+      const supplierInvoicePrepaymentsAmount = Number(chartItem?.supplierInvoicePrepaymentsAmount ?? 0);
+
+      displayRows.push({
+        color,
+        dataKey: 'supplierInvoicePrepaymentsAmount',
+        label: 'Acconti fatture fornitori',
+        value: supplierInvoicePrepaymentsAmount,
+      });
+    }
+
+    return displayRows;
+  });
 
   return (
     <Box
@@ -202,15 +249,12 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
     >
       <Typography sx={{ color: 'text.primary', fontSize: 13, fontWeight: 600, mb: 0.75 }}>{fullLabel}</Typography>
 
-      {sortedPayload.map((entry) => {
-        const isOutlined = entry.fill === 'transparent';
-        const isScheduled = entry.dataKey === scheduledSupplierInvoicePaymentsDataKey;
-        const color = entry.stroke || entry.color || 'currentColor';
-        const displayedValue = entry.value;
+      {rows.map((row) => {
+        const isOutlined = row.fill === 'transparent';
 
         return (
           <Box
-            key={`${entry.name}-${entry.dataKey}`}
+            key={`${row.label}-${row.dataKey}`}
             sx={{
               alignItems: 'center',
               color: 'text.primary',
@@ -222,16 +266,16 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
           >
             <Box
               sx={{
-                bgcolor: isOutlined ? 'transparent' : color,
+                bgcolor: isOutlined ? 'transparent' : row.color,
                 border: 2,
-                borderColor: color,
+                borderColor: row.color,
                 borderRadius: 0.5,
-                borderStyle: isScheduled ? 'dashed' : 'solid',
+                borderStyle: row.isScheduled ? 'dashed' : 'solid',
                 height: 12,
                 width: 12,
               }}
             />
-            <Typography sx={{ color: 'text.primary', fontSize: 13, lineHeight: 1.2 }}>{entry.name}</Typography>
+            <Typography sx={{ color: 'text.primary', fontSize: 13, lineHeight: 1.2 }}>{row.label}</Typography>
             <Typography
               sx={{
                 color: 'text.primary',
@@ -241,7 +285,7 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
                 textAlign: 'right',
               }}
             >
-              {formatCurrency(displayedValue ?? 0)}
+              {formatCurrency(row.value || 0)}
             </Typography>
           </Box>
         );
@@ -260,10 +304,15 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
       stat.supplierInvoicePaymentsAmount,
       stat.paidSupplierInvoicePaymentsAmount,
     );
-    const scheduledSupplierInvoicePaymentsAmount = stat.scheduledSupplierInvoicePaymentsAmount ?? 0;
+    const actualPaidInvoicePaymentsAmount = stat.paidInvoicePaymentsAmount + (stat.invoicePrepaymentsAmount || 0);
+    const actualPaidSupplierInvoicePaymentsAmount =
+      stat.paidSupplierInvoicePaymentsAmount + (stat.supplierInvoicePrepaymentsAmount || 0);
+    const scheduledSupplierInvoicePaymentsAmount = stat.scheduledSupplierInvoicePaymentsAmount || 0;
 
     return {
       ...stat,
+      paidInvoicePaymentsAmount: actualPaidInvoicePaymentsAmount,
+      paidSupplierInvoicePaymentsAmount: actualPaidSupplierInvoicePaymentsAmount,
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
       label: capitalize(format(monthDate, 'MMM yyyy', { locale: it })),
       pendingInvoicePaymentsAmount,
@@ -272,9 +321,9 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
       summaryRows: [
         {
           color: series[0].color,
-          isZero: stat.paidInvoicePaymentsAmount <= 0,
+          isZero: actualPaidInvoicePaymentsAmount <= 0,
           label: 'Inc.',
-          value: formatAxisCurrency(stat.paidInvoicePaymentsAmount),
+          value: formatAxisCurrency(actualPaidInvoicePaymentsAmount),
         },
         {
           color: series[0].color,
@@ -285,9 +334,9 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
         },
         {
           color: series[1].color,
-          isZero: stat.paidSupplierInvoicePaymentsAmount <= 0,
+          isZero: actualPaidSupplierInvoicePaymentsAmount <= 0,
           label: 'Pag.',
-          value: formatAxisCurrency(stat.paidSupplierInvoicePaymentsAmount),
+          value: formatAxisCurrency(actualPaidSupplierInvoicePaymentsAmount),
         },
         {
           color: series[1].color,

@@ -5,6 +5,7 @@ export interface InvoicePayment {
   customerId?: number | null;
   supplierId?: number | null;
   totalPayment?: number | null;
+  totalPrepayment?: number | null;
   paymentDate: number;
   paymentCondition?: string | null;
   paymentType?: string | null;

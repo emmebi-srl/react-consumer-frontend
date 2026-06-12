@@ -4,6 +4,7 @@ export interface SupplierInvoicePayment {
   invoiceYear: number;
   supplierId?: number | null;
   totalPayment?: number | null;
+  totalPrepayment?: number | null;
   paymentDate: number;
   paymentCondition?: string | null;
   paymentType?: string | null;

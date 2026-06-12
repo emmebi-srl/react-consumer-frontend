@@ -36,6 +36,14 @@ const getSectionTitle = (section: DashboardAsideSection) => {
     return 'Fatture fornitori';
   }
 
+  if (section.key === 'invoice-prepayments') {
+    return 'Acconti fatture';
+  }
+
+  if (section.key === 'supplier-invoice-prepayments') {
+    return 'Acconti fatture fornitori';
+  }
+
   return section.title;
 };
 
@@ -46,6 +54,10 @@ const getStatusLabel = (sectionKey: string, isOpen: boolean) => {
 
   if (sectionKey === 'supplier-invoice-payments') {
     return isOpen ? 'Da pagare' : 'Pagata';
+  }
+
+  if (sectionKey === 'invoice-prepayments' || sectionKey === 'supplier-invoice-prepayments') {
+    return 'Registrato';
   }
 
   return isOpen ? 'Aperto' : 'Chiuso';

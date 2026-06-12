@@ -84,10 +84,14 @@ export interface DashboardMonthlyCashflowStat {
   paidInvoicePaymentsCount: number;
   invoicePaymentsAmount: number;
   paidInvoicePaymentsAmount: number;
+  invoicePrepaymentsCount: number;
+  invoicePrepaymentsAmount: number;
   supplierInvoicePaymentsCount: number;
   paidSupplierInvoicePaymentsCount: number;
   supplierInvoicePaymentsAmount: number;
   paidSupplierInvoicePaymentsAmount: number;
+  supplierInvoicePrepaymentsCount: number;
+  supplierInvoicePrepaymentsAmount: number;
   scheduledSupplierInvoicePaymentsCount?: number;
   scheduledSupplierInvoicePaymentsAmount?: number;
 }
