@@ -1,16 +1,27 @@
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Alert, Box, Card, CardContent, CircularProgress, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { BarShapeProps } from 'recharts';
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
-import { DashboardMonthlyCashflowStat } from '~/types/aries-proxy/dashboard';
+import { DashboardMonthlyCashflowStat, DashboardMonthlyInvoicesStat } from '~/types/aries-proxy/dashboard';
 import { formatMoney, formatMoneyShort, newMoney } from '~/utils/money';
 import { CategoricalChartFunc } from 'recharts/types/chart/types';
-import { MouseEvent } from 'react';
+import { MouseEvent, useState } from 'react';
 import { useSetDashboardAsideItem } from '../state';
 
-const series = [
+type ChartMode = 'payments' | 'invoices';
+
+const paymentSeries = [
   {
     color: '#0F766E',
     label: 'Pagamenti fatture',
@@ -33,6 +44,25 @@ const series = [
   },
 ] as const;
 
+const invoiceSeries = [
+  {
+    amountDataKey: 'invoiceAmount',
+    color: '#0F766E',
+    label: 'Fatture clienti',
+    priority: 1,
+    stackId: 'customer-invoices',
+  },
+  {
+    amountDataKey: 'supplierInvoiceAmount',
+    color: '#B45309',
+    label: 'Fatture fornitori',
+    priority: 3,
+    stackId: 'supplier-invoices',
+  },
+] as const;
+
+const customerPreinvoiceDataKey = 'preinvoiceAmount';
+
 const capitalize = (value: string) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
 const scheduledSupplierInvoicePaymentsDataKey = 'scheduledSupplierInvoicePaymentsAmount';
 const scheduledSupplierInvoicePaymentsColor = '#92400E';
@@ -43,7 +73,10 @@ const formatAxisCurrency = (value: unknown) =>
 
 interface Props {
   dateRange: DateRangeValue;
+  invoiceStats: DashboardMonthlyInvoicesStat[];
   isError: boolean;
+  isInvoicesError: boolean;
+  isInvoicesLoading: boolean;
   isLoading: boolean;
   onDateRangeChange: (dateRange: DateRangeValue) => void;
   stats: DashboardMonthlyCashflowStat[];
@@ -78,10 +111,12 @@ interface TooltipDisplayRow {
 }
 
 const tooltipPriorityByDataKey = Object.fromEntries([
-  ...series.flatMap((item) => [
+  ...paymentSeries.flatMap((item) => [
     [item.paidAmountDataKey, item.priority],
     [item.pendingAmountDataKey, item.priority + 1],
   ]),
+  ...invoiceSeries.flatMap((item) => [[item.amountDataKey, item.priority]]),
+  [customerPreinvoiceDataKey, 2],
   [scheduledSupplierInvoicePaymentsDataKey, 5],
 ]) as Record<string, number>;
 
@@ -94,13 +129,16 @@ interface AxisSummaryRow {
   value: string;
 }
 
-interface ChartDataItem extends DashboardMonthlyCashflowStat {
+interface ChartDataItem extends Partial<DashboardMonthlyCashflowStat>, Partial<DashboardMonthlyInvoicesStat> {
   fullLabel: string;
   label: string;
+  month: number;
+  monthStart: number;
   pendingInvoicePaymentsAmount: number;
   pendingSupplierInvoicePaymentsAmount: number;
   scheduledSupplierInvoicePaymentsAmount: number;
   summaryRows: AxisSummaryRow[];
+  year: number;
 }
 
 interface AxisTickProps {
@@ -294,10 +332,20 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
   );
 };
 
-const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoading, onDateRangeChange, stats }) => {
+const MonthlyCashflowChartCard: React.FC<Props> = ({
+  dateRange,
+  invoiceStats,
+  isError,
+  isInvoicesError,
+  isInvoicesLoading,
+  isLoading,
+  onDateRangeChange,
+  stats,
+}) => {
+  const [chartMode, setChartMode] = useState<ChartMode>('payments');
   const setAsideItem = useSetDashboardAsideItem();
 
-  const chartData: ChartDataItem[] = stats.map((stat) => {
+  const paymentChartData: ChartDataItem[] = stats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
     const pendingInvoicePaymentsAmount = toPendingAmount(stat.invoicePaymentsAmount, stat.paidInvoicePaymentsAmount);
     const pendingSupplierInvoicePaymentsAmount = toPendingAmount(
@@ -320,26 +368,26 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
       scheduledSupplierInvoicePaymentsAmount,
       summaryRows: [
         {
-          color: series[0].color,
+          color: paymentSeries[0].color,
           isZero: actualPaidInvoicePaymentsAmount <= 0,
           label: 'Inc.',
           value: formatAxisCurrency(actualPaidInvoicePaymentsAmount),
         },
         {
-          color: series[0].color,
+          color: paymentSeries[0].color,
           fill: 'transparent',
           isZero: pendingInvoicePaymentsAmount <= 0,
           label: 'Da inc.',
           value: formatAxisCurrency(pendingInvoicePaymentsAmount),
         },
         {
-          color: series[1].color,
+          color: paymentSeries[1].color,
           isZero: actualPaidSupplierInvoicePaymentsAmount <= 0,
           label: 'Pag.',
           value: formatAxisCurrency(actualPaidSupplierInvoicePaymentsAmount),
         },
         {
-          color: series[1].color,
+          color: paymentSeries[1].color,
           fill: 'transparent',
           isZero: pendingSupplierInvoicePaymentsAmount <= 0,
           label: 'Da pag.',
@@ -356,17 +404,59 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
       ],
     };
   });
+  const invoiceChartData: ChartDataItem[] = invoiceStats.map((stat) => {
+    const monthDate = new Date(stat.year, stat.month - 1, 1);
+
+    return {
+      ...stat,
+      fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
+      label: capitalize(format(monthDate, 'MMM yyyy', { locale: it })),
+      pendingInvoicePaymentsAmount: 0,
+      pendingSupplierInvoicePaymentsAmount: 0,
+      scheduledSupplierInvoicePaymentsAmount: 0,
+      summaryRows: [
+        {
+          color: invoiceSeries[0].color,
+          isZero: stat.invoiceAmount <= 0,
+          label: 'Fat. cli.',
+          value: formatAxisCurrency(stat.invoiceAmount),
+        },
+        {
+          color: invoiceSeries[0].color,
+          fill: 'transparent',
+          isZero: stat.preinvoiceAmount <= 0,
+          label: 'Pref.',
+          value: formatAxisCurrency(stat.preinvoiceAmount),
+        },
+        {
+          color: invoiceSeries[1].color,
+          isZero: stat.supplierInvoiceAmount <= 0,
+          label: 'Fat. for.',
+          value: formatAxisCurrency(stat.supplierInvoiceAmount),
+        },
+      ],
+    };
+  });
+  const chartData = chartMode === 'payments' ? paymentChartData : invoiceChartData;
+  const activeIsLoading = chartMode === 'payments' ? isLoading : isInvoicesLoading;
+  const activeIsError = chartMode === 'payments' ? isError : isInvoicesError;
+  const chartTitle = chartMode === 'payments' ? 'Cashflow Pagamenti Fatture' : 'Cashflow Fatture';
+  const chartDescription =
+    chartMode === 'payments'
+      ? "Andamento mensile dell'intervallo selezionato per incassi fatture clienti e pagamenti fatture fornitori. La parte piena rappresenta gli importi gia regolati, quella con bordo gli importi ancora da incassare o pagare."
+      : 'Totali mensili delle fatture clienti e fornitori per data documento. Le barre piene rappresentano le fatture, quelle trasparenti con bordo le prefatture dello stesso periodo.';
   const maxScheduledSupplierInvoicePaymentsAmount = Math.max(
     0,
     ...chartData.map((item) => item.scheduledSupplierInvoicePaymentsAmount),
   );
   const onBarChartClick: CategoricalChartFunc<MouseEvent<SVGGraphicsElement>> = (dataParams) => {
     if (dataParams.activeIndex === undefined) return;
-    const selected = stats[Number(dataParams.activeIndex)];
+    const selected =
+      chartMode === 'payments' ? stats[Number(dataParams.activeIndex)] : invoiceStats[Number(dataParams.activeIndex)];
     if (!selected) return;
 
     setAsideItem({
-      type: 'monthly-cashflow',
+      type: chartMode === 'payments' ? 'monthly-cashflow' : 'monthly-invoices',
       year: selected.year,
       month: selected.month,
     });
@@ -387,38 +477,47 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
         >
           <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>
             <Typography gutterBottom variant="h5">
-              Cashflow Fatture
+              {chartTitle}
             </Typography>
             <Typography color="text.secondary" variant="body2">
-              Andamento mensile dell&apos;intervallo selezionato per incassi fatture clienti e pagamenti fatture
-              fornitori. La parte piena rappresenta gli importi gia regolati, quella con bordo gli importi ancora da
-              incassare o pagare.
+              {chartDescription}
             </Typography>
           </Box>
 
-          <DateRangePicker
-            allowFuture
-            dataTestId="dashboard-monthly-cashflow-date-range"
-            onChange={onDateRangeChange}
-            value={dateRange}
-          />
+          <Box sx={{ alignItems: 'flex-end', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <DateRangePicker
+              allowFuture
+              dataTestId="dashboard-monthly-cashflow-date-range"
+              onChange={onDateRangeChange}
+              value={dateRange}
+            />
+            <ToggleButtonGroup
+              exclusive
+              onChange={(_, value: ChartMode | null) => value && setChartMode(value)}
+              size="small"
+              value={chartMode}
+            >
+              <ToggleButton value="payments">Pagamenti</ToggleButton>
+              <ToggleButton value="invoices">Fatture</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
         </Box>
 
-        {isLoading ? (
+        {activeIsLoading ? (
           <Box sx={{ minHeight: 340, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgress />
           </Box>
         ) : null}
 
-        {!isLoading && isError ? (
+        {!activeIsLoading && activeIsError ? (
           <Alert severity="error">Non sono riuscito a caricare il cashflow della dashboard.</Alert>
         ) : null}
 
-        {!isLoading && !isError && chartData.length <= 0 ? (
+        {!activeIsLoading && !activeIsError && chartData.length <= 0 ? (
           <Alert severity="info">Non ci sono dati disponibili per l&apos;intervallo selezionato.</Alert>
         ) : null}
 
-        {!isLoading && !isError && chartData.length > 0 ? (
+        {!activeIsLoading && !activeIsError && chartData.length > 0 ? (
           <Box sx={{ overflowX: 'auto', width: '100%' }}>
             <Box sx={{ height: { xs: 405, md: 450 }, minWidth: Math.max(chartData.length * 164, 640), width: '100%' }}>
               <ResponsiveContainer>
@@ -437,39 +536,66 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({ dateRange, isError, isLoadi
                     tickFormatter={formatAxisCurrency}
                   />
                   <Tooltip content={<ChartTooltipContent />} />
-                  {series.map((item) => (
-                    <Bar
-                      key={item.paidAmountDataKey}
-                      barSize={24}
-                      dataKey={item.paidAmountDataKey}
-                      fill={item.color}
-                      name={item.label}
-                      stackId={item.stackId}
-                      stroke={item.color}
-                    />
-                  ))}
-                  {series.map((item) => (
-                    <Bar
-                      key={item.pendingAmountDataKey}
-                      barSize={24}
-                      dataKey={item.pendingAmountDataKey}
-                      fill="transparent"
-                      name={item.pendingLabel}
-                      stackId={item.stackId}
-                      stroke={item.color}
-                      strokeWidth={2}
-                    />
-                  ))}
-                  <Bar
-                    barSize={24}
-                    dataKey={scheduledSupplierInvoicePaymentsDataKey}
-                    fill="transparent"
-                    name="Spese future programmate"
-                    shape={<ScheduledSupplierInvoiceBarShape />}
-                    stackId="supplier-invoice-payments"
-                    stroke={scheduledSupplierInvoicePaymentsColor}
-                    strokeWidth={2}
-                  />
+                  {chartMode === 'payments' ? (
+                    <>
+                      {paymentSeries.map((item) => (
+                        <Bar
+                          key={item.paidAmountDataKey}
+                          barSize={24}
+                          dataKey={item.paidAmountDataKey}
+                          fill={item.color}
+                          name={item.label}
+                          stackId={item.stackId}
+                          stroke={item.color}
+                        />
+                      ))}
+                      {paymentSeries.map((item) => (
+                        <Bar
+                          key={item.pendingAmountDataKey}
+                          barSize={24}
+                          dataKey={item.pendingAmountDataKey}
+                          fill="transparent"
+                          name={item.pendingLabel}
+                          stackId={item.stackId}
+                          stroke={item.color}
+                          strokeWidth={2}
+                        />
+                      ))}
+                      <Bar
+                        barSize={24}
+                        dataKey={scheduledSupplierInvoicePaymentsDataKey}
+                        fill="transparent"
+                        name="Spese future programmate"
+                        shape={<ScheduledSupplierInvoiceBarShape />}
+                        stackId="supplier-invoice-payments"
+                        stroke={scheduledSupplierInvoicePaymentsColor}
+                        strokeWidth={2}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {invoiceSeries.map((item) => (
+                        <Bar
+                          key={item.amountDataKey}
+                          barSize={24}
+                          dataKey={item.amountDataKey}
+                          fill={item.color}
+                          name={item.label}
+                          stackId={item.stackId}
+                          stroke={item.color}
+                        />
+                      ))}
+                      <Bar
+                        barSize={24}
+                        dataKey={customerPreinvoiceDataKey}
+                        fill="transparent"
+                        name="Prefatture clienti"
+                        stackId="customer-invoices"
+                        stroke={invoiceSeries[0].color}
+                        strokeWidth={2}
+                      />
+                    </>
+                  )}
                 </BarChart>
               </ResponsiveContainer>
             </Box>

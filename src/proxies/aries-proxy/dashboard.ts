@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import {
   getDashboardMonthlyCashflowDetails,
   getDashboardMonthlyCashflowStats,
+  getDashboardMonthlyInvoicesDetails,
+  getDashboardMonthlyInvoicesStats,
   getDashboardMonthlyStats,
   getDashboardMonthlyStatsDetails,
   getDashboardTimeline,
@@ -14,6 +16,10 @@ export const DashboardQueryKeys = {
     ['Dashboard', 'monthly-cashflow-stats', params] as const,
   monthlyCashflowDetails: (params: DashboardMonthlyDetailsRequest) =>
     ['Dashboard', 'monthly-cashflow-details', params] as const,
+  monthlyInvoicesStats: (params: DashboardMonthlyStatsRequest) =>
+    ['Dashboard', 'monthly-invoices-stats', params] as const,
+  monthlyInvoicesDetails: (params: DashboardMonthlyDetailsRequest) =>
+    ['Dashboard', 'monthly-invoices-details', params] as const,
   monthlyStatsDetails: (params: DashboardMonthlyDetailsRequest) =>
     ['Dashboard', 'monthly-stats-details', params] as const,
   monthlyStats: (params: DashboardMonthlyStatsRequest) => ['Dashboard', 'monthly-stats', params] as const,
@@ -34,6 +40,13 @@ export const useDashboardMonthlyCashflowStats = (params: DashboardMonthlyStatsRe
   });
 };
 
+export const useDashboardMonthlyInvoicesStats = (params: DashboardMonthlyStatsRequest) => {
+  return useQuery({
+    queryKey: DashboardQueryKeys.monthlyInvoicesStats(params),
+    queryFn: async () => (await getDashboardMonthlyInvoicesStats(params)).data,
+  });
+};
+
 export const useDashboardMonthlyStatsDetails = (params: DashboardMonthlyDetailsRequest, enabled = true) => {
   return useQuery({
     queryKey: DashboardQueryKeys.monthlyStatsDetails(params),
@@ -46,6 +59,14 @@ export const useDashboardMonthlyCashflowDetails = (params: DashboardMonthlyDetai
   return useQuery({
     queryKey: DashboardQueryKeys.monthlyCashflowDetails(params),
     queryFn: async () => (await getDashboardMonthlyCashflowDetails(params)).data,
+    enabled,
+  });
+};
+
+export const useDashboardMonthlyInvoicesDetails = (params: DashboardMonthlyDetailsRequest, enabled = true) => {
+  return useQuery({
+    queryKey: DashboardQueryKeys.monthlyInvoicesDetails(params),
+    queryFn: async () => (await getDashboardMonthlyInvoicesDetails(params)).data,
     enabled,
   });
 };

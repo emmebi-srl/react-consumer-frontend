@@ -5,6 +5,7 @@ import type { DateRangeValue } from '~/components/DateRangePicker/DateRangePicke
 import PageContainer from '~/components/Layout/PageContainer';
 import {
   useDashboardMonthlyCashflowStats,
+  useDashboardMonthlyInvoicesStats,
   useDashboardMonthlyStats,
   useDashboardTimeline,
 } from '~/proxies/aries-proxy/dashboard';
@@ -79,6 +80,7 @@ const DashboardView = () => {
 
   const dashboardQuery = useDashboardMonthlyStats(statsRange);
   const cashflowQuery = useDashboardMonthlyCashflowStats(cashflowRange);
+  const invoicesQuery = useDashboardMonthlyInvoicesStats(cashflowRange);
   const timelineQuery = useDashboardTimeline(timelineRange);
 
   return (
@@ -90,7 +92,10 @@ const DashboardView = () => {
             <MonthlyCashflowChartCard
               dateRange={cashflowDateRange}
               isError={cashflowQuery.isError}
+              isInvoicesError={invoicesQuery.isError}
+              isInvoicesLoading={invoicesQuery.isLoading}
               isLoading={cashflowQuery.isLoading}
+              invoiceStats={invoicesQuery.data?.monthlyInvoicesStats ?? []}
               onDateRangeChange={setCashflowDateRange}
               stats={cashflowQuery.data?.monthlyCashflowStats ?? []}
             />

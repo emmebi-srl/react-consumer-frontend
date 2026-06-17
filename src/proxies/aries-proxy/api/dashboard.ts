@@ -3,6 +3,8 @@ import {
   DashboardMonthlyCashflowStatsList,
   DashboardMonthlyCashflowDetails,
   DashboardMonthlyDetailsRequest,
+  DashboardMonthlyInvoicesDetails,
+  DashboardMonthlyInvoicesStatsList,
   DashboardMonthlyStatsDetails,
   DashboardMonthlyStatsList,
   DashboardMonthlyStatsRequest,
@@ -19,12 +21,24 @@ export const getDashboardMonthlyCashflowStats = (req: DashboardMonthlyStatsReque
   });
 };
 
+export const getDashboardMonthlyInvoicesStats = (req: DashboardMonthlyStatsRequest) => {
+  return ariesServicesClient.get<DashboardMonthlyInvoicesStatsList>('dashboard/monthly-invoices-stats', {
+    params: req,
+  });
+};
+
 export const getDashboardMonthlyStatsDetails = (req: DashboardMonthlyDetailsRequest) => {
   return ariesServicesClient.get<DashboardMonthlyStatsDetails>('dashboard/monthly-stats-details', { params: req });
 };
 
 export const getDashboardMonthlyCashflowDetails = (req: DashboardMonthlyDetailsRequest) => {
   return ariesServicesClient.get<DashboardMonthlyCashflowDetails>('dashboard/monthly-cashflow-details', {
+    params: req,
+  });
+};
+
+export const getDashboardMonthlyInvoicesDetails = (req: DashboardMonthlyDetailsRequest) => {
+  return ariesServicesClient.get<DashboardMonthlyInvoicesDetails>('dashboard/monthly-invoices-details', {
     params: req,
   });
 };

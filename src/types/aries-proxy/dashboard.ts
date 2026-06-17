@@ -6,6 +6,10 @@ export interface DashboardMonthlyCashflowStatsList {
   monthlyCashflowStats: DashboardMonthlyCashflowStat[];
 }
 
+export interface DashboardMonthlyInvoicesStatsList {
+  monthlyInvoicesStats: DashboardMonthlyInvoicesStat[];
+}
+
 export interface DashboardTimelineList {
   items: DashboardTimelineItem[];
 }
@@ -17,6 +21,12 @@ export interface DashboardMonthlyStatsDetails {
 }
 
 export interface DashboardMonthlyCashflowDetails {
+  year: number;
+  month: number;
+  sections: DashboardAsideSection[];
+}
+
+export interface DashboardMonthlyInvoicesDetails {
   year: number;
   month: number;
   sections: DashboardAsideSection[];
@@ -94,6 +104,18 @@ export interface DashboardMonthlyCashflowStat {
   supplierInvoicePrepaymentsAmount: number;
   scheduledSupplierInvoicePaymentsCount?: number;
   scheduledSupplierInvoicePaymentsAmount?: number;
+}
+
+export interface DashboardMonthlyInvoicesStat {
+  year: number;
+  month: number;
+  monthStart: number;
+  invoiceCount: number;
+  invoiceAmount: number;
+  preinvoiceCount: number;
+  preinvoiceAmount: number;
+  supplierInvoiceCount: number;
+  supplierInvoiceAmount: number;
 }
 
 export interface DashboardMonthlyStatsRequest {

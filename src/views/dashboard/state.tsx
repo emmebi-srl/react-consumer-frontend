@@ -12,11 +12,21 @@ export interface SelectedMonthlyCashflow {
   year: number;
 }
 
+export interface SelectedMonthlyInvoices {
+  type: 'monthly-invoices';
+  month: number;
+  year: number;
+}
+
 export interface SelectedTimelineItem {
   type: 'timeline-item';
 }
 
-type DashboardAsideItem = SelectedMonthlyStats | SelectedMonthlyCashflow | SelectedTimelineItem;
+type DashboardAsideItem =
+  | SelectedMonthlyStats
+  | SelectedMonthlyCashflow
+  | SelectedMonthlyInvoices
+  | SelectedTimelineItem;
 
 const dashboardAsideItem = atom<DashboardAsideItem>();
 
