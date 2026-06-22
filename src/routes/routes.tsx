@@ -48,6 +48,7 @@ const SupplierInvoicePeriodicConfigurationListView = asyncComponent(
   () => import('../views/supplier-invoices/periodic-configurations/SupplierInvoicePeriodicConfigurationListView'),
 );
 const DashboardView = asyncComponent(() => import('../views/dashboard/DashboardView'));
+const CompanySettingsView = asyncComponent(() => import('../views/company/CompanySettingsView'));
 
 const routes: RouteObject[] = [
   {
@@ -109,6 +110,10 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.Dashboard.template,
             element: <DashboardView />,
+          },
+          {
+            path: RouteConfig.CompanySettings.template,
+            element: <CompanySettingsView />,
           },
           {
             path: RouteConfig.CustomerList.template,

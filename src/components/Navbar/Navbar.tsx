@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container } from '@mui/system';
-import { AppBar, Avatar, Button, IconButton, Link as MuiLink, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
+import { AppBar, Avatar, Button, IconButton, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import Logo from '~/components/Layout/Logo';
 import { RouteConfig } from '~/routes/routeConfig';
 import useRouteMatch from '~/hooks/useRouteMatch';
@@ -126,10 +126,11 @@ const Navbar = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem onClick={handleCloseUserMenu}>
-                <MuiLink href={RouteConfig.Logout.buildLink()} sx={{ textAlign: 'center' }}>
-                  Logout
-                </MuiLink>
+              <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.CompanySettings.buildLink()}>
+                Gestione azienda
+              </MenuItem>
+              <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.Logout.buildLink()}>
+                Logout
               </MenuItem>
             </Menu>
           </Box>

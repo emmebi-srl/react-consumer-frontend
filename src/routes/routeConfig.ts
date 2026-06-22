@@ -29,6 +29,7 @@ const defineRoute = <P extends string>(template: P, options: { exact: boolean } 
 export const RouteConfig = {
   AppRoot: defineRoute(''),
   Dashboard: defineRoute('dashboard'),
+  CompanySettings: defineRoute('company'),
   Login: defineRoute('login'),
   Logout: defineRoute('logout'),
   LandingUnsubscribeCampaign: defineRoute('landing/unsubscribe-campaign'),

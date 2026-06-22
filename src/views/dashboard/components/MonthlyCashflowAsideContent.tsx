@@ -24,6 +24,10 @@ const getCounterpartLink = (item: DashboardAsideItem) => {
     return RouteConfig.CustomerDetail.buildLink({ customerId: item.counterpartId.toString() });
   }
 
+  if (item.counterpartType === 'supplier' && item.counterpartId) {
+    return RouteConfig.SupplierDetail.buildLink({ supplierId: item.counterpartId.toString() });
+  }
+
   return undefined;
 };
 
@@ -34,6 +38,10 @@ const getSectionTitle = (section: DashboardAsideSection) => {
 
   if (section.key === 'supplier-invoice-payments') {
     return 'Fatture fornitori';
+  }
+
+  if (section.key === 'scheduled-supplier-invoice-payments') {
+    return 'Fatture fornitori programmate';
   }
 
   if (section.key === 'invoice-prepayments') {
@@ -56,11 +64,23 @@ const getStatusLabel = (sectionKey: string, isOpen: boolean) => {
     return isOpen ? 'Da pagare' : 'Pagata';
   }
 
+  if (sectionKey === 'scheduled-supplier-invoice-payments') {
+    return 'Programmata';
+  }
+
   if (sectionKey === 'invoice-prepayments' || sectionKey === 'supplier-invoice-prepayments') {
     return 'Registrato';
   }
 
   return isOpen ? 'Aperto' : 'Chiuso';
+};
+
+const getEmptySectionMessage = (sectionKey: string) => {
+  if (sectionKey === 'scheduled-supplier-invoice-payments') {
+    return 'Nessuna fattura fornitore programmata nel mese selezionato.';
+  }
+
+  return 'Nessuno scaduto aperto nel mese selezionato.';
 };
 
 const CashflowRow: React.FC<{
@@ -166,14 +186,14 @@ const AsideSection: React.FC<{
     {section.items.length > 0 ? (
       section.items.map((item) => (
         <CashflowRow
-          key={`${section.key}-${item.year}-${item.id}-${item.paymentId ?? 'no-payment'}`}
+          key={`${section.key}-${item.year}-${item.id}-${item.paymentId ?? 'no-payment'}-${item.date}`}
           item={item}
           onMarkAsPaid={onMarkAsPaid}
           sectionKey={section.key}
         />
       ))
     ) : (
-      <Alert severity="info">Nessuno scaduto aperto nel mese selezionato.</Alert>
+      <Alert severity="info">{getEmptySectionMessage(section.key)}</Alert>
     )}
 
     {section.hasMore && section.moreUrl ? (
