@@ -10,10 +10,15 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { BarShapeProps } from 'recharts';
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
-import { DashboardMonthlyCashflowStat, DashboardMonthlyInvoicesStat } from '~/types/aries-proxy/dashboard';
+import {
+  DashboardBankBalanceTrendItem,
+  DashboardMonthlyCashflowStat,
+  DashboardMonthlyInvoicesStat,
+} from '~/types/aries-proxy/dashboard';
+import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
 import { formatMoney, formatMoneyShort, newMoney } from '~/utils/money';
 import { CategoricalChartFunc } from 'recharts/types/chart/types';
 import { MouseEvent, useState } from 'react';
@@ -64,6 +69,8 @@ const invoiceSeries = [
 const customerPreinvoiceDataKey = 'preinvoiceAmount';
 
 const capitalize = (value: string) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
+const bankBalanceDataKey = 'bankBalance';
+const bankBalanceLineColor = '#2563EB';
 const scheduledSupplierInvoicePaymentsDataKey = 'scheduledSupplierInvoicePaymentsAmount';
 const scheduledSupplierInvoicePaymentsColor = '#92400E';
 const toPendingAmount = (total: number, paid: number) => Math.max(total - paid, 0);
@@ -72,8 +79,11 @@ const formatAxisCurrency = (value: unknown) =>
   formatMoneyShort(newMoney(typeof value === 'number' || typeof value === 'string' ? value : 0, 'EUR'));
 
 interface Props {
+  balanceTrend: DashboardBankBalanceTrendItem[];
   dateRange: DateRangeValue;
   invoiceStats: DashboardMonthlyInvoicesStat[];
+  isBalanceTrendError: boolean;
+  isBalanceTrendLoading: boolean;
   isError: boolean;
   isInvoicesError: boolean;
   isInvoicesLoading: boolean;
@@ -90,6 +100,7 @@ interface TooltipEntry {
   payload?: {
     [key: string]: number | string | undefined;
     fullLabel?: string;
+    bankBalanceDateLabel?: string;
   };
   stroke?: string;
   value?: number | string;
@@ -116,6 +127,7 @@ const tooltipPriorityByDataKey = Object.fromEntries([
     [item.pendingAmountDataKey, item.priority + 1],
   ]),
   ...invoiceSeries.flatMap((item) => [[item.amountDataKey, item.priority]]),
+  [bankBalanceDataKey, 10],
   [customerPreinvoiceDataKey, 2],
   [scheduledSupplierInvoicePaymentsDataKey, 5],
 ]) as Record<string, number>;
@@ -130,6 +142,8 @@ interface AxisSummaryRow {
 }
 
 interface ChartDataItem extends Partial<DashboardMonthlyCashflowStat>, Partial<DashboardMonthlyInvoicesStat> {
+  bankBalance?: number;
+  bankBalanceDateLabel?: string;
   fullLabel: string;
   label: string;
   month: number;
@@ -141,13 +155,45 @@ interface ChartDataItem extends Partial<DashboardMonthlyCashflowStat>, Partial<D
   year: number;
 }
 
+interface BalanceLineDataItem {
+  bankBalance: number;
+  bankBalanceDateLabel: string;
+  fullLabel: string;
+  sortDate: number;
+}
+
+interface BalanceDotProps {
+  cx?: number | string;
+  cy?: number | string;
+  payload?: BalanceLineDataItem;
+  value?: unknown;
+}
+
+interface HoveredBalancePoint {
+  balance: number | string;
+  dateLabel: string;
+  x: number;
+  y: number;
+}
+
 interface AxisTickProps {
   payload?: {
     index?: number;
-    value?: string;
+    value?: number | string;
   };
   x?: number;
   y?: number;
+}
+
+interface MonthlyCashflowCursorProps {
+  dataLength: number;
+  height?: number | string;
+  left?: number | string;
+  points?: { x?: number; y?: number }[];
+  top?: number | string;
+  width?: number | string;
+  x?: number | string;
+  y?: number | string;
 }
 
 const MonthlyCashflowAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] }> = ({
@@ -195,6 +241,53 @@ const MonthlyCashflowAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] 
   );
 };
 
+const MonthlyCashflowCursor: React.FC<MonthlyCashflowCursorProps> = ({
+  dataLength,
+  height,
+  left,
+  points,
+  top,
+  width,
+  x,
+  y,
+}) => {
+  const plotLeft = Number(left ?? x ?? 0);
+  const plotTop = Number(top ?? y ?? 0);
+  const plotWidth = Number(width ?? 0);
+  const plotHeight = Number(height ?? 0);
+  const activeX = points?.[0]?.x;
+  const bandWidth = dataLength > 0 ? plotWidth / dataLength : 0;
+
+  if (
+    activeX === undefined ||
+    Number.isNaN(plotLeft) ||
+    Number.isNaN(plotTop) ||
+    Number.isNaN(plotWidth) ||
+    Number.isNaN(plotHeight) ||
+    Number.isNaN(activeX) ||
+    Number.isNaN(bandWidth) ||
+    plotWidth <= 0 ||
+    plotHeight <= 0 ||
+    bandWidth <= 0
+  ) {
+    return null;
+  }
+
+  const rectX = Math.max(plotLeft, Math.min(activeX - bandWidth / 2, plotLeft + plotWidth - bandWidth));
+
+  return (
+    <rect
+      fill="#9CA3AF"
+      fillOpacity={0.45}
+      height={plotHeight}
+      pointerEvents="none"
+      width={bandWidth}
+      x={rectX}
+      y={plotTop}
+    />
+  );
+};
+
 const ScheduledSupplierInvoiceBarShape: React.FC<Partial<BarShapeProps>> = (props) => {
   const x = Number(props.x ?? 0);
   const y = Number(props.y ?? 0);
@@ -221,6 +314,80 @@ const ScheduledSupplierInvoiceBarShape: React.FC<Partial<BarShapeProps>> = (prop
   );
 };
 
+const BalanceDot: React.FC<BalanceDotProps & { onHover: (point?: HoveredBalancePoint) => void }> = ({
+  cx,
+  cy,
+  onHover,
+  payload,
+  value,
+}) => {
+  if (cx === undefined || cy === undefined || value === undefined || value === null) {
+    return null;
+  }
+
+  const numericX = Number(cx);
+  const numericY = Number(cy);
+
+  if (Number.isNaN(numericX) || Number.isNaN(numericY)) {
+    return null;
+  }
+
+  return (
+    <circle
+      cx={numericX}
+      cy={numericY}
+      fill={bankBalanceLineColor}
+      onMouseEnter={() =>
+        onHover({
+          balance: typeof value === 'number' || typeof value === 'string' ? value : 0,
+          dateLabel: payload?.bankBalanceDateLabel ?? '',
+          x: numericX,
+          y: numericY,
+        })
+      }
+      onMouseLeave={() => onHover(undefined)}
+      r={4}
+      stroke={bankBalanceLineColor}
+      strokeWidth={2}
+    />
+  );
+};
+
+const BalancePointTooltip: React.FC<{ point?: HoveredBalancePoint }> = ({ point }) => {
+  if (!point) {
+    return null;
+  }
+
+  return (
+    <Box
+      sx={{
+        bgcolor: '#111827',
+        borderRadius: 1,
+        boxShadow: 3,
+        color: 'common.white',
+        left: point.x,
+        minWidth: 142,
+        pointerEvents: 'none',
+        position: 'absolute',
+        px: 1.25,
+        py: 0.75,
+        top: point.y,
+        transform: 'translate(-50%, calc(-100% - 12px))',
+        zIndex: 10,
+      }}
+    >
+      <Typography sx={{ color: '#E5E7EB', fontSize: 10.5, fontWeight: 600, lineHeight: 1.2, textAlign: 'center' }}>
+        Saldo {point.dateLabel}
+      </Typography>
+      <Typography
+        sx={{ color: 'common.white', fontSize: 11.5, fontWeight: 700, lineHeight: 1.25, textAlign: 'center' }}
+      >
+        {formatAxisCurrency(point.balance)}
+      </Typography>
+    </Box>
+  );
+};
+
 const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, payload }) => {
   if (!active || !payload?.length) {
     return null;
@@ -234,6 +401,10 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
     return leftPriority - rightPriority;
   });
   const rows = sortedPayload.flatMap<TooltipDisplayRow>((entry) => {
+    if (entry.value === undefined) {
+      return [];
+    }
+
     const color = entry.stroke || entry.color || 'currentColor';
     const chartItem = entry.payload;
     const displayRows: TooltipDisplayRow[] = [
@@ -246,6 +417,10 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
         value: entry.value ?? 0,
       },
     ];
+
+    if (entry.dataKey === bankBalanceDataKey && chartItem?.bankBalanceDateLabel) {
+      displayRows[0]!.label = `Saldo bancario (${chartItem.bankBalanceDateLabel})`;
+    }
 
     if (entry.dataKey === 'paidInvoicePaymentsAmount') {
       const invoicePrepaymentsAmount = Number(chartItem?.invoicePrepaymentsAmount ?? 0);
@@ -332,9 +507,14 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
   );
 };
 
+const EmptyTooltipContent = () => null;
+
 const MonthlyCashflowChartCard: React.FC<Props> = ({
+  balanceTrend,
   dateRange,
   invoiceStats,
+  isBalanceTrendError,
+  isBalanceTrendLoading,
   isError,
   isInvoicesError,
   isInvoicesLoading,
@@ -343,7 +523,16 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
   stats,
 }) => {
   const [chartMode, setChartMode] = useState<ChartMode>('payments');
+  const [hoveredBalancePoint, setHoveredBalancePoint] = useState<HoveredBalancePoint>();
   const setAsideItem = useSetDashboardAsideItem();
+  const balanceLineData: BalanceLineDataItem[] = balanceTrend
+    .map((item) => ({
+      bankBalance: item.balance,
+      bankBalanceDateLabel: format(getDateByUnixtimestamp({ unixTimestamp: item.date }), 'dd/MM/yyyy'),
+      fullLabel: `Saldo bancario ${format(getDateByUnixtimestamp({ unixTimestamp: item.date }), 'dd/MM/yyyy')}`,
+      sortDate: getDateByUnixtimestamp({ unixTimestamp: item.date }).getTime(),
+    }))
+    .sort((left, right) => left.sortDate - right.sortDate);
 
   const paymentChartData: ChartDataItem[] = stats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
@@ -438,8 +627,8 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
     };
   });
   const chartData = chartMode === 'payments' ? paymentChartData : invoiceChartData;
-  const activeIsLoading = chartMode === 'payments' ? isLoading : isInvoicesLoading;
-  const activeIsError = chartMode === 'payments' ? isError : isInvoicesError;
+  const activeIsLoading = (chartMode === 'payments' ? isLoading : isInvoicesLoading) || isBalanceTrendLoading;
+  const activeIsError = (chartMode === 'payments' ? isError : isInvoicesError) || isBalanceTrendError;
   const chartTitle = chartMode === 'payments' ? 'Cashflow Pagamenti Fatture' : 'Cashflow Fatture';
   const chartDescription =
     chartMode === 'payments'
@@ -449,10 +638,11 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
     0,
     ...chartData.map((item) => item.scheduledSupplierInvoicePaymentsAmount),
   );
+  const minChartWidth = Math.max(chartData.length * 164, 640);
+  const xAxisDomain = [dateRange.startDate?.getTime() ?? 'dataMin', dateRange.endDate?.getTime() ?? 'dataMax'] as const;
   const onBarChartClick: CategoricalChartFunc<MouseEvent<SVGGraphicsElement>> = (dataParams) => {
     if (dataParams.activeIndex === undefined) return;
-    const selected =
-      chartMode === 'payments' ? stats[Number(dataParams.activeIndex)] : invoiceStats[Number(dataParams.activeIndex)];
+    const selected = chartData[Number(dataParams.activeIndex)];
     if (!selected) return;
 
     setAsideItem({
@@ -460,6 +650,9 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
       year: selected.year,
       month: selected.month,
     });
+  };
+  const onBalancePointHover = (point?: HoveredBalancePoint) => {
+    setHoveredBalancePoint(point);
   };
 
   return (
@@ -519,9 +712,9 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
 
         {!activeIsLoading && !activeIsError && chartData.length > 0 ? (
           <Box sx={{ overflowX: 'auto', width: '100%' }}>
-            <Box sx={{ height: { xs: 405, md: 450 }, minWidth: Math.max(chartData.length * 164, 640), width: '100%' }}>
+            <Box sx={{ height: { xs: 405, md: 450 }, minWidth: minChartWidth, position: 'relative', width: '100%' }}>
               <ResponsiveContainer>
-                <BarChart data={chartData} barGap={4} barCategoryGap="36%" onClick={onBarChartClick}>
+                <ComposedChart data={chartData} barGap={4} barCategoryGap="36%" onClick={onBarChartClick}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="label"
@@ -530,12 +723,32 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
                     tick={<MonthlyCashflowAxisTick data={chartData} />}
                     tickLine={false}
                   />
+                  <XAxis
+                    dataKey="sortDate"
+                    domain={xAxisDomain}
+                    hide
+                    scale="time"
+                    type="number"
+                    xAxisId="balanceDate"
+                  />
                   <YAxis
+                    yAxisId="cashflow"
                     allowDecimals={false}
                     domain={[0, (dataMax: number) => Math.max(dataMax, maxScheduledSupplierInvoicePaymentsAmount)]}
                     tickFormatter={formatAxisCurrency}
                   />
-                  <Tooltip content={<ChartTooltipContent />} />
+                  <YAxis
+                    yAxisId="balance"
+                    allowDecimals={false}
+                    domain={['auto', 'auto']}
+                    orientation="right"
+                    tickFormatter={formatAxisCurrency}
+                  />
+                  <Tooltip
+                    content={hoveredBalancePoint ? <EmptyTooltipContent /> : <ChartTooltipContent />}
+                    cursor={hoveredBalancePoint ? false : <MonthlyCashflowCursor dataLength={chartData.length} />}
+                    wrapperStyle={{ zIndex: 5 }}
+                  />
                   {chartMode === 'payments' ? (
                     <>
                       {paymentSeries.map((item) => (
@@ -547,6 +760,7 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
                           name={item.label}
                           stackId={item.stackId}
                           stroke={item.color}
+                          yAxisId="cashflow"
                         />
                       ))}
                       {paymentSeries.map((item) => (
@@ -559,6 +773,7 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
                           stackId={item.stackId}
                           stroke={item.color}
                           strokeWidth={2}
+                          yAxisId="cashflow"
                         />
                       ))}
                       <Bar
@@ -570,6 +785,7 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
                         stackId="supplier-invoice-payments"
                         stroke={scheduledSupplierInvoicePaymentsColor}
                         strokeWidth={2}
+                        yAxisId="cashflow"
                       />
                     </>
                   ) : (
@@ -583,6 +799,7 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
                           name={item.label}
                           stackId={item.stackId}
                           stroke={item.color}
+                          yAxisId="cashflow"
                         />
                       ))}
                       <Bar
@@ -593,11 +810,26 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
                         stackId="customer-invoices"
                         stroke={invoiceSeries[0].color}
                         strokeWidth={2}
+                        yAxisId="cashflow"
                       />
                     </>
                   )}
-                </BarChart>
+                  <Line
+                    connectNulls
+                    data={balanceLineData}
+                    dataKey={bankBalanceDataKey}
+                    dot={<BalanceDot onHover={onBalancePointHover} />}
+                    isAnimationActive={balanceLineData.length <= 18}
+                    name="Saldo bancario"
+                    stroke={bankBalanceLineColor}
+                    strokeWidth={2.5}
+                    type="monotone"
+                    xAxisId="balanceDate"
+                    yAxisId="balance"
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
+              <BalancePointTooltip point={hoveredBalancePoint} />
             </Box>
           </Box>
         ) : null}

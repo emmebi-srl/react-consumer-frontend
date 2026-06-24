@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import type { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
 import PageContainer from '~/components/Layout/PageContainer';
 import {
+  useDashboardBankBalanceTrend,
   useDashboardMonthlyCashflowStats,
   useDashboardMonthlyInvoicesStats,
   useDashboardMonthlyStats,
@@ -80,6 +81,7 @@ const DashboardView = () => {
 
   const dashboardQuery = useDashboardMonthlyStats(statsRange);
   const cashflowQuery = useDashboardMonthlyCashflowStats(cashflowRange);
+  const bankBalanceTrendQuery = useDashboardBankBalanceTrend(cashflowRange);
   const invoicesQuery = useDashboardMonthlyInvoicesStats(cashflowRange);
   const timelineQuery = useDashboardTimeline(timelineRange);
 
@@ -91,7 +93,10 @@ const DashboardView = () => {
             <WeeklyEventsCard />
             <MonthlyCashflowChartCard
               dateRange={cashflowDateRange}
+              balanceTrend={bankBalanceTrendQuery.data?.bankBalanceTrend ?? []}
               isError={cashflowQuery.isError}
+              isBalanceTrendError={bankBalanceTrendQuery.isError}
+              isBalanceTrendLoading={bankBalanceTrendQuery.isLoading}
               isInvoicesError={invoicesQuery.isError}
               isInvoicesLoading={invoicesQuery.isLoading}
               isLoading={cashflowQuery.isLoading}

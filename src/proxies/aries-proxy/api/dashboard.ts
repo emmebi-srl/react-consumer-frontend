@@ -1,5 +1,6 @@
 import ariesServicesClient from '~/clients/aries-services-client';
 import {
+  DashboardBankBalanceTrendList,
   DashboardMonthlyCashflowStatsList,
   DashboardMonthlyCashflowDetails,
   DashboardMonthlyDetailsRequest,
@@ -23,6 +24,12 @@ export const getDashboardMonthlyCashflowStats = (req: DashboardMonthlyStatsReque
 
 export const getDashboardMonthlyInvoicesStats = (req: DashboardMonthlyStatsRequest) => {
   return ariesServicesClient.get<DashboardMonthlyInvoicesStatsList>('dashboard/monthly-invoices-stats', {
+    params: req,
+  });
+};
+
+export const getDashboardBankBalanceTrend = (req: DashboardMonthlyStatsRequest) => {
+  return ariesServicesClient.get<DashboardBankBalanceTrendList>('dashboard/bank-balance-trend', {
     params: req,
   });
 };

@@ -14,6 +14,15 @@ export interface DashboardTimelineList {
   items: DashboardTimelineItem[];
 }
 
+export interface DashboardBankBalanceTrendList {
+  bankBalanceTrend: DashboardBankBalanceTrendItem[];
+}
+
+export interface DashboardBankBalanceTrendItem {
+  date: number;
+  balance: number;
+}
+
 export interface DashboardMonthlyStatsDetails {
   year: number;
   month: number;

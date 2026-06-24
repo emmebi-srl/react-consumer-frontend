@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import {
+  getDashboardBankBalanceTrend,
   getDashboardMonthlyCashflowDetails,
   getDashboardMonthlyCashflowStats,
   getDashboardMonthlyInvoicesDetails,
@@ -16,6 +17,7 @@ export const DashboardQueryKeys = {
     ['Dashboard', 'monthly-cashflow-stats', params] as const,
   monthlyCashflowDetails: (params: DashboardMonthlyDetailsRequest) =>
     ['Dashboard', 'monthly-cashflow-details', params] as const,
+  bankBalanceTrend: (params: DashboardMonthlyStatsRequest) => ['Dashboard', 'bank-balance-trend', params] as const,
   monthlyInvoicesStats: (params: DashboardMonthlyStatsRequest) =>
     ['Dashboard', 'monthly-invoices-stats', params] as const,
   monthlyInvoicesDetails: (params: DashboardMonthlyDetailsRequest) =>
@@ -44,6 +46,13 @@ export const useDashboardMonthlyInvoicesStats = (params: DashboardMonthlyStatsRe
   return useQuery({
     queryKey: DashboardQueryKeys.monthlyInvoicesStats(params),
     queryFn: async () => (await getDashboardMonthlyInvoicesStats(params)).data,
+  });
+};
+
+export const useDashboardBankBalanceTrend = (params: DashboardMonthlyStatsRequest) => {
+  return useQuery({
+    queryKey: DashboardQueryKeys.bankBalanceTrend(params),
+    queryFn: async () => (await getDashboardBankBalanceTrend(params)).data,
   });
 };
 
