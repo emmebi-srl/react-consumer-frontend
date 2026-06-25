@@ -31,7 +31,7 @@ const ErrorBoundaryFallbackView = ({ error, resetErrorBoundary }: FallbackProps)
         flexDirection: 'column',
       }}
     >
-      <Typography variant="h4">Mi dispiace, qualcosa Ã¨ andato storto</Typography>
+      <Typography variant="h4">Mi dispiace, qualcosa è andato storto</Typography>
       <Box
         component="pre"
         sx={{
