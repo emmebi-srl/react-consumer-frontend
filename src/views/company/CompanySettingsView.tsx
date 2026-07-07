@@ -100,6 +100,7 @@ interface BankAccountForm {
   iban: string;
   holder: string;
   notes: string;
+  isDefaultForPayments: boolean;
 }
 
 const billingStringFields: StringField[] = [
@@ -219,6 +220,7 @@ const emptyBankAccountForm: BankAccountForm = {
   iban: '',
   holder: '',
   notes: '',
+  isDefaultForPayments: false,
 };
 
 const formatDate = (value?: number | null) => (value ? new Date(value * 1000).toLocaleDateString('it-IT') : '-');
@@ -514,6 +516,7 @@ const toBankAccountPayload = (form: BankAccountForm): BankAccount => ({
   holder: nullableText(form.holder),
   notes: nullableText(form.notes),
   isActive: true,
+  isDefaultForPayments: form.isDefaultForPayments,
 });
 
 const BankAccountsSection = () => {
@@ -555,6 +558,15 @@ const BankAccountsSection = () => {
 
     await updateAccount({ id: account.id, model: { ...account, isActive } });
     snackbar.success(isActive ? 'Conto riattivato.' : 'Conto disattivato.');
+  };
+
+  const handleToggleDefaultForPayments = async (account: BankAccount, isDefaultForPayments: boolean) => {
+    if (!account.id) return;
+
+    await updateAccount({ id: account.id, model: { ...account, isDefaultForPayments } });
+    snackbar.success(
+      isDefaultForPayments ? 'Conto impostato come default per i pagamenti.' : 'Default pagamenti rimosso.',
+    );
   };
 
   const openBalancesModal = (account: BankAccount) => {
@@ -611,13 +623,24 @@ const BankAccountsSection = () => {
                   value={accountForm.holder}
                 />
               </Grid>
-              <Grid size={{ xs: 12, md: 9 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   fullWidth
                   label="Note"
                   onChange={(event) => handleAccountFormChange('notes', event.target.value)}
                   size="small"
                   value={accountForm.notes}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 3 }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={accountForm.isDefaultForPayments}
+                      onChange={(event) => handleAccountFormChange('isDefaultForPayments', event.target.checked)}
+                    />
+                  }
+                  label="Default pagamenti"
                 />
               </Grid>
               <Grid size={{ xs: 12, md: 3 }}>
@@ -679,6 +702,16 @@ const BankAccountsSection = () => {
                       <Typography color="text.secondary" variant="body2">
                         {formatDate(account.latestBalance?.balanceDate)}
                       </Typography>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={account.isDefaultForPayments}
+                            disabled={isUpdatingAccount || !account.isActive}
+                            onChange={(event) => handleToggleDefaultForPayments(account, event.target.checked)}
+                          />
+                        }
+                        label="Default pagamenti"
+                      />
                       <FormControlLabel
                         control={
                           <Switch

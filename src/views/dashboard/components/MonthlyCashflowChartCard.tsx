@@ -5,7 +5,9 @@ import {
   Box,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
+  Portal,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -14,6 +16,7 @@ import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, 
 import type { BarShapeProps } from 'recharts';
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
 import {
+  DashboardBankBalanceTrendAccount,
   DashboardBankBalanceTrendItem,
   DashboardMonthlyCashflowStat,
   DashboardMonthlyInvoicesStat,
@@ -21,7 +24,7 @@ import {
 import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
 import { formatMoney, formatMoneyShort, newMoney } from '~/utils/money';
 import { CategoricalChartFunc } from 'recharts/types/chart/types';
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useLayoutEffect, useRef, useState } from 'react';
 import { useSetDashboardAsideItem } from '../state';
 
 type ChartMode = 'payments' | 'invoices';
@@ -101,6 +104,8 @@ interface TooltipEntry {
     [key: string]: number | string | undefined;
     fullLabel?: string;
     bankBalanceDateLabel?: string;
+    monthEndBalance?: number;
+    monthEndBalanceDateLabel?: string;
   };
   stroke?: string;
   value?: number | string;
@@ -147,6 +152,8 @@ interface ChartDataItem extends Partial<DashboardMonthlyCashflowStat>, Partial<D
   fullLabel: string;
   label: string;
   month: number;
+  monthEndBalance?: number;
+  monthEndBalanceDateLabel?: string;
   monthStart: number;
   pendingInvoicePaymentsAmount: number;
   pendingSupplierInvoicePaymentsAmount: number;
@@ -156,6 +163,7 @@ interface ChartDataItem extends Partial<DashboardMonthlyCashflowStat>, Partial<D
 }
 
 interface BalanceLineDataItem {
+  accountBalances: DashboardBankBalanceTrendAccount[];
   bankBalance: number;
   bankBalanceDateLabel: string;
   fullLabel: string;
@@ -170,10 +178,18 @@ interface BalanceDotProps {
 }
 
 interface HoveredBalancePoint {
+  accountBalances: DashboardBankBalanceTrendAccount[];
   balance: number | string;
   dateLabel: string;
+  viewportX: number;
+  viewportY: number;
   x: number;
   y: number;
+}
+
+interface TooltipPosition {
+  left: number;
+  top: number;
 }
 
 interface AxisTickProps {
@@ -232,7 +248,7 @@ const MonthlyCashflowAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] 
           <text fill="#4B5563" fontSize={10.5} textAnchor="start" x={-34} y={0}>
             {row.label}
           </text>
-          <text fill="#111827" fontSize={10.5} fontWeight={700} textAnchor="end" x={68} y={0}>
+          <text fill={row.color} fontSize={10.5} fontWeight={700} textAnchor="end" x={68} y={0}>
             {row.value}
           </text>
         </g>
@@ -332,59 +348,165 @@ const BalanceDot: React.FC<BalanceDotProps & { onHover: (point?: HoveredBalanceP
     return null;
   }
 
+  const showTooltip = (event: MouseEvent<SVGCircleElement>) => {
+    const dotRect = event.currentTarget.getBoundingClientRect();
+
+    onHover({
+      balance: typeof value === 'number' || typeof value === 'string' ? value : 0,
+      accountBalances: payload?.accountBalances ?? [],
+      dateLabel: payload?.bankBalanceDateLabel ?? '',
+      viewportX: dotRect.left + dotRect.width / 2,
+      viewportY: dotRect.top + dotRect.height / 2,
+      x: numericX,
+      y: numericY,
+    });
+  };
+
   return (
-    <circle
-      cx={numericX}
-      cy={numericY}
-      fill={bankBalanceLineColor}
-      onMouseEnter={() =>
-        onHover({
-          balance: typeof value === 'number' || typeof value === 'string' ? value : 0,
-          dateLabel: payload?.bankBalanceDateLabel ?? '',
-          x: numericX,
-          y: numericY,
-        })
-      }
-      onMouseLeave={() => onHover(undefined)}
-      r={4}
-      stroke={bankBalanceLineColor}
-      strokeWidth={2}
-    />
+    <g>
+      <circle
+        cx={numericX}
+        cy={numericY}
+        fill={bankBalanceLineColor}
+        pointerEvents="none"
+        r={4}
+        stroke={bankBalanceLineColor}
+        strokeWidth={2}
+      />
+      <circle
+        cx={numericX}
+        cy={numericY}
+        fill="transparent"
+        onMouseEnter={showTooltip}
+        onMouseLeave={() => onHover(undefined)}
+        onMouseMove={showTooltip}
+        r={14}
+        stroke="transparent"
+        strokeWidth={0}
+      />
+    </g>
   );
 };
 
 const BalancePointTooltip: React.FC<{ point?: HoveredBalancePoint }> = ({ point }) => {
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const [position, setPosition] = useState<TooltipPosition>();
+
+  useLayoutEffect(() => {
+    if (!point || !tooltipRef.current) {
+      setPosition(undefined);
+      return;
+    }
+
+    const margin = 12;
+    const gap = 12;
+    const tooltipRect = tooltipRef.current.getBoundingClientRect();
+    const preferredLeft = point.viewportX - tooltipRect.width / 2;
+    const maxLeft = window.innerWidth - tooltipRect.width - margin;
+    const left = Math.max(margin, Math.min(preferredLeft, maxLeft));
+    const preferredTop = point.viewportY - tooltipRect.height - gap;
+    const fallbackTop = point.viewportY + gap;
+    const top =
+      preferredTop >= margin ? preferredTop : Math.min(fallbackTop, window.innerHeight - tooltipRect.height - margin);
+
+    setPosition({
+      left,
+      top: Math.max(margin, top),
+    });
+  }, [point]);
+
   if (!point) {
     return null;
   }
 
+  const numericBalance = Number(point.balance);
+  const totalBalanceColor = Number.isFinite(numericBalance) && numericBalance < 0 ? 'error.main' : 'success.main';
+
   return (
-    <Box
-      sx={{
-        bgcolor: '#111827',
-        borderRadius: 1,
-        boxShadow: 3,
-        color: 'common.white',
-        left: point.x,
-        minWidth: 142,
-        pointerEvents: 'none',
-        position: 'absolute',
-        px: 1.25,
-        py: 0.75,
-        top: point.y,
-        transform: 'translate(-50%, calc(-100% - 12px))',
-        zIndex: 10,
-      }}
-    >
-      <Typography sx={{ color: '#E5E7EB', fontSize: 10.5, fontWeight: 600, lineHeight: 1.2, textAlign: 'center' }}>
-        Saldo {point.dateLabel}
-      </Typography>
-      <Typography
-        sx={{ color: 'common.white', fontSize: 11.5, fontWeight: 700, lineHeight: 1.25, textAlign: 'center' }}
+    <Portal>
+      <Box
+        ref={tooltipRef}
+        sx={{
+          bgcolor: 'background.paper',
+          borderRadius: 1,
+          boxShadow: 3,
+          color: 'text.primary',
+          left: position?.left ?? point.viewportX,
+          maxHeight: 'calc(100vh - 24px)',
+          minWidth: 220,
+          opacity: position ? 1 : 0,
+          overflowY: 'auto',
+          pointerEvents: 'none',
+          position: 'fixed',
+          px: 1.25,
+          py: 0.75,
+          top: position?.top ?? point.viewportY,
+          zIndex: (theme) => theme.zIndex.tooltip,
+        }}
       >
-        {formatAxisCurrency(point.balance)}
-      </Typography>
-    </Box>
+        <Typography
+          sx={{ color: 'text.secondary', fontSize: 10.5, fontWeight: 600, lineHeight: 1.2, textAlign: 'center' }}
+        >
+          Saldo {point.dateLabel}
+        </Typography>
+        <Typography
+          sx={{ color: totalBalanceColor, fontSize: 11.5, fontWeight: 700, lineHeight: 1.25, textAlign: 'center' }}
+        >
+          {formatAxisCurrency(point.balance)}
+        </Typography>
+        {point.accountBalances.length > 0 ? (
+          <Box sx={{ borderTop: 1, borderColor: 'divider', mt: 0.75, pt: 0.75 }}>
+            {point.accountBalances.map((account) => (
+              <Box
+                key={account.bankAccountId}
+                sx={{
+                  alignItems: 'center',
+                  display: 'grid',
+                  gap: 1,
+                  gridTemplateColumns: 'minmax(0, 1fr) auto',
+                  py: 0.2,
+                }}
+              >
+                <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.5, minWidth: 0 }}>
+                  <Typography
+                    sx={{
+                      color: 'text.primary',
+                      fontSize: 11,
+                      fontWeight: 500,
+                      lineHeight: 1.2,
+                      minWidth: 0,
+                    }}
+                  >
+                    {account.bankAccountName}
+                  </Typography>
+                  {account.isDefaultForPayments ? (
+                    <Chip
+                      color="success"
+                      label="Default"
+                      size="small"
+                      sx={{ height: 18, '& .MuiChip-label': { fontSize: 10, px: 0.75 } }}
+                    />
+                  ) : null}
+                </Box>
+                <Typography
+                  sx={{
+                    color: 'text.primary',
+                    fontFeatureSettings: '"tnum"',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    justifySelf: 'end',
+                    lineHeight: 1.2,
+                    textAlign: 'right',
+                  }}
+                >
+                  {formatCurrency(account.balance)}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        ) : null}
+      </Box>
+    </Portal>
   );
 };
 
@@ -394,6 +516,7 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
   }
 
   const fullLabel = payload[0]?.payload?.fullLabel ?? label;
+  const chartItem = payload[0]?.payload;
   const sortedPayload = [...payload].sort((left, right) => {
     const leftPriority = tooltipPriorityByDataKey[left.dataKey ?? ''] ?? Number.MAX_SAFE_INTEGER;
     const rightPriority = tooltipPriorityByDataKey[right.dataKey ?? ''] ?? Number.MAX_SAFE_INTEGER;
@@ -462,6 +585,48 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
     >
       <Typography sx={{ color: 'text.primary', fontSize: 13, fontWeight: 600, mb: 0.75 }}>{fullLabel}</Typography>
 
+      {chartItem?.monthEndBalance !== undefined ? (
+        <Box
+          sx={{
+            alignItems: 'center',
+            borderBottom: 1,
+            borderColor: 'divider',
+            display: 'grid',
+            gap: 1,
+            gridTemplateColumns: '12px 1fr auto',
+            mb: 0.75,
+            pb: 0.75,
+          }}
+        >
+          <Box
+            sx={{
+              bgcolor: bankBalanceLineColor,
+              border: 2,
+              borderColor: bankBalanceLineColor,
+              borderRadius: 0.5,
+              height: 12,
+              width: 12,
+            }}
+          />
+          <Typography sx={{ color: 'text.primary', fontSize: 13, lineHeight: 1.2 }}>
+            Saldo fine mese
+            {chartItem.monthEndBalanceDateLabel ? ` (${chartItem.monthEndBalanceDateLabel})` : ''}
+          </Typography>
+          <Typography
+            sx={{
+              color: chartItem.monthEndBalance < 0 ? 'error.main' : 'success.main',
+              fontFeatureSettings: '"tnum"',
+              fontSize: 13,
+              fontWeight: 700,
+              lineHeight: 1.2,
+              textAlign: 'right',
+            }}
+          >
+            {formatCurrency(chartItem.monthEndBalance)}
+          </Typography>
+        </Box>
+      ) : null}
+
       {rows.map((row) => {
         const isOutlined = row.fill === 'transparent';
 
@@ -527,15 +692,28 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
   const setAsideItem = useSetDashboardAsideItem();
   const balanceLineData: BalanceLineDataItem[] = balanceTrend
     .map((item) => ({
+      accountBalances: item.accountBalances,
       bankBalance: item.balance,
       bankBalanceDateLabel: format(getDateByUnixtimestamp({ unixTimestamp: item.date }), 'dd/MM/yyyy'),
       fullLabel: `Saldo bancario ${format(getDateByUnixtimestamp({ unixTimestamp: item.date }), 'dd/MM/yyyy')}`,
       sortDate: getDateByUnixtimestamp({ unixTimestamp: item.date }).getTime(),
     }))
     .sort((left, right) => left.sortDate - right.sortDate);
+  const getLatestBalanceByMonthEnd = (year: number, month: number) => {
+    const monthEnd = new Date(year, month, 0, 23, 59, 59, 999).getTime();
+    let latestBalance: BalanceLineDataItem | undefined;
+
+    for (const item of balanceLineData) {
+      if (item.sortDate > monthEnd) break;
+      latestBalance = item;
+    }
+
+    return latestBalance;
+  };
 
   const paymentChartData: ChartDataItem[] = stats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
+    const monthEndBalance = getLatestBalanceByMonthEnd(stat.year, stat.month);
     const pendingInvoicePaymentsAmount = toPendingAmount(stat.invoicePaymentsAmount, stat.paidInvoicePaymentsAmount);
     const pendingSupplierInvoicePaymentsAmount = toPendingAmount(
       stat.supplierInvoicePaymentsAmount,
@@ -552,6 +730,8 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
       paidSupplierInvoicePaymentsAmount: actualPaidSupplierInvoicePaymentsAmount,
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
       label: capitalize(format(monthDate, 'MMM yyyy', { locale: it })),
+      monthEndBalance: monthEndBalance?.bankBalance,
+      monthEndBalanceDateLabel: monthEndBalance?.bankBalanceDateLabel,
       pendingInvoicePaymentsAmount,
       pendingSupplierInvoicePaymentsAmount,
       scheduledSupplierInvoicePaymentsAmount,
@@ -590,16 +770,29 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
           label: 'Prog.',
           value: formatAxisCurrency(scheduledSupplierInvoicePaymentsAmount),
         },
+        ...(monthEndBalance
+          ? [
+              {
+                color: bankBalanceLineColor,
+                isZero: false,
+                label: 'Saldo',
+                value: formatAxisCurrency(monthEndBalance.bankBalance),
+              },
+            ]
+          : []),
       ],
     };
   });
   const invoiceChartData: ChartDataItem[] = invoiceStats.map((stat) => {
     const monthDate = new Date(stat.year, stat.month - 1, 1);
+    const monthEndBalance = getLatestBalanceByMonthEnd(stat.year, stat.month);
 
     return {
       ...stat,
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
       label: capitalize(format(monthDate, 'MMM yyyy', { locale: it })),
+      monthEndBalance: monthEndBalance?.bankBalance,
+      monthEndBalanceDateLabel: monthEndBalance?.bankBalanceDateLabel,
       pendingInvoicePaymentsAmount: 0,
       pendingSupplierInvoicePaymentsAmount: 0,
       scheduledSupplierInvoicePaymentsAmount: 0,
@@ -623,6 +816,16 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
           label: 'Fat. for.',
           value: formatAxisCurrency(stat.supplierInvoiceAmount),
         },
+        ...(monthEndBalance
+          ? [
+              {
+                color: bankBalanceLineColor,
+                isZero: false,
+                label: 'Saldo',
+                value: formatAxisCurrency(monthEndBalance.bankBalance),
+              },
+            ]
+          : []),
       ],
     };
   });
@@ -712,13 +915,13 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
 
         {!activeIsLoading && !activeIsError && chartData.length > 0 ? (
           <Box sx={{ overflowX: 'auto', width: '100%' }}>
-            <Box sx={{ height: { xs: 405, md: 450 }, minWidth: minChartWidth, position: 'relative', width: '100%' }}>
+            <Box sx={{ height: { xs: 425, md: 470 }, minWidth: minChartWidth, position: 'relative', width: '100%' }}>
               <ResponsiveContainer>
                 <ComposedChart data={chartData} barGap={4} barCategoryGap="36%" onClick={onBarChartClick}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="label"
-                    height={105}
+                    height={120}
                     interval={0}
                     tick={<MonthlyCashflowAxisTick data={chartData} />}
                     tickLine={false}

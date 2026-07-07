@@ -26,6 +26,7 @@ const Navbar = () => {
   const isSystemListActive = Boolean(useRouteMatch([RouteConfig.SystemList.buildLink()]));
   const isCampaignMailActive = Boolean(useRouteMatch([RouteConfig.CampaignList.buildLink()]));
   const isQuoteActive = Boolean(useRouteMatch([RouteConfig.QuoteList.buildLink()]));
+  const isReportActive = Boolean(useRouteMatch([RouteConfig.ReportList.buildLink()]));
   const isSupplierInvoiceActive = Boolean(useRouteMatch([RouteConfig.SupplierInvoiceList.buildLink()]));
 
   return (
@@ -94,6 +95,14 @@ const Navbar = () => {
               to={RouteConfig.QuoteList.buildLink()}
             >
               Preventivi
+            </Button>
+            <Button
+              sx={{ my: 2, color: 'white', display: 'block' }}
+              component={Link}
+              variant={isReportActive ? 'outlined' : 'text'}
+              to={RouteConfig.ReportList.buildLink()}
+            >
+              Rapporti
             </Button>
             <Button
               sx={{ my: 2, color: 'white', display: 'block' }}

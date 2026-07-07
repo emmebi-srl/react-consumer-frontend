@@ -21,6 +21,14 @@ export interface DashboardBankBalanceTrendList {
 export interface DashboardBankBalanceTrendItem {
   date: number;
   balance: number;
+  accountBalances: DashboardBankBalanceTrendAccount[];
+}
+
+export interface DashboardBankBalanceTrendAccount {
+  bankAccountId: number;
+  bankAccountName: string;
+  balance: number;
+  isDefaultForPayments: boolean;
 }
 
 export interface DashboardMonthlyStatsDetails {
@@ -86,11 +94,17 @@ export interface DashboardMonthlyStat {
   month: number;
   monthStart: number;
   reportGroupCount: number;
+  reportGroupTotal: number;
   openReportGroupCount: number;
+  openReportGroupTotal: number;
   reportCount: number;
+  reportTotal: number;
   openReportCount: number;
+  openReportTotal: number;
   invoiceCount: number;
+  invoiceTotal: number;
   openInvoiceCount: number;
+  openInvoiceTotal: number;
   jobCount: number;
   openJobCount: number;
 }

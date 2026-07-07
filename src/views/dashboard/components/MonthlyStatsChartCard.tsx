@@ -7,6 +7,7 @@ import { DashboardMonthlyStat } from '~/types/aries-proxy/dashboard';
 import { useSetDashboardAsideItem } from '../state';
 import { CategoricalChartFunc } from 'recharts/types/chart/types';
 import { MouseEvent } from 'react';
+import { formatMoneyNoDecimals, newMoney } from '~/utils/money';
 
 const series = [
   {
@@ -15,8 +16,10 @@ const series = [
     label: 'Resoconti',
     openLabel: 'Resoconti aperti',
     openDataKey: 'openReportGroupCount',
+    openTotalDataKey: 'openReportGroupTotal',
     priority: 1,
     stackId: 'report-groups',
+    totalAmountDataKey: 'reportGroupTotal',
     totalDataKey: 'reportGroupCount',
   },
   {
@@ -25,8 +28,10 @@ const series = [
     label: 'Rapporti',
     openLabel: 'Rapporti aperti',
     openDataKey: 'openReportCount',
+    openTotalDataKey: 'openReportTotal',
     priority: 3,
     stackId: 'reports',
+    totalAmountDataKey: 'reportTotal',
     totalDataKey: 'reportCount',
   },
   {
@@ -35,8 +40,10 @@ const series = [
     label: 'Fatture',
     openLabel: 'Fatture aperte',
     openDataKey: 'openInvoiceCount',
+    openTotalDataKey: 'openInvoiceTotal',
     priority: 5,
     stackId: 'invoices',
+    totalAmountDataKey: 'invoiceTotal',
     totalDataKey: 'invoiceCount',
   },
   {
@@ -45,14 +52,20 @@ const series = [
     label: 'Commesse',
     openLabel: 'Commesse aperte',
     openDataKey: 'openJobCount',
+    openTotalDataKey: undefined,
     priority: 7,
     stackId: 'jobs',
+    totalAmountDataKey: undefined,
     totalDataKey: 'jobCount',
   },
 ] as const;
 
 const capitalize = (value: string) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
 const toClosedCount = (total: number, open: number) => Math.max(total - open, 0);
+const toClosedAmount = (total: number, open: number) => Math.max(total - open, 0);
+const formatAxisCurrency = (value: number | string) => formatMoneyNoDecimals(newMoney(value, 'EUR'));
+const formatClosedTotalAmount = (total: number, open: number) =>
+  total > 0 || open > 0 ? `${formatAxisCurrency(toClosedAmount(total, open))}/${formatAxisCurrency(total)}` : undefined;
 
 interface Props {
   dateRange: DateRangeValue;
@@ -92,7 +105,23 @@ const tooltipTotalDataKeyByDataKey = Object.fromEntries(
   series.map((item) => [item.closedDataKey, item.totalDataKey]),
 ) as Record<string, string>;
 
+const tooltipTotalAmountDataKeyByDataKey = Object.fromEntries(
+  series
+    .filter((item) => Boolean(item.totalAmountDataKey))
+    .map((item) => [item.closedDataKey, item.totalAmountDataKey]),
+) as Record<string, string>;
+
+const tooltipOpenTotalAmountDataKeyByDataKey = Object.fromEntries(
+  series
+    .filter((item) => Boolean(item.openTotalDataKey))
+    .flatMap((item) => [
+      [item.closedDataKey, item.openTotalDataKey],
+      [item.openDataKey, item.openTotalDataKey],
+    ]),
+) as Record<string, string>;
+
 interface AxisSummaryRow {
+  amountLabel?: string;
   color: string;
   isZero: boolean;
   label: string;
@@ -135,7 +164,7 @@ const MonthlyStatsAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] }> 
         {item.label}
       </text>
       {item.summaryRows.map((row, index) => (
-        <g key={row.label} opacity={row.isZero ? 0.45 : 1} transform={`translate(0,${32 + index * 15})`}>
+        <g key={row.label} opacity={row.isZero ? 0.45 : 1} transform={`translate(0,${36 + index * 34})`}>
           <rect fill={row.color} height={8} rx={2} width={8} x={-42} y={-7} />
           <text fill="#4B5563" fontSize={11} textAnchor="start" x={-29} y={0}>
             {row.label}{' '}
@@ -144,6 +173,11 @@ const MonthlyStatsAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] }> 
             </tspan>{' '}
             <tspan fill="#6B7280">({row.open} ap.)</tspan>
           </text>
+          {row.amountLabel ? (
+            <text fill="#111827" fontSize={10} fontWeight={700} textAnchor="start" x={-29} y={17}>
+              {row.amountLabel}
+            </text>
+          ) : null}
         </g>
       ))}
     </g>
@@ -178,22 +212,44 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
     >
       <Typography sx={{ color: 'text.primary', fontSize: 13, fontWeight: 600, mb: 0.75 }}>{fullLabel}</Typography>
 
-      {sortedPayload.map((entry) => {
+      {sortedPayload.map((entry, index) => {
         const isOutlined = entry.fill === 'transparent';
         const color = entry.stroke || entry.color || 'currentColor';
         const totalDataKey = tooltipTotalDataKeyByDataKey[entry.dataKey ?? ''];
         const displayedValue = totalDataKey ? (entry.payload?.[totalDataKey] ?? entry.value) : entry.value;
+        const totalAmountDataKey = tooltipTotalAmountDataKeyByDataKey[entry.dataKey ?? ''];
+        const openTotalAmountDataKey = tooltipOpenTotalAmountDataKeyByDataKey[entry.dataKey ?? ''];
+        const totalAmount =
+          totalAmountDataKey && typeof entry.payload?.[totalAmountDataKey] === 'number'
+            ? entry.payload[totalAmountDataKey]
+            : undefined;
+        const openAmount =
+          openTotalAmountDataKey && typeof entry.payload?.[openTotalAmountDataKey] === 'number'
+            ? entry.payload[openTotalAmountDataKey]
+            : undefined;
+        const closedAmount =
+          totalAmount !== undefined && openAmount !== undefined ? toClosedAmount(totalAmount, openAmount) : undefined;
+        const amountLabel =
+          closedAmount !== undefined && totalAmount !== undefined && (totalAmount > 0 || (openAmount ?? 0) > 0)
+            ? `${formatAxisCurrency(closedAmount)}/${formatAxisCurrency(totalAmount)}`
+            : openAmount !== undefined && openAmount > 0
+              ? formatAxisCurrency(openAmount)
+              : undefined;
 
         return (
           <Box
             key={`${entry.name}-${entry.value}`}
             sx={{
-              alignItems: 'center',
+              alignItems: 'start',
+              borderColor: 'divider',
+              borderTop: index > 0 ? 0.5 : 0,
               color: 'text.primary',
               display: 'grid',
               gap: 1,
               gridTemplateColumns: '12px 1fr auto',
-              py: 0.35,
+              mt: index > 0 ? 0.45 : 0,
+              pt: index > 0 ? 0.8 : 0.35,
+              pb: 0.35,
             }}
           >
             <Box
@@ -217,6 +273,11 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
               }}
             >
               {displayedValue}
+              {amountLabel ? (
+                <Typography component="span" sx={{ display: 'block', fontSize: 12 }}>
+                  {amountLabel}
+                </Typography>
+              ) : null}
             </Typography>
           </Box>
         );
@@ -241,6 +302,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
       summaryRows: [
         {
+          amountLabel: formatClosedTotalAmount(stat.reportGroupTotal, stat.openReportGroupTotal),
           color: series[0].color,
           isZero: stat.reportGroupCount <= 0 && stat.openReportGroupCount <= 0,
           label: 'Res.',
@@ -248,6 +310,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           total: stat.reportGroupCount,
         },
         {
+          amountLabel: formatClosedTotalAmount(stat.reportTotal, stat.openReportTotal),
           color: series[1].color,
           isZero: stat.reportCount <= 0 && stat.openReportCount <= 0,
           label: 'Rap.',
@@ -255,6 +318,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           total: stat.reportCount,
         },
         {
+          amountLabel: formatClosedTotalAmount(stat.invoiceTotal, stat.openInvoiceTotal),
           color: series[2].color,
           isZero: stat.invoiceCount <= 0 && stat.openInvoiceCount <= 0,
           label: 'Fat.',
@@ -330,13 +394,13 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
 
         {!isLoading && !isError && chartData.length > 0 ? (
           <Box sx={{ overflowX: 'auto', width: '100%' }}>
-            <Box sx={{ height: { xs: 395, md: 440 }, minWidth: Math.max(chartData.length * 140, 640), width: '100%' }}>
+            <Box sx={{ height: { xs: 485, md: 535 }, minWidth: Math.max(chartData.length * 150, 680), width: '100%' }}>
               <ResponsiveContainer>
                 <BarChart data={chartData} barGap={2} barCategoryGap="24%" onClick={onBarChartClick}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="label"
-                    height={92}
+                    height={190}
                     interval={0}
                     tick={<MonthlyStatsAxisTick data={chartData} />}
                     tickLine={false}

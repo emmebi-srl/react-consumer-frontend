@@ -43,6 +43,8 @@ const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteLis
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
 const QuoteRevisionEditView = asyncComponent(() => import('../views/quotes/revision-edit/QuoteRevisionEditView'));
 const QuoteLotEditView = asyncComponent(() => import('../views/quotes/lot-edit/QuoteLotEditView'));
+const ReportListView = asyncComponent(() => import('../views/reports/list/ReportListView'));
+const ReportEditView = asyncComponent(() => import('../views/reports/edit/ReportEditView'));
 const SupplierInvoiceListView = asyncComponent(() => import('../views/supplier-invoices/list/SupplierInvoiceListView'));
 const SupplierInvoicePeriodicConfigurationListView = asyncComponent(
   () => import('../views/supplier-invoices/periodic-configurations/SupplierInvoicePeriodicConfigurationListView'),
@@ -166,6 +168,22 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.QuoteLotEdit.template,
             element: <QuoteLotEditView />,
+          },
+          {
+            path: RouteConfig.ReportList.template,
+            element: <ReportListView />,
+          },
+          {
+            path: RouteConfig.ReportNew.template,
+            element: <ReportEditView />,
+          },
+          {
+            path: RouteConfig.ReportFromMobile.template,
+            element: <ReportEditView />,
+          },
+          {
+            path: RouteConfig.ReportEdit.template,
+            element: <ReportEditView />,
           },
           {
             path: RouteConfig.SupplierInvoiceList.template,

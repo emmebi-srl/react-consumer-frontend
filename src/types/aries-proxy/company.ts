@@ -83,6 +83,7 @@ export interface BankAccount {
   holder?: string | null;
   notes?: string | null;
   isActive: boolean;
+  isDefaultForPayments: boolean;
   latestBalance?: BankAccountBalance | null;
 }
 
