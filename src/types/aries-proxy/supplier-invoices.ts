@@ -111,9 +111,9 @@ export interface SupplierInvoice {
   id: number;
   year: number;
   supplierId: number;
-  registrationDate: string;
-  editDate: string;
-  invoiceDate: string;
+  registrationDate: number;
+  editDate: number;
+  invoiceDate: number;
   paymentConditionId: number;
   annotations?: string | null;
   statusId: number;

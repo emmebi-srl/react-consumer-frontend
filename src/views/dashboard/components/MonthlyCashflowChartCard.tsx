@@ -1,8 +1,10 @@
+import { AccountBalanceWallet } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
@@ -15,6 +17,8 @@ import {
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { BarShapeProps } from 'recharts';
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
+import BankAccountBalancesModal from '~/components/Modals/BankAccountBalancesModal';
+import { useModal } from '~/modals/Modal';
 import {
   DashboardBankBalanceTrendAccount,
   DashboardBankBalanceTrendItem,
@@ -689,6 +693,7 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
 }) => {
   const [chartMode, setChartMode] = useState<ChartMode>('payments');
   const [hoveredBalancePoint, setHoveredBalancePoint] = useState<HoveredBalancePoint>();
+  const modal = useModal();
   const setAsideItem = useSetDashboardAsideItem();
   const balanceLineData: BalanceLineDataItem[] = balanceTrend
     .map((item) => ({
@@ -857,6 +862,9 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
   const onBalancePointHover = (point?: HoveredBalancePoint) => {
     setHoveredBalancePoint(point);
   };
+  const openBankAccountBalancesModal = () => {
+    void modal.showModal({ component: BankAccountBalancesModal, props: {} });
+  };
 
   return (
     <Card variant="outlined">
@@ -881,12 +889,32 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
           </Box>
 
           <Box sx={{ alignItems: 'flex-end', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <DateRangePicker
-              allowFuture
-              dataTestId="dashboard-monthly-cashflow-date-range"
-              onChange={onDateRangeChange}
-              value={dateRange}
-            />
+            <Box
+              sx={{
+                alignItems: 'stretch',
+                display: 'flex',
+                flexDirection: { sm: 'row', xs: 'column' },
+                gap: 1,
+                width: '100%',
+              }}
+            >
+              <Button
+                data-testid="dashboard-bank-account-balances"
+                onClick={openBankAccountBalancesModal}
+                size="small"
+                startIcon={<AccountBalanceWallet fontSize="small" />}
+                sx={{ whiteSpace: 'nowrap' }}
+                variant="outlined"
+              >
+                Saldo bancario
+              </Button>
+              <DateRangePicker
+                allowFuture
+                dataTestId="dashboard-monthly-cashflow-date-range"
+                onChange={onDateRangeChange}
+                value={dateRange}
+              />
+            </Box>
             <ToggleButtonGroup
               exclusive
               onChange={(_, value: ChartMode | null) => value && setChartMode(value)}

@@ -15,6 +15,7 @@ import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
 import { useSupplierInvoicesSearch } from '~/proxies/aries-proxy/supplier-invoices';
 import { SupplierInvoice } from '~/types/aries-proxy/supplier-invoices';
+import { getStringDateByUnixtimestamp } from '~/utils/datetime-utils';
 import { formatMoney } from '~/utils/money';
 import SupplierInvoiceBar from './components/SupplierInvoiceBar';
 import SupplierInvoiceTableHeading from './components/SupplierInvoiceTableHeading';
@@ -26,11 +27,6 @@ const SupplierInvoiceTableComponents: TableComponents<SupplierInvoice> = {
   TableHead: DataTableHead,
   TableBody: DataTableBody,
   TableRow: DataTableRow,
-};
-
-const formatDate = (value?: string | null) => {
-  if (!value) return '-';
-  return new Intl.DateTimeFormat('it-IT').format(new Date(value));
 };
 
 const formatCurrency = (value: number) => formatMoney({ amount: value.toString(), currency: 'EUR' });
@@ -45,7 +41,7 @@ const SupplierInvoiceTableRowContent: React.FC<{ invoice: SupplierInvoice }> = (
         <SecondaryLabel>{invoice.year}</SecondaryLabel>
       </TableCell>
       <TableCell>
-        <MainLabel>{formatDate(invoice.invoiceDate)}</MainLabel>
+        <MainLabel>{getStringDateByUnixtimestamp(invoice.invoiceDate)}</MainLabel>
         <SecondaryLabel>{invoice.supplierInvoiceCode || '-'}</SecondaryLabel>
       </TableCell>
       <TableCell>

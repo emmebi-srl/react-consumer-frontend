@@ -3,6 +3,7 @@ import { isAxiosError } from 'axios';
 import queryClient from '~/clients/query-client';
 import useExceptionLogger from '~/hooks/useExceptionLogger';
 import { BankAccount, BankAccountBalance, CompanyLogo, CompanySettings } from '~/types/aries-proxy/company';
+import { DashboardQueryKeys } from './dashboard';
 import {
   createBankAccount,
   createBankAccountBalance,
@@ -87,8 +88,9 @@ export const useUpdateCompanyLogo = () => {
   });
 };
 
-export const useBankAccounts = () => {
+export const useBankAccounts = (enabled = true) => {
   return useQuery({
+    enabled,
     queryKey: BankAccountQueryKeys.list,
     queryFn: async () => (await getBankAccounts()).data.list,
   });
@@ -142,6 +144,7 @@ export const useCreateBankAccountBalance = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: BankAccountQueryKeys.list });
       queryClient.invalidateQueries({ queryKey: BankAccountQueryKeys.balances(variables.id) });
+      queryClient.invalidateQueries({ queryKey: DashboardQueryKeys.all });
     },
     onError: (err, data) => exceptionLogger.captureException(err, { extra: { data } }),
   });
@@ -157,6 +160,7 @@ export const useDeleteBankAccountBalance = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: BankAccountQueryKeys.list });
       queryClient.invalidateQueries({ queryKey: BankAccountQueryKeys.balances(variables.id) });
+      queryClient.invalidateQueries({ queryKey: DashboardQueryKeys.all });
     },
     onError: (err, data) => exceptionLogger.captureException(err, { extra: { data } }),
   });

@@ -9,6 +9,7 @@ import {
   DialogTitle,
   Grid,
   IconButton,
+  MenuItem,
   Stack,
   TextField,
   Typography,
@@ -18,6 +19,7 @@ import useSnackbar from '~/hooks/useSnackbar';
 import { ModalProps, useModal } from '~/modals/Modal';
 import {
   useBankAccountBalances,
+  useBankAccounts,
   useCreateBankAccountBalance,
   useDeleteBankAccountBalance,
 } from '~/proxies/aries-proxy/company';
@@ -31,7 +33,7 @@ interface BalanceDraft {
 }
 
 interface BankAccountBalancesModalProps extends ModalProps {
-  account: BankAccount;
+  account?: BankAccount;
 }
 
 const todayInputValue = () => new Date().toISOString().slice(0, 10);
@@ -49,7 +51,11 @@ const formatBankLabel = (bank?: Bank | null) => [bank?.name, bank?.abi].filter(B
 const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesModalProps) => {
   const snackbar = useSnackbar();
   const modal = useModal();
-  const accountId = account.id ?? 0;
+  const { data: accounts = [], isLoading: isLoadingAccounts } = useBankAccounts(!account);
+  const [selectedAccountId, setSelectedAccountId] = useState(account?.id ?? 0);
+  const availableAccounts = account ? [account] : accounts.filter((item) => item.isActive);
+  const selectedAccount = availableAccounts.find((item) => item.id === selectedAccountId);
+  const accountId = selectedAccount?.id ?? 0;
   const { data: balances = [], isLoading } = useBankAccountBalances(accountId);
   const { mutateAsync: createBalance, isPending: isCreatingBalance } = useCreateBankAccountBalance();
   const { mutateAsync: deleteBalance, isPending: isDeletingBalance } = useDeleteBankAccountBalance();
@@ -58,6 +64,23 @@ const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesMo
   useEffect(() => {
     setDraft(emptyBalanceDraft());
   }, [accountId]);
+
+  useEffect(() => {
+    if (account?.id) {
+      setSelectedAccountId(account.id);
+      return;
+    }
+
+    setSelectedAccountId((current) => {
+      if (accounts.some((item) => item.isActive && item.id === current)) return current;
+
+      return (
+        accounts.find((item) => item.isActive && item.isDefaultForPayments)?.id ??
+        accounts.find((item) => item.isActive)?.id ??
+        0
+      );
+    });
+  }, [account?.id, accounts]);
 
   const close = () => closeModal({ action: 'CLOSE' });
 
@@ -108,14 +131,38 @@ const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesMo
       <DialogTitle>Saldi conto bancario</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
-          <Box>
-            <Typography fontWeight={700}>{account.name}</Typography>
-            <Typography color="text.secondary" variant="body2">
-              {[formatBankLabel(account.bank), account.iban].filter(Boolean).join(' - ') || '-'}
-            </Typography>
-          </Box>
+          {!account ? (
+            <TextField
+              disabled={isLoadingAccounts || availableAccounts.length === 0}
+              label="Conto bancario"
+              onChange={(event) => setSelectedAccountId(Number(event.target.value))}
+              select
+              size="small"
+              value={selectedAccountId || ''}
+            >
+              {availableAccounts.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          ) : null}
 
-          <Grid container spacing={1.5}>
+          {isLoadingAccounts ? <Alert severity="info">Caricamento conti bancari...</Alert> : null}
+          {!isLoadingAccounts && availableAccounts.length === 0 ? (
+            <Alert severity="info">Nessun conto bancario attivo presente.</Alert>
+          ) : null}
+
+          {selectedAccount ? (
+            <Box>
+              <Typography fontWeight={700}>{selectedAccount.name}</Typography>
+              <Typography color="text.secondary" variant="body2">
+                {[formatBankLabel(selectedAccount.bank), selectedAccount.iban].filter(Boolean).join(' - ') || '-'}
+              </Typography>
+            </Box>
+          ) : null}
+
+          <Grid container spacing={1.5} sx={{ display: selectedAccount ? undefined : 'none' }}>
             <Grid size={{ xs: 12, md: 3 }}>
               <TextField
                 fullWidth
@@ -159,10 +206,12 @@ const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesMo
             </Grid>
           </Grid>
 
-          {isLoading ? <Alert severity="info">Caricamento saldi...</Alert> : null}
-          {!isLoading && balances.length === 0 ? <Alert severity="info">Nessun saldo inserito.</Alert> : null}
+          {selectedAccount && isLoading ? <Alert severity="info">Caricamento saldi...</Alert> : null}
+          {selectedAccount && !isLoading && balances.length === 0 ? (
+            <Alert severity="info">Nessun saldo inserito.</Alert>
+          ) : null}
 
-          <Box sx={{ maxHeight: 320, overflowY: 'auto' }}>
+          <Box sx={{ display: selectedAccount ? undefined : 'none', maxHeight: 320, overflowY: 'auto' }}>
             <Stack spacing={1}>
               {balances.map((balance) => (
                 <Box
