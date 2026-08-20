@@ -89,9 +89,10 @@ const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesMo
   };
 
   const handleCreateBalance = async () => {
-    const amount = Number(draft.amount.replace(',', '.'));
+    const amountValue = draft.amount.trim();
+    const amount = Number(amountValue.replace(',', '.'));
 
-    if (!accountId || !draft.balanceDate || !Number.isFinite(amount)) {
+    if (!accountId || !draft.balanceDate || !amountValue || !Number.isFinite(amount)) {
       snackbar.error('Data e saldo sono obbligatori.');
       return;
     }
