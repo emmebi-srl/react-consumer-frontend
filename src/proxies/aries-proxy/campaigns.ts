@@ -177,10 +177,13 @@ export const useUpdateCampaign = () => {
       return res.data;
     },
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       return Promise.all([
         queryClient.invalidateQueries({
           queryKey: CampaignQueryKeys.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: CampaignQueryKeys.byId(variables.id),
         }),
       ]);
     },
