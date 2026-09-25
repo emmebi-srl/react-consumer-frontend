@@ -96,6 +96,7 @@ export interface DashboardMonthlyStat {
   reportGroupCount: number;
   reportGroupTotal: number;
   openReportGroupCount: number;
+  openSentReportGroupCount: number;
   openReportGroupTotal: number;
   reportCount: number;
   reportTotal: number;
@@ -105,6 +106,9 @@ export interface DashboardMonthlyStat {
   invoiceTotal: number;
   openInvoiceCount: number;
   openInvoiceTotal: number;
+  quoteCount: number;
+  openQuoteCount: number;
+  openSentQuoteCount: number;
   jobCount: number;
   openJobCount: number;
 }

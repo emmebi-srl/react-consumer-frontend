@@ -7,6 +7,7 @@ import {
   getCampaignById,
   createCampaign,
   updateCampaign,
+  deleteCampaign,
   getCampaignTypes,
   getCampaignTypeById,
   createCampaignType,
@@ -58,8 +59,8 @@ const CampaignMailSearchPageSize = 50;
 export const CampaignQueryKeys = {
   all: ['Campaigns'] as const,
   search: (params: CampaignSearchRequest) => ['Campaigns', 'search', params] as const,
-  metadata: (params: CampaignSearchRequest) => ['Campaign', 'metadata', params] as const,
-  byId: (id: number) => ['Campaign', id] as const,
+  metadata: (params: CampaignSearchRequest) => ['Campaigns', 'metadata', params] as const,
+  byId: (id: number) => ['Campaigns', 'detail', id] as const,
 
   allTypes: ['CampaignTypes'] as const,
   types: ['CampaignTypes'] as const,
@@ -177,15 +178,21 @@ export const useUpdateCampaign = () => {
       return res.data;
     },
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
-    onSuccess: (_data, variables) => {
-      return Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: CampaignQueryKeys.all,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: CampaignQueryKeys.byId(variables.id),
-        }),
-      ]);
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CampaignQueryKeys.all }),
+  });
+};
+
+export const useDeleteCampaign = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteCampaign,
+    onError: (err, id) => exceptionLogger.captureException(err, { extra: { id } }),
+    onSuccess: async (_data, id) => {
+      await queryClient.cancelQueries({ queryKey: CampaignQueryKeys.byId(id) });
+      queryClient.removeQueries({ queryKey: CampaignQueryKeys.byId(id) });
+      await queryClient.invalidateQueries({ queryKey: CampaignQueryKeys.all });
+      await queryClient.invalidateQueries({ queryKey: CampaignQueryKeys.allMails });
     },
   });
 };

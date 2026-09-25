@@ -2,7 +2,12 @@ import SplitAside from '~/components/Layout/SplitAside';
 import z from 'zod';
 import { useActiveId, useIsSidebarOpen, useResetSelection } from '../state';
 import { AsideSummaryView } from '~/components/Layout/SplitAside/AsideSummaryView';
-import { useCampaignById, useCampaignTypes, useUpdateCampaign } from '~/proxies/aries-proxy/campaigns';
+import {
+  useCampaignById,
+  useCampaignTypes,
+  useUpdateCampaign,
+  useDeleteCampaign,
+} from '~/proxies/aries-proxy/campaigns';
 import { AsideContentView } from '~/components/Layout/SplitAside/AsideContentView';
 import { useFilesExplorerDownloadFile } from '~/proxies/aries-proxy/files-explorer';
 import {
@@ -27,6 +32,11 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RouteConfig } from '~/routes/routeConfig';
 
 const EditCampaignFormSchema = z.object({
+  replyToAddress: z
+    .string()
+    .trim()
+    .max(254)
+    .pipe(z.email('Indirizzo email non valido').or(z.literal(''))),
   name: z.string().min(1, { message: 'Nome è obbligatorio' }),
   description: z.string().min(1, { message: 'Descrizione è obbligatoria' }),
   mailSubject: z.string().min(1, { message: 'Oggetto email è obbligatorio' }),
@@ -40,7 +50,7 @@ const EditCampaignFormSchema = z.object({
 
 type EditCampaignFormValues = z.infer<typeof EditCampaignFormSchema>;
 
-const CampaignAsideFprm: React.FC<{
+const CampaignAsideForm: React.FC<{
   campaign: Campaign;
 }> = ({ campaign }) => {
   const { data: campaignTypesData, isLoading: areCampaignTypesLoading } = useCampaignTypes();
@@ -49,12 +59,14 @@ const CampaignAsideFprm: React.FC<{
 
   const form = useForm<EditCampaignFormValues>({
     resolver: zodResolver(EditCampaignFormSchema),
-    defaultValues: {
+    values: {
       campaignTypeId: campaign.campaignTypeId,
       name: campaign.name,
       description: campaign.description,
       mailSubject: campaign.mailSubject,
+      replyToAddress: campaign.replyToAddress ?? '',
     },
+    resetOptions: { keepDirtyValues: true },
   });
 
   const handleSubmit = (data: EditCampaignFormValues) => {
@@ -66,6 +78,7 @@ const CampaignAsideFprm: React.FC<{
           name: data.name,
           description: data.description,
           mailSubject: data.mailSubject,
+          replyToAddress: data.replyToAddress,
         },
       },
       {
@@ -138,6 +151,17 @@ const CampaignAsideFprm: React.FC<{
             error={!!form.formState.errors.mailSubject}
             helperText={form.formState.errors.mailSubject?.message}
           />
+          <TextField
+            {...form.register('replyToAddress')}
+            label="Rispondi a"
+            type="email"
+            fullWidth
+            error={!!form.formState.errors.replyToAddress}
+            helperText={
+              form.formState.errors.replyToAddress?.message ??
+              "Facoltativo. Se vuoto, usa l'indirizzo di risposta dell'account email."
+            }
+          />
           <Box
             sx={{
               maxHeight: '400px',
@@ -174,14 +198,20 @@ const CampaignAsideFprm: React.FC<{
                 name: campaign.name,
                 description: campaign.description,
                 mailSubject: campaign.mailSubject,
+                replyToAddress: campaign.replyToAddress ?? '',
                 campaignTypeId: campaign.campaignTypeId,
               })
             }
-            disabled={false}
+            disabled={campaignUpdate.isPending}
           >
             Annulla
           </Button>
-          <Button type="submit" variant="contained" loading={false} disabled={!form.formState.isDirty}>
+          <Button
+            type="submit"
+            variant="contained"
+            loading={campaignUpdate.isPending}
+            disabled={!form.formState.isDirty}
+          >
             Salva
           </Button>
         </Stack>
@@ -192,6 +222,9 @@ const CampaignAsideFprm: React.FC<{
 
 const CampaignActions: React.FC<{ campaign: Campaign }> = ({ campaign }) => {
   const campaignUpdate = useUpdateCampaign();
+  const campaignDelete = useDeleteCampaign();
+  const resetSelection = useResetSelection();
+  const isPending = campaignUpdate.isPending || campaignDelete.isPending;
 
   const handleToggleActive = (value: boolean) => {
     campaignUpdate.mutate({
@@ -202,7 +235,8 @@ const CampaignActions: React.FC<{ campaign: Campaign }> = ({ campaign }) => {
     });
   };
 
-  const resolvedError = campaignUpdate.error ? resolveError(campaignUpdate.error) : null;
+  const error = campaignDelete.error ?? campaignUpdate.error;
+  const resolvedError = error ? resolveError(error) : null;
   return (
     <Stack gap={2} direction="column">
       {resolvedError && (
@@ -225,15 +259,29 @@ const CampaignActions: React.FC<{ campaign: Campaign }> = ({ campaign }) => {
             color="primary"
             startIcon={<ToggleOff />}
             onClick={() => handleToggleActive(false)}
+            disabled={isPending}
           >
             Disattiva
           </Button>
         ) : (
-          <Button variant="outlined" color="primary" startIcon={<ToggleOn />} onClick={() => handleToggleActive(true)}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<ToggleOn />}
+            onClick={() => handleToggleActive(true)}
+            disabled={isPending}
+          >
             Attiva
           </Button>
         )}
-        <Button variant="text" color="error" startIcon={<Delete />}>
+        <Button
+          variant="text"
+          color="error"
+          startIcon={<Delete />}
+          loading={campaignDelete.isPending}
+          disabled={isPending}
+          onClick={() => campaignDelete.mutate(campaign.id, { onSuccess: resetSelection })}
+        >
           Elimina
         </Button>
       </Stack>
@@ -253,7 +301,7 @@ const CampaignAsideContent: React.FC<{ campaignId: number }> = ({ campaignId }) 
           <>
             <CampaignActions campaign={campaign} />
             <Divider />
-            <CampaignAsideFprm campaign={campaign} />
+            <CampaignAsideForm key={campaign.id} campaign={campaign} />
           </>
         )}
       </AsideContentView>
@@ -268,7 +316,7 @@ const CampaignAside = () => {
 
   return (
     <SplitAside open={isSidebarOpen} onClose={reset} width={600}>
-      {activeId && <CampaignAsideContent campaignId={Number(activeId)} />}
+      {activeId && <CampaignAsideContent key={activeId} campaignId={Number(activeId)} />}
     </SplitAside>
   );
 };

@@ -12,6 +12,7 @@ export interface CampaignList {
 // Campaign  / Create / Update
 // ==============================
 export interface Campaign {
+  replyToAddress?: string | null;
   id: number;
   campaignTypeId: number;
   name: string;
@@ -25,6 +26,7 @@ export interface Campaign {
 }
 
 export interface CampaignCreate {
+  replyToAddress?: string | null;
   campaignTypeId: number;
   name: string;
   description: string;
@@ -36,6 +38,7 @@ export interface CampaignCreate {
 }
 
 export interface CampaignUpdate {
+  replyToAddress?: string | null;
   campaignTypeId?: number | null;
   name?: string | null;
   description?: string | null;

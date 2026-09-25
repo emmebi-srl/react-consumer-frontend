@@ -21,6 +21,7 @@ import { alpha } from '@mui/material/styles';
 import { useEventsBetweenDates } from '~/proxies/aries-proxy/events';
 import { Event as AriesEvent } from '~/types/aries-proxy/events';
 import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
+import EventDescription from './EventDescription';
 
 interface WeeklyEventDay {
   date: Date;
@@ -30,6 +31,9 @@ interface WeeklyEventDay {
 const eventColors = ['#2563EB', '#00897B', '#D14343', '#7E57C2', '#E0A100', '#546E7A'];
 
 const capitalize = (value: string) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
+
+const abbreviateEventSubject = (subject: string) =>
+  subject.replace(/^Scadenza\b/i, 'Scad.').replace(/^Promemoria\b/i, 'Prom.');
 
 const getEventColor = (event: AriesEvent) => eventColors[Math.abs(event.eventTypeId) % eventColors.length] ?? '#2563EB';
 
@@ -110,7 +114,7 @@ const WeeklyEventsCard = () => {
               <EventNoteRoundedIcon color="primary" fontSize="small" />
               <Typography variant="h5">Calendario settimanale</Typography>
             </Stack>
-            <Typography color="text.secondary" sx={{ fontSize: 13, fontWeight: 700, mt: 0.5 }} variant="body2">
+            <Typography color="text.secondary" fontWeight={700} sx={{ mt: 0.5 }} variant="body2">
               {capitalize(format(weekRange.startDate, 'd MMM', { locale: it }))} -{' '}
               {capitalize(format(weekRange.endDate, 'd MMM yyyy', { locale: it }))}
             </Typography>
@@ -190,15 +194,15 @@ const WeeklyEventsCard = () => {
                         pb: { md: 1, xs: 0 },
                       }}
                     >
-                      <Typography color="text.secondary" sx={{ fontSize: 11, fontWeight: 800 }} variant="caption">
+                      <Typography color="text.secondary" fontWeight={800} variant="caption">
                         {format(day.date, 'EEE', { locale: it }).toUpperCase()}
                       </Typography>
                       <Stack alignItems="baseline" direction="row" spacing={0.75}>
-                        <Typography sx={{ fontSize: 24, fontWeight: 800, lineHeight: 1 }} variant="h6">
+                        <Typography fontWeight={800} variant="h4">
                           {format(day.date, 'd')}
                         </Typography>
                         {isToday ? (
-                          <Typography color="primary" sx={{ fontSize: 11, fontWeight: 800 }} variant="caption">
+                          <Typography color="primary" fontWeight={800} variant="caption">
                             Oggi
                           </Typography>
                         ) : null}
@@ -230,34 +234,29 @@ const WeeklyEventsCard = () => {
                               <Typography
                                 sx={{
                                   color: event.wasPerformed ? 'text.secondary' : 'text.primary',
-                                  display: '-webkit-box',
-                                  fontSize: 13,
-                                  fontWeight: 800,
-                                  lineHeight: 1.2,
-                                  overflow: 'hidden',
+                                  overflowWrap: 'anywhere',
                                   textDecoration: event.wasPerformed ? 'line-through' : 'none',
-                                  WebkitBoxOrient: 'vertical',
-                                  WebkitLineClamp: 2,
                                 }}
-                                variant="body2"
+                                fontWeight={800}
+                                title={event.subject}
+                                variant="subtitle2"
                               >
-                                {event.subject}
+                                {abbreviateEventSubject(event.subject)}
                               </Typography>
                               {timeRange || event.description ? (
                                 <Typography
                                   color="text.secondary"
                                   sx={{
-                                    display: '-webkit-box',
-                                    fontSize: 12,
-                                    lineHeight: 1.25,
+                                    display: 'block',
                                     mt: 0.35,
-                                    overflow: 'hidden',
-                                    WebkitBoxOrient: 'vertical',
-                                    WebkitLineClamp: 1,
+                                    overflowWrap: 'anywhere',
+                                    whiteSpace: 'pre-wrap',
                                   }}
                                   variant="caption"
                                 >
-                                  {[timeRange, event.description].filter(Boolean).join(' - ')}
+                                  {timeRange}
+                                  {timeRange && event.description ? ' - ' : null}
+                                  <EventDescription text={event.description} />
                                 </Typography>
                               ) : null}
                             </Box>
@@ -277,9 +276,7 @@ const WeeklyEventsCard = () => {
                             px: 1.25,
                           }}
                         >
-                          <Typography sx={{ fontSize: 13 }} variant="body2">
-                            Nessun evento
-                          </Typography>
+                          <Typography variant="body2">Nessun evento</Typography>
                         </Box>
                       )}
                     </Stack>

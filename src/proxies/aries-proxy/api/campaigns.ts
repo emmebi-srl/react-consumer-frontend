@@ -57,6 +57,8 @@ export const updateCampaign = (id: number, model: CampaignUpdate) => {
   return ariesServicesClient.patch<CampaignList>(`campaign/${id}`, model);
 };
 
+export const deleteCampaign = (id: number) => ariesServicesClient.delete(`campaign/${id}`);
+
 //
 // ------------------------------------------------------------
 // CAMPAIGN TYPES

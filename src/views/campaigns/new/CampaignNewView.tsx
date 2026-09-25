@@ -30,6 +30,11 @@ import { Grid } from '@mui/system';
 import { sanitize } from 'lettersanitizer';
 
 const CampaignFormSchema = z.object({
+  replyToAddress: z
+    .string()
+    .trim()
+    .max(254)
+    .pipe(z.email('Indirizzo email non valido').or(z.literal(''))),
   campaignTypeId: z
     .number({
       message: 'Tipo campagna obbligatorio',
@@ -58,6 +63,7 @@ const CampaignNewView = () => {
       description: '',
       mailTemplate: '',
       mailSubject: '',
+      replyToAddress: '',
       active: false,
     },
   });
@@ -73,6 +79,7 @@ const CampaignNewView = () => {
       mailTemplate: values.mailTemplate,
       active: values.active,
       mailSubject: values.mailSubject,
+      replyToAddress: values.replyToAddress,
     };
 
     await createCampaign(payload);
@@ -153,6 +160,18 @@ const CampaignNewView = () => {
                 sx={{ mb: 2 }}
                 error={!!form.formState.errors.mailSubject}
                 helperText={form.formState.errors.mailSubject?.message}
+              />
+              <TextField
+                {...form.register('replyToAddress')}
+                label="Rispondi a"
+                type="email"
+                fullWidth
+                sx={{ mb: 2 }}
+                error={!!form.formState.errors.replyToAddress}
+                helperText={
+                  form.formState.errors.replyToAddress?.message ??
+                  "Facoltativo. Se vuoto, usa l'indirizzo di risposta dell'account email."
+                }
               />
               {templateHtml ? (
                 <Card>

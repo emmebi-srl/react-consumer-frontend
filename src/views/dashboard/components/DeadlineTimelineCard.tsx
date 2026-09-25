@@ -92,7 +92,7 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
         sx={{
           color: item.isOpen ? 'text.primary' : 'text.secondary',
           display: '-webkit-box',
-          fontSize: 15,
+          fontSize: 12,
           fontWeight: 700,
           lineHeight: 1.25,
           overflow: 'hidden',
@@ -112,7 +112,7 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
             component={RouterLink}
             sx={{
               display: 'block',
-              fontSize: 13,
+              fontSize: 11,
               fontWeight: 600,
               mt: 0.5,
               opacity: item.isOpen ? 1 : 0.75,
@@ -339,6 +339,9 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
             initialVisibleTypes={['periodic-check', 'expiring-ticket', 'expiring-material', 'expiring-system-sim']}
             items={filteredItems}
             renderItemCard={renderDeadlineTimelineCardContent}
+            layout={{
+              cardHeight: 170,
+            }}
             typeOptions={timelineTypeOptions}
           />
         ) : null}

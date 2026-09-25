@@ -97,15 +97,13 @@ const CashflowRow: React.FC<{
     <Box sx={{ borderBottom: 1, borderColor: 'divider', py: 1.25 }}>
       <Stack alignItems="flex-start" direction="row" justifyContent="space-between" spacing={1.5}>
         <Box sx={{ minWidth: 0 }}>
-          <Typography fontWeight={600} noWrap variant="body1">
-            {item.title}
-          </Typography>
           {item.counterpartName ? (
             counterpartLink ? (
               <Typography
-                color="text.secondary"
+                color="text.primary"
                 component={RouterLink}
                 display="block"
+                fontWeight={600}
                 sx={{
                   maxWidth: '100%',
                   overflow: 'hidden',
@@ -114,21 +112,30 @@ const CashflowRow: React.FC<{
                   textDecoration: 'underline',
                 }}
                 to={counterpartLink}
-                variant="body2"
+                variant="body1"
               >
                 {item.counterpartName}
               </Typography>
             ) : (
               <Typography
-                color="text.secondary"
+                color="text.primary"
                 display="block"
+                fontWeight={600}
                 sx={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                variant="body2"
+                variant="body1"
               >
                 {item.counterpartName}
               </Typography>
             )
           ) : null}
+          <Typography
+            color={item.counterpartName ? 'text.secondary' : 'text.primary'}
+            fontWeight={item.counterpartName ? undefined : 600}
+            noWrap
+            variant={item.counterpartName ? 'body2' : 'body1'}
+          >
+            {item.title}
+          </Typography>
           {item.subtitle ? (
             <Typography
               color="text.secondary"
@@ -160,7 +167,7 @@ const CashflowRow: React.FC<{
               startIcon={<CheckCircleOutlinedIcon fontSize="small" />}
               variant="outlined"
             >
-              Segna pagato
+              {sectionKey === 'invoice-payments' ? 'Segna come incassato' : 'Segna come pagato'}
             </Button>
           ) : null}
         </Stack>

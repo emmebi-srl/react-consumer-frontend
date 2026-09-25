@@ -8,6 +8,7 @@ import { useSetDashboardAsideItem } from '../state';
 import { CategoricalChartFunc } from 'recharts/types/chart/types';
 import { MouseEvent } from 'react';
 import { formatMoneyNoDecimals, newMoney } from '~/utils/money';
+import MonthlyStatsSummary from './MonthlyStatsSummary';
 
 const series = [
   {
@@ -16,6 +17,7 @@ const series = [
     label: 'Resoconti',
     openLabel: 'Resoconti aperti',
     openDataKey: 'openReportGroupCount',
+    openSentDataKey: 'openSentReportGroupCount',
     openTotalDataKey: 'openReportGroupTotal',
     priority: 1,
     stackId: 'report-groups',
@@ -47,13 +49,26 @@ const series = [
     totalDataKey: 'invoiceCount',
   },
   {
+    closedDataKey: 'closedQuoteCount',
+    color: '#7E57C2',
+    label: 'Preventivi',
+    openLabel: 'Preventivi aperti',
+    openDataKey: 'openQuoteCount',
+    openSentDataKey: 'openSentQuoteCount',
+    openTotalDataKey: undefined,
+    priority: 7,
+    stackId: 'quotes',
+    totalAmountDataKey: undefined,
+    totalDataKey: 'quoteCount',
+  },
+  {
     closedDataKey: 'closedJobCount',
     color: '#C2410C',
     label: 'Commesse',
     openLabel: 'Commesse aperte',
     openDataKey: 'openJobCount',
     openTotalDataKey: undefined,
-    priority: 7,
+    priority: 9,
     stackId: 'jobs',
     totalAmountDataKey: undefined,
     totalDataKey: 'jobCount',
@@ -131,6 +146,7 @@ interface AxisSummaryRow {
 
 interface ChartDataItem extends DashboardMonthlyStat {
   closedInvoiceCount: number;
+  closedQuoteCount: number;
   closedJobCount: number;
   closedReportCount: number;
   closedReportGroupCount: number;
@@ -295,6 +311,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
     return {
       closedInvoiceCount: toClosedCount(stat.invoiceCount, stat.openInvoiceCount),
       closedJobCount: toClosedCount(stat.jobCount, stat.openJobCount),
+      closedQuoteCount: toClosedCount(stat.quoteCount, stat.openQuoteCount),
       closedReportCount: toClosedCount(stat.reportCount, stat.openReportCount),
       closedReportGroupCount: toClosedCount(stat.reportGroupCount, stat.openReportGroupCount),
       ...stat,
@@ -327,6 +344,13 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
         },
         {
           color: series[3].color,
+          isZero: stat.quoteCount <= 0 && stat.openQuoteCount <= 0,
+          label: 'Prev.',
+          open: stat.openQuoteCount,
+          total: stat.quoteCount,
+        },
+        {
+          color: series[4].color,
           isZero: stat.jobCount <= 0 && stat.openJobCount <= 0,
           label: 'Com.',
           open: stat.openJobCount,
@@ -392,16 +416,19 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           <Alert severity="info">Non ci sono dati disponibili per l&apos;intervallo selezionato.</Alert>
         ) : null}
 
+        {!isLoading && !isError && chartData.length > 0 ? <MonthlyStatsSummary series={series} stats={stats} /> : null}
+
         {!isLoading && !isError && chartData.length > 0 ? (
           <Box sx={{ overflowX: 'auto', width: '100%' }}>
-            <Box sx={{ height: { xs: 485, md: 535 }, minWidth: Math.max(chartData.length * 150, 680), width: '100%' }}>
+            <Box sx={{ height: { xs: 520, md: 570 }, minWidth: Math.max(chartData.length * 170, 680), width: '100%' }}>
               <ResponsiveContainer>
                 <BarChart data={chartData} barGap={2} barCategoryGap="24%" onClick={onBarChartClick}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="label"
-                    height={190}
+                    height={225}
                     interval={0}
+                    width={80}
                     tick={<MonthlyStatsAxisTick data={chartData} />}
                     tickLine={false}
                   />
