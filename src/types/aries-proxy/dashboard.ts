@@ -98,6 +98,7 @@ export interface DashboardMonthlyStat {
   openReportGroupCount: number;
   openSentReportGroupCount: number;
   openReportGroupTotal: number;
+  openSentReportGroupTotal: number;
   reportCount: number;
   reportTotal: number;
   openReportCount: number;

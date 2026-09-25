@@ -12,6 +12,7 @@ const month = (overrides: Partial<DashboardMonthlyStat>): DashboardMonthlyStat =
   openReportGroupCount: 0,
   openSentReportGroupCount: 0,
   openReportGroupTotal: 0,
+  openSentReportGroupTotal: 0,
   reportCount: 0,
   reportTotal: 0,
   openReportCount: 0,

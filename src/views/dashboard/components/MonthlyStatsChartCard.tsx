@@ -18,6 +18,7 @@ const series = [
     openLabel: 'Resoconti aperti',
     openDataKey: 'openReportGroupCount',
     openSentDataKey: 'openSentReportGroupCount',
+    openUnsentDataKey: 'openUnsentReportGroupCount',
     openTotalDataKey: 'openReportGroupTotal',
     priority: 1,
     stackId: 'report-groups',
@@ -30,6 +31,8 @@ const series = [
     label: 'Rapporti',
     openLabel: 'Rapporti aperti',
     openDataKey: 'openReportCount',
+    openSentDataKey: undefined,
+    openUnsentDataKey: undefined,
     openTotalDataKey: 'openReportTotal',
     priority: 3,
     stackId: 'reports',
@@ -42,6 +45,8 @@ const series = [
     label: 'Fatture',
     openLabel: 'Fatture aperte',
     openDataKey: 'openInvoiceCount',
+    openSentDataKey: undefined,
+    openUnsentDataKey: undefined,
     openTotalDataKey: 'openInvoiceTotal',
     priority: 5,
     stackId: 'invoices',
@@ -55,6 +60,7 @@ const series = [
     openLabel: 'Preventivi aperti',
     openDataKey: 'openQuoteCount',
     openSentDataKey: 'openSentQuoteCount',
+    openUnsentDataKey: 'openUnsentQuoteCount',
     openTotalDataKey: undefined,
     priority: 7,
     stackId: 'quotes',
@@ -67,6 +73,8 @@ const series = [
     label: 'Commesse',
     openLabel: 'Commesse aperte',
     openDataKey: 'openJobCount',
+    openSentDataKey: undefined,
+    openUnsentDataKey: undefined,
     openTotalDataKey: undefined,
     priority: 9,
     stackId: 'jobs',
@@ -75,6 +83,7 @@ const series = [
   },
 ] as const;
 
+const hatchPatternId = (stackId: string) => `monthly-stats-hatch-${stackId}`;
 const capitalize = (value: string) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
 const toClosedCount = (total: number, open: number) => Math.max(total - open, 0);
 const toClosedAmount = (total: number, open: number) => Math.max(total - open, 0);
@@ -113,6 +122,12 @@ const tooltipPriorityByDataKey = Object.fromEntries(
   series.flatMap((item) => [
     [item.closedDataKey, item.priority],
     [item.openDataKey, item.priority + 1],
+    ...(item.openSentDataKey !== undefined
+      ? [
+          [item.openSentDataKey, item.priority + 0.5],
+          [item.openUnsentDataKey, item.priority + 1],
+        ]
+      : []),
   ]),
 ) as Record<string, number>;
 
@@ -135,12 +150,16 @@ const tooltipOpenTotalAmountDataKeyByDataKey = Object.fromEntries(
     ]),
 ) as Record<string, string>;
 
+tooltipOpenTotalAmountDataKeyByDataKey[series[0].openSentDataKey] = 'openSentReportGroupTotal';
+tooltipOpenTotalAmountDataKeyByDataKey[series[0].openUnsentDataKey] = 'openUnsentReportGroupTotal';
+
 interface AxisSummaryRow {
   amountLabel?: string;
   color: string;
   isZero: boolean;
   label: string;
   open: number;
+  sent?: number;
   total: number;
 }
 
@@ -150,6 +169,9 @@ interface ChartDataItem extends DashboardMonthlyStat {
   closedJobCount: number;
   closedReportCount: number;
   closedReportGroupCount: number;
+  openUnsentQuoteCount: number;
+  openUnsentReportGroupCount: number;
+  openUnsentReportGroupTotal: number;
   fullLabel: string;
   label: string;
   summaryRows: AxisSummaryRow[];
@@ -187,7 +209,9 @@ const MonthlyStatsAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] }> 
             <tspan fill="#111827" fontWeight={700}>
               {row.total}
             </tspan>{' '}
-            <tspan fill="#6B7280">({row.open} ap.)</tspan>
+            <tspan fill="#6B7280">
+              ({row.open} ap.{row.sent === undefined ? '' : ` ${row.sent} inv.`})
+            </tspan>
           </text>
           {row.amountLabel ? (
             <text fill="#111827" fontSize={10} fontWeight={700} textAnchor="start" x={-29} y={17}>
@@ -230,6 +254,7 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
 
       {sortedPayload.map((entry, index) => {
         const isOutlined = entry.fill === 'transparent';
+        const isHatched = entry.fill?.startsWith('url(') ?? false;
         const color = entry.stroke || entry.color || 'currentColor';
         const totalDataKey = tooltipTotalDataKeyByDataKey[entry.dataKey ?? ''];
         const displayedValue = totalDataKey ? (entry.payload?.[totalDataKey] ?? entry.value) : entry.value;
@@ -270,7 +295,8 @@ const ChartTooltipContent: React.FC<TooltipContentProps> = ({ active, label, pay
           >
             <Box
               sx={{
-                bgcolor: isOutlined ? 'transparent' : color,
+                background: isHatched ? `repeating-linear-gradient(135deg, ${color}66 0 2px, #fff 2px 4px)` : undefined,
+                bgcolor: isOutlined ? 'transparent' : isHatched ? undefined : color,
                 border: 2,
                 borderColor: color,
                 borderRadius: 0.5,
@@ -314,6 +340,9 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
       closedQuoteCount: toClosedCount(stat.quoteCount, stat.openQuoteCount),
       closedReportCount: toClosedCount(stat.reportCount, stat.openReportCount),
       closedReportGroupCount: toClosedCount(stat.reportGroupCount, stat.openReportGroupCount),
+      openUnsentQuoteCount: toClosedCount(stat.openQuoteCount, stat.openSentQuoteCount),
+      openUnsentReportGroupCount: toClosedCount(stat.openReportGroupCount, stat.openSentReportGroupCount),
+      openUnsentReportGroupTotal: toClosedAmount(stat.openReportGroupTotal, stat.openSentReportGroupTotal),
       ...stat,
       label: capitalize(format(monthDate, 'MMM yyyy', { locale: it })),
       fullLabel: capitalize(format(monthDate, 'MMMM yyyy', { locale: it })),
@@ -323,7 +352,8 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           color: series[0].color,
           isZero: stat.reportGroupCount <= 0 && stat.openReportGroupCount <= 0,
           label: 'Res.',
-          open: stat.openReportGroupCount,
+          open: toClosedCount(stat.openReportGroupCount, stat.openSentReportGroupCount),
+          sent: stat.openSentReportGroupCount,
           total: stat.reportGroupCount,
         },
         {
@@ -346,7 +376,8 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           color: series[3].color,
           isZero: stat.quoteCount <= 0 && stat.openQuoteCount <= 0,
           label: 'Prev.',
-          open: stat.openQuoteCount,
+          open: toClosedCount(stat.openQuoteCount, stat.openSentQuoteCount),
+          sent: stat.openSentQuoteCount,
           total: stat.quoteCount,
         },
         {
@@ -390,8 +421,9 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
               Andamento Documenti
             </Typography>
             <Typography color="text.secondary" variant="body2">
-              Andamento mensile dell&apos;intervallo selezionato. La parte piena rappresenta i documenti non aperti,
-              mentre la parte vuota con bordo rappresenta quelli ancora aperti.
+              Andamento mensile dell&apos;intervallo selezionato. La parte piena rappresenta i documenti non aperti, la
+              parte chiara a strisce quelli aperti e inviati (resoconti e preventivi), mentre la parte vuota con bordo
+              quelli aperti non inviati.
             </Typography>
           </Box>
 
@@ -423,6 +455,21 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
             <Box sx={{ height: { xs: 520, md: 570 }, minWidth: Math.max(chartData.length * 170, 680), width: '100%' }}>
               <ResponsiveContainer>
                 <BarChart data={chartData} barGap={2} barCategoryGap="24%" onClick={onBarChartClick}>
+                  <defs>
+                    {series.map((item) => (
+                      <pattern
+                        key={item.stackId}
+                        height={8}
+                        id={hatchPatternId(item.stackId)}
+                        patternTransform="rotate(45)"
+                        patternUnits="userSpaceOnUse"
+                        width={8}
+                      >
+                        <rect fill={item.color} fillOpacity={0.4} height={8} width={8} />
+                        <rect fill="#fff" height={8} width={3} />
+                      </pattern>
+                    ))}
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="label"
@@ -445,18 +492,40 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
                       stroke={item.color}
                     />
                   ))}
-                  {series.map((item) => (
-                    <Bar
-                      key={item.openDataKey}
-                      barSize={16}
-                      dataKey={item.openDataKey}
-                      fill="transparent"
-                      name={item.openLabel}
-                      stackId={item.stackId}
-                      stroke={item.color}
-                      strokeWidth={2}
-                    />
-                  ))}
+                  {series.map((item) =>
+                    item.openSentDataKey !== undefined ? (
+                      [
+                        <Bar
+                          key={item.openSentDataKey}
+                          barSize={16}
+                          dataKey={item.openSentDataKey}
+                          fill={`url(#${hatchPatternId(item.stackId)})`}
+                          name={`${item.openLabel} inviati`}
+                          stackId={item.stackId}
+                          stroke={item.color}
+                        />,
+                        <Bar
+                          key={item.openUnsentDataKey}
+                          barSize={16}
+                          dataKey={item.openUnsentDataKey}
+                          fill="transparent"
+                          name={`${item.openLabel} non inviati`}
+                          stackId={item.stackId}
+                          stroke={item.color}
+                        />,
+                      ]
+                    ) : (
+                      <Bar
+                        key={item.openDataKey}
+                        barSize={16}
+                        dataKey={item.openDataKey}
+                        fill="transparent"
+                        name={item.openLabel}
+                        stackId={item.stackId}
+                        stroke={item.color}
+                      />
+                    ),
+                  )}
                 </BarChart>
               </ResponsiveContainer>
             </Box>
