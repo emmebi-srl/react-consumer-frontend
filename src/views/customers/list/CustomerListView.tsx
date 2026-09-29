@@ -1,6 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
 import { Stack } from '@mui/system';
-import _isEmpty from 'lodash/isEmpty';
 import PageContainer from '~/components/Layout/PageContainer';
 import { useCustomersSearch } from '~/proxies/aries-proxy/customers';
 import DataTableContainer from '~/components/Table/DataTableContainer';
@@ -26,27 +25,19 @@ const CustomersTableComponents: TableComponents<Customer> = {
 const CustomerListView = () => {
   const [topReached, setTopReached] = useState<boolean>(true);
   const filters = useFilterState();
-
-  const customersQuery = useCustomersSearch(filters.search);
   const virtuoso = useRef<TableVirtuosoHandle>(null);
 
-  const customers = useMemo(() => {
-    const startingList = customersQuery.data ?? [];
-    if (_isEmpty(filters.search)) {
-      return startingList;
-    }
+  const queryParams = useMemo(
+    () => ({
+      search: filters.search,
+      statusId: filters.statusId,
+      customerTypeId: filters.customerTypeId,
+    }),
+    [filters.search, filters.statusId, filters.customerTypeId],
+  );
 
-    const filteredList = startingList.filter((customer) => {
-      const searchLower = filters.search.toLowerCase();
-      return (
-        customer.companyName.toLowerCase().includes(searchLower) ||
-        customer.taxCode.toLowerCase().includes(searchLower) ||
-        customer.vat.toLowerCase().includes(searchLower)
-      );
-    });
-
-    return filteredList;
-  }, [customersQuery.data, filters.search]);
+  const customersQuery = useCustomersSearch(queryParams);
+  const customers = customersQuery.data?.pages.flatMap((page) => page.customers) ?? [];
 
   return (
     <PageContainer>
@@ -72,9 +63,13 @@ const CustomerListView = () => {
             }}
             components={CustomersTableComponents}
             data={customers}
+            endReached={() => {
+              if (!customersQuery.hasNextPage || customersQuery.isFetching) return;
+              customersQuery.fetchNextPage();
+            }}
             fixedHeaderContent={() => (
               <CustomerTableHeading>
-                <CustomerBar customers={customers} />
+                <CustomerBar />
               </CustomerTableHeading>
             )}
             computeItemKey={(_index: number, customer: Customer) => customer.id}

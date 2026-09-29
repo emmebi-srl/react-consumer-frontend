@@ -11,6 +11,7 @@ const CustomerTableHeading: React.FC<Props> = ({ children }) => {
     { id: 'companyName', label: 'Ragione Sociale', align: 'left' },
     { id: 'taxCode', label: 'Cod. Fiscale', align: 'left' },
     { id: 'vat', label: 'Partita IVA', align: 'left' },
+    { id: 'actions', label: 'Azioni', align: 'right' },
   ];
 
   return (

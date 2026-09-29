@@ -2,10 +2,14 @@ import { createTableState } from '~/state/table';
 
 export interface CustomersFilters {
   search: string;
+  statusId?: string;
+  customerTypeId?: number;
 }
 
 export const defaultValues: CustomersFilters = {
   search: '',
+  statusId: undefined,
+  customerTypeId: undefined,
 };
 
 const { useFilterState, useIsDirty, useResetFilters, useSetFilterState, useUpdateFilter, useDirtyState } =
