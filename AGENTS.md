@@ -155,6 +155,14 @@ Prefer the smallest useful validation set for the files you changed, but do not 
 - Do not bypass the shared Axios clients for authenticated requests.
 - Do not add new styling systems or one-off UI conventions unless the repo clearly needs them.
 
+## Notes For Customer Search/Detail Work
+
+- The customer list (`src/views/customers/list`) now uses server-side search/pagination via `GET customer/search` (`useCustomersSearch`, `useInfiniteQuery`), mirroring the quotes list pattern in `src/views/quotes/list`. Do not reintroduce client-side `.filter()` over a fully-fetched customer array.
+- `customer/status` and `customer/type` are two distinct lookup endpoints (`useCustomerStatuses`, `useCustomerTypes`) backing the two list filters. **`statusId` is a string** (backend `Stato_cliente` is a short varchar code, not numeric), while `customerTypeId` is numeric. Don't assume both are numbers.
+- `GET customer` (no params, full unfiltered list) and `GET customer/mobile-sync` still exist unchanged for backward compatibility (Android + any other legacy consumer). Do not repurpose them for the searchable list; use `customer/search` instead.
+- `RouteConfig.CustomerDetail` (`customers/:customerId`) is wired to `src/views/customers/detail/CustomerDetailView.tsx`, which is **read-only** — there is no customer edit/save capability yet because the .NET backend has no customer write path at all. Don't add a save button/form without first confirming a backend PATCH endpoint exists.
+- The `Customer` type in `src/types/aries-proxy/customers.ts` only covers the fields the backend `CustomerModel` exposes; the legacy Delphi desktop form has many more (bank accounts, notes, sales, tags, highway/ZTL avoidance, extra destination fields). Extend the backend first if a future edit form needs parity with it.
+
 ## Notes For Subscription Work
 
 There is already a placeholder modal at:
