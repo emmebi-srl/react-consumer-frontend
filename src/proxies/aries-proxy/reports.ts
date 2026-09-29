@@ -6,6 +6,7 @@ import {
   createReportFromMobile,
   getMobileReports,
   getReportById,
+  getReportPdf,
   getReports,
   getReportsMetadata,
   updateReport,
@@ -63,6 +64,17 @@ export const useReportById = (year: number, id: number) => {
     queryKey: ReportQueryKeys.byId(year, id),
     queryFn: async () => (await getReportById(year, id)).data,
     enabled: year > 0 && id > 0,
+  });
+};
+
+export const useReportPdf = () => {
+  const exceptionLogger = useExceptionLogger();
+  return useMutation({
+    mutationFn: async ({ year, id }: { year: number; id: number }) => {
+      const result = await getReportPdf(year, id);
+      return result.data;
+    },
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
   });
 };
 
