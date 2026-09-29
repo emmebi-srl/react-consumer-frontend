@@ -35,3 +35,11 @@ export const createReportFromMobile = (model: ReportFromMobile) => {
 export const updateReport = (year: number, id: number, model: ReportSave) => {
   return ariesServicesClient.patch<ReportList>(`report/new/${year}/${id}`, model);
 };
+
+export const getReportPdf = (year: number, id: number) =>
+  ariesServicesClient.get<Blob>(`report/${year}/${id}/pdf`, {
+    responseType: 'blob',
+    headers: {
+      Accept: 'application/pdf',
+    },
+  });

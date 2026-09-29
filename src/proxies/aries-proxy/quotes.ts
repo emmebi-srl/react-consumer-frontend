@@ -14,6 +14,7 @@ import {
   getQuoteItems,
   getQuoteLotById,
   getQuoteLots,
+  getQuotePdf,
   getQuoteRevisionById,
   getQuoteRevisions,
   getQuoteStatuses,
@@ -100,6 +101,17 @@ export const useQuoteById = (year: number, id: number, options?: { includes?: st
     queryKey: QuoteQueryKeys.byId(year, id),
     queryFn: async () => (await getQuoteById(year, id, options)).data,
     enabled: !!year && !!id,
+  });
+};
+
+export const useQuotePdf = () => {
+  const exceptionLogger = useExceptionLogger();
+  return useMutation({
+    mutationFn: async ({ year, id }: { year: number; id: number }) => {
+      const result = await getQuotePdf(year, id);
+      return result.data;
+    },
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
   });
 };
 

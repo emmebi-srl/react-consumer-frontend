@@ -52,6 +52,7 @@ export interface DashboardMonthlyInvoicesDetails {
 export interface DashboardAsideSection {
   key: string;
   title: string;
+  totalCount: number;
   hasMore: boolean;
   moreUrl?: string;
   items: DashboardAsideItem[];

@@ -38,6 +38,14 @@ export const getQuoteTypes = () => {
   return ariesServicesClient.get<QuoteTypeList>('quote/type');
 };
 
+export const getQuotePdf = (year: number, id: number) =>
+  ariesServicesClient.get<Blob>(`quote/${year}/${id}/pdf`, {
+    responseType: 'blob',
+    headers: {
+      Accept: 'application/pdf',
+    },
+  });
+
 export const createQuote = (model: QuoteCreate) => {
   return ariesServicesClient.post<QuoteList>('quote', model);
 };
