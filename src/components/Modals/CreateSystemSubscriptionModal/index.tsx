@@ -37,7 +37,7 @@ import {
   useSystemSubscriptionsBySystemId,
 } from '~/proxies/aries-proxy/system-subscriptions';
 import { useSubscriptions } from '~/proxies/aries-proxy/subscriptions';
-import { Campaign, CampaignMail } from '~/types/aries-proxy/campaigns';
+import { Campaign, CampaignMail, CampaignMailStatusReference } from '~/types/aries-proxy/campaigns';
 import {
   SystemSubscription,
   SystemSubscriptionOperationResult,
@@ -90,7 +90,7 @@ const formatMonthList = (months: number[]) => {
 
 const sanitizePhoneLink = (value: string) => value.replace(/\s+/g, '');
 
-const positiveOutcomeApplicationReference = 'positive_outcome';
+const positiveOutcomeApplicationReference = CampaignMailStatusReference.PositiveOutcome;
 
 const getSuggestedYear = (currentYear: number, latestSystemSubscription?: SystemSubscription) => {
   if (!latestSystemSubscription) {

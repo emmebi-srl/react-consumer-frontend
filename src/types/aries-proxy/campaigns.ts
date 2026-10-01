@@ -138,10 +138,25 @@ export interface CampaignMail {
   status?: CampaignMailStatus;
 }
 
+export const CampaignMailStatusReference = {
+  WaitingForSend: 'waiting_for_send',
+  Sent: 'sent',
+  Viewed: 'viewed',
+  LandingPageOpened: 'landing_page_opened',
+  ResponseReceived: 'response_received',
+  PositiveOutcome: 'positive_outcome',
+  NegativeOutcome: 'negative_outcome',
+  ProcessingError: 'processing_error',
+  MoreInfoRequested: 'more_info_requested',
+} as const;
+
+export type CampaignMailStatusReference =
+  (typeof CampaignMailStatusReference)[keyof typeof CampaignMailStatusReference];
+
 export interface CampaignMailStatus {
   id: number;
   name: string;
-  applicationReference?: string | null;
+  applicationReference?: CampaignMailStatusReference | null;
   color?: string | null;
   isFinal: boolean;
 }
@@ -161,7 +176,7 @@ export interface CampaignMailMetadata {
 }
 
 export interface CampaignMailStatusMetadata {
-  statusApplicationReference?: string | null;
+  statusApplicationReference?: CampaignMailStatusReference | null;
   statusName?: string | null;
   totalCount: number;
 }

@@ -1,4 +1,4 @@
-import { Add, ArrowBack, Refresh } from '@mui/icons-material';
+import { Add, ArrowBack, Refresh, Visibility } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -13,6 +13,7 @@ import {
   Stack,
   TableCell,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -30,6 +31,7 @@ import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
+import CampaignMailPreviewModal from '~/components/Modals/CampaignMailPreviewModal';
 import CreateSystemSubscriptionModal from '~/components/Modals/CreateSystemSubscriptionModal';
 import { useModal } from '~/modals/Modal';
 import {
@@ -40,7 +42,7 @@ import {
   useCampaignMailsMetadata,
 } from '~/proxies/aries-proxy/campaigns';
 import { RouteConfig } from '~/routes/routeConfig';
-import { CampaignMail, CampaignMailSearchRequest } from '~/types/aries-proxy/campaigns';
+import { CampaignMail, CampaignMailSearchRequest, CampaignMailStatusReference } from '~/types/aries-proxy/campaigns';
 import { getReadableTextColor, normalizeToHexColor } from '~/utils/color-utils';
 import { getStringDateTimeByUnixtimestamp } from '~/utils/datetime-utils';
 
@@ -75,7 +77,7 @@ const getCampaignMailStatusLabel = (mail: Pick<CampaignMail, 'status'>) => {
 
 const getStatusCount = (
   statusCounts: { statusApplicationReference?: string | null; totalCount: number }[] | undefined,
-  statusValue: string,
+  statusValue: CampaignMailStatusReference,
 ) => {
   return (
     statusCounts?.find((status) => status.statusApplicationReference?.toLowerCase() === statusValue.toLowerCase())
@@ -83,7 +85,7 @@ const getStatusCount = (
   );
 };
 
-const positiveOutcomeApplicationReference = 'positive_outcome';
+const positiveOutcomeApplicationReference = CampaignMailStatusReference.PositiveOutcome;
 const systemSubscriptionCampaignTypeApplicationReference = 'system_subscription';
 
 const StatCard: React.FC<{ label: string; value: number | string }> = ({ label, value }) => {
@@ -179,7 +181,8 @@ const CampaignMailTableRowContent: React.FC<{
   canCreateSubscription: boolean;
   mail: CampaignMail;
   onCreateSubscription: (mail: CampaignMail) => void;
-}> = ({ canCreateSubscription, mail, onCreateSubscription }) => {
+  onPreview: (mail: CampaignMail) => void;
+}> = ({ canCreateSubscription, mail, onCreateSubscription, onPreview }) => {
   const customerName = mail.customer?.companyName ?? `Cliente ${mail.customerId}`;
   const systemDescription = mail.system?.description ?? (mail.systemId ? `Impianto ${mail.systemId}` : 'N/D');
   const systemType = mail.system?.typeDescription ?? '';
@@ -247,11 +250,20 @@ const CampaignMailTableRowContent: React.FC<{
         </Typography>
       </TableCell>
       <TableCell align="center" width={180}>
-        {canCreateSubscription ? (
-          <Button startIcon={<Add />} size="small" variant="contained" onClick={() => onCreateSubscription(mail)}>
-            Abbonamento
-          </Button>
-        ) : null}
+        <Stack direction="row" spacing={1} justifyContent="center">
+          {mail.mailId && mail.status?.applicationReference !== CampaignMailStatusReference.WaitingForSend ? (
+            <Tooltip title="Anteprima email">
+              <IconButton aria-label="Anteprima email" color="primary" size="small" onClick={() => onPreview(mail)}>
+                <Visibility fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : null}
+          {canCreateSubscription ? (
+            <Button startIcon={<Add />} size="small" variant="contained" onClick={() => onCreateSubscription(mail)}>
+              Abbonamento
+            </Button>
+          ) : null}
+        </Stack>
       </TableCell>
     </>
   );
@@ -307,8 +319,8 @@ const CampaignDetailView = () => {
   const summary = useMemo(() => {
     return {
       recipientsCount: campaignMailMetadata?.recipientsCount ?? 0,
-      positiveCount: getStatusCount(campaignMailMetadata?.statusCounts, 'positive_outcome'),
-      negativeCount: getStatusCount(campaignMailMetadata?.statusCounts, 'negative_outcome'),
+      positiveCount: getStatusCount(campaignMailMetadata?.statusCounts, CampaignMailStatusReference.PositiveOutcome),
+      negativeCount: getStatusCount(campaignMailMetadata?.statusCounts, CampaignMailStatusReference.NegativeOutcome),
       mailsCount: campaignMailMetadata?.totalCount ?? 0,
     };
   }, [campaignMailMetadata]);
@@ -358,6 +370,20 @@ const CampaignDetailView = () => {
       });
     },
     [campaign, isSystemSubscriptionCampaign, modal],
+  );
+
+  const showPreviewModal = useCallback(
+    (mail: CampaignMail) => {
+      if (!mail.mailId) {
+        return;
+      }
+
+      modal.showModal({
+        component: CampaignMailPreviewModal,
+        props: { mailId: mail.mailId, recipient: mail.email },
+      });
+    },
+    [modal],
   );
 
   useEffect(() => {
@@ -550,6 +576,7 @@ const CampaignDetailView = () => {
                 }
                 mail={mail}
                 onCreateSubscription={() => showCreateSubscriptionModal(mail)}
+                onPreview={showPreviewModal}
               />
             )}
           />

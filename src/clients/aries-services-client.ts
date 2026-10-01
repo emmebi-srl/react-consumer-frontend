@@ -31,7 +31,7 @@ ariesServicesClient.interceptors.request.use(
 
 ariesServicesClient.interceptors.response.use(
   function (resp) {
-    if (resp.headers['content-type'] === 'application/pdf') return resp;
+    if (resp.headers['content-type'] === 'application/pdf' || resp.data instanceof ArrayBuffer) return resp;
     resp.data = apiObjToJsonObj(resp.data, ['nameValuePairs']);
     return resp;
   },
