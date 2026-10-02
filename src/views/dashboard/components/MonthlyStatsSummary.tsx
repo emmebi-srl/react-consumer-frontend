@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { DashboardMonthlyStat } from '~/types/aries-proxy/dashboard';
@@ -10,6 +11,11 @@ interface SummarySeries {
   totalDataKey: keyof DashboardMonthlyStat;
   openDataKey: keyof DashboardMonthlyStat;
   openSentDataKey?: keyof DashboardMonthlyStat;
+  openSentLabel?: string;
+  openSentName?: string;
+  openUnsentName?: string;
+  openSentTotalDataKey?: keyof DashboardMonthlyStat;
+  openUnsentLabel?: string;
   totalAmountDataKey?: keyof DashboardMonthlyStat;
   openTotalDataKey?: keyof DashboardMonthlyStat;
 }
@@ -21,8 +27,13 @@ interface Props {
 
 const MonthlyStatsSummary = ({ series, stats }: Props) => {
   const sumCount = (key: keyof DashboardMonthlyStat) => stats.reduce((total, month) => total + month[key], 0);
-  const sumAmount = (key: keyof DashboardMonthlyStat) =>
-    formatMoney(stats.reduce((total, month) => sumMoney(total, newMoney(month[key], 'EUR')), newMoney(0, 'EUR')));
+  const sumAmountMoney = (key: keyof DashboardMonthlyStat) =>
+    stats.reduce((total, month) => sumMoney(total, newMoney(month[key], 'EUR')), newMoney(0, 'EUR'));
+  const sumAmount = (key: keyof DashboardMonthlyStat) => formatMoney(sumAmountMoney(key));
+  const subtractAmount = (totalKey: keyof DashboardMonthlyStat, partKey: keyof DashboardMonthlyStat) =>
+    formatMoney(
+      newMoney(BigNumber(sumAmountMoney(totalKey).amount).minus(sumAmountMoney(partKey).amount).toString(), 'EUR'),
+    );
 
   return (
     <Box
@@ -58,14 +69,24 @@ const MonthlyStatsSummary = ({ series, stats }: Props) => {
                 </Typography>
               </Stack>
               {item.openSentDataKey ? (
-                <Stack direction="row" justifyContent="space-between" spacing={1}>
-                  <Typography color="text.secondary" variant="body2">
-                    Di cui inviati
-                  </Typography>
-                  <Typography fontWeight={700} variant="body2">
-                    {sumCount(item.openSentDataKey)}
-                  </Typography>
-                </Stack>
+                <>
+                  <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ pl: 1.5 }}>
+                    <Typography color="text.secondary" variant="body2">
+                      {item.openSentName ?? `Di cui ${item.openSentLabel ?? 'inviati'}`}
+                    </Typography>
+                    <Typography fontWeight={700} variant="body2">
+                      {sumCount(item.openSentDataKey)}
+                    </Typography>
+                  </Stack>
+                  <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ pl: 1.5 }}>
+                    <Typography color="text.secondary" variant="body2">
+                      {item.openUnsentName ?? `Di cui ${item.openUnsentLabel ?? 'non inviati'}`}
+                    </Typography>
+                    <Typography fontWeight={700} variant="body2">
+                      {sumCount(item.openDataKey) - sumCount(item.openSentDataKey)}
+                    </Typography>
+                  </Stack>
+                </>
               ) : null}
             </Stack>
             {item.totalAmountDataKey && item.openTotalDataKey ? (
@@ -83,6 +104,22 @@ const MonthlyStatsSummary = ({ series, stats }: Props) => {
                 <Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }} variant="body2">
                   {sumAmount(item.openTotalDataKey)}
                 </Typography>
+                {item.openSentTotalDataKey ? (
+                  <Box sx={{ mt: 0.5, pl: 1.5 }}>
+                    <Typography color="text.secondary" component="p" variant="caption">
+                      {item.openSentName ?? `Di cui ${item.openSentLabel ?? 'inviati'}`}:{' '}
+                      <Typography component="span" fontWeight={700} variant="caption">
+                        {sumAmount(item.openSentTotalDataKey)}
+                      </Typography>
+                    </Typography>
+                    <Typography color="text.secondary" component="p" variant="caption">
+                      {item.openUnsentName ?? `Di cui ${item.openUnsentLabel ?? 'non inviati'}`}:{' '}
+                      <Typography component="span" fontWeight={700} variant="caption">
+                        {subtractAmount(item.openTotalDataKey, item.openSentTotalDataKey)}
+                      </Typography>
+                    </Typography>
+                  </Box>
+                ) : null}
               </Box>
             ) : null}
           </CardContent>

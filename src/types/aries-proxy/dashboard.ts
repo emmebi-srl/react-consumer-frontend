@@ -108,6 +108,8 @@ export interface DashboardMonthlyStat {
   invoiceTotal: number;
   openInvoiceCount: number;
   openInvoiceTotal: number;
+  openPreinvoiceCount: number;
+  openPreinvoiceTotal: number;
   quoteCount: number;
   openQuoteCount: number;
   openSentQuoteCount: number;
