@@ -18,7 +18,14 @@ const series = [
     openLabel: 'Resoconti aperti',
     openDataKey: 'openReportGroupCount',
     openSentDataKey: 'openSentReportGroupCount',
+    openSentLabel: 'inviati',
+    openSentName: undefined,
+    openUnsentName: undefined,
+    openSentSummaryLabel: 'inv.',
+    openSentTotalDataKey: 'openSentReportGroupTotal',
     openUnsentDataKey: 'openUnsentReportGroupCount',
+    openUnsentLabel: 'non inviati',
+    openUnsentTotalDataKey: 'openUnsentReportGroupTotal',
     openTotalDataKey: 'openReportGroupTotal',
     priority: 1,
     stackId: 'report-groups',
@@ -32,7 +39,14 @@ const series = [
     openLabel: 'Rapporti aperti',
     openDataKey: 'openReportCount',
     openSentDataKey: undefined,
+    openSentLabel: undefined,
+    openSentName: undefined,
+    openUnsentName: undefined,
+    openSentSummaryLabel: undefined,
+    openSentTotalDataKey: undefined,
     openUnsentDataKey: undefined,
+    openUnsentLabel: undefined,
+    openUnsentTotalDataKey: undefined,
     openTotalDataKey: 'openReportTotal',
     priority: 3,
     stackId: 'reports',
@@ -45,8 +59,15 @@ const series = [
     label: 'Fatture',
     openLabel: 'Fatture aperte',
     openDataKey: 'openInvoiceCount',
-    openSentDataKey: undefined,
-    openUnsentDataKey: undefined,
+    openSentDataKey: 'openPreinvoiceCount',
+    openSentLabel: 'prefatture',
+    openSentName: 'Prefatture aperte',
+    openUnsentName: 'Fatture aperte',
+    openSentSummaryLabel: 'pref.',
+    openSentTotalDataKey: 'openPreinvoiceTotal',
+    openUnsentDataKey: 'openRegularInvoiceCount',
+    openUnsentLabel: 'fatture',
+    openUnsentTotalDataKey: 'openRegularInvoiceTotal',
     openTotalDataKey: 'openInvoiceTotal',
     priority: 5,
     stackId: 'invoices',
@@ -60,7 +81,14 @@ const series = [
     openLabel: 'Preventivi aperti',
     openDataKey: 'openQuoteCount',
     openSentDataKey: 'openSentQuoteCount',
+    openSentLabel: 'inviati',
+    openSentName: undefined,
+    openUnsentName: undefined,
+    openSentSummaryLabel: 'inv.',
+    openSentTotalDataKey: undefined,
     openUnsentDataKey: 'openUnsentQuoteCount',
+    openUnsentLabel: 'non inviati',
+    openUnsentTotalDataKey: undefined,
     openTotalDataKey: undefined,
     priority: 7,
     stackId: 'quotes',
@@ -74,7 +102,14 @@ const series = [
     openLabel: 'Commesse aperte',
     openDataKey: 'openJobCount',
     openSentDataKey: undefined,
+    openSentLabel: undefined,
+    openSentName: undefined,
+    openUnsentName: undefined,
+    openSentSummaryLabel: undefined,
+    openSentTotalDataKey: undefined,
     openUnsentDataKey: undefined,
+    openUnsentLabel: undefined,
+    openUnsentTotalDataKey: undefined,
     openTotalDataKey: undefined,
     priority: 9,
     stackId: 'jobs',
@@ -150,8 +185,14 @@ const tooltipOpenTotalAmountDataKeyByDataKey = Object.fromEntries(
     ]),
 ) as Record<string, string>;
 
-tooltipOpenTotalAmountDataKeyByDataKey[series[0].openSentDataKey] = 'openSentReportGroupTotal';
-tooltipOpenTotalAmountDataKeyByDataKey[series[0].openUnsentDataKey] = 'openUnsentReportGroupTotal';
+series.forEach((item) => {
+  if (item.openSentDataKey !== undefined && item.openSentTotalDataKey !== undefined) {
+    tooltipOpenTotalAmountDataKeyByDataKey[item.openSentDataKey] = item.openSentTotalDataKey;
+  }
+  if (item.openUnsentDataKey !== undefined && item.openUnsentTotalDataKey !== undefined) {
+    tooltipOpenTotalAmountDataKeyByDataKey[item.openUnsentDataKey] = item.openUnsentTotalDataKey;
+  }
+});
 
 interface AxisSummaryRow {
   amountLabel?: string;
@@ -160,6 +201,7 @@ interface AxisSummaryRow {
   label: string;
   open: number;
   sent?: number;
+  sentLabel?: string;
   total: number;
 }
 
@@ -172,6 +214,8 @@ interface ChartDataItem extends DashboardMonthlyStat {
   openUnsentQuoteCount: number;
   openUnsentReportGroupCount: number;
   openUnsentReportGroupTotal: number;
+  openRegularInvoiceCount: number;
+  openRegularInvoiceTotal: number;
   fullLabel: string;
   label: string;
   summaryRows: AxisSummaryRow[];
@@ -210,7 +254,7 @@ const MonthlyStatsAxisTick: React.FC<AxisTickProps & { data: ChartDataItem[] }> 
               {row.total}
             </tspan>{' '}
             <tspan fill="#6B7280">
-              ({row.open} ap.{row.sent === undefined ? '' : ` ${row.sent} inv.`})
+              ({row.open} ap.{row.sent === undefined ? '' : ` ${row.sent} ${row.sentLabel}`})
             </tspan>
           </text>
           {row.amountLabel ? (
@@ -336,6 +380,8 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
 
     return {
       closedInvoiceCount: toClosedCount(stat.invoiceCount, stat.openInvoiceCount),
+      openRegularInvoiceCount: toClosedCount(stat.openInvoiceCount, stat.openPreinvoiceCount),
+      openRegularInvoiceTotal: toClosedAmount(stat.openInvoiceTotal, stat.openPreinvoiceTotal),
       closedJobCount: toClosedCount(stat.jobCount, stat.openJobCount),
       closedQuoteCount: toClosedCount(stat.quoteCount, stat.openQuoteCount),
       closedReportCount: toClosedCount(stat.reportCount, stat.openReportCount),
@@ -354,6 +400,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           label: 'Res.',
           open: toClosedCount(stat.openReportGroupCount, stat.openSentReportGroupCount),
           sent: stat.openSentReportGroupCount,
+          sentLabel: series[0].openSentSummaryLabel,
           total: stat.reportGroupCount,
         },
         {
@@ -369,7 +416,9 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           color: series[2].color,
           isZero: stat.invoiceCount <= 0 && stat.openInvoiceCount <= 0,
           label: 'Fat.',
-          open: stat.openInvoiceCount,
+          open: toClosedCount(stat.openInvoiceCount, stat.openPreinvoiceCount),
+          sent: stat.openPreinvoiceCount,
+          sentLabel: series[2].openSentSummaryLabel,
           total: stat.invoiceCount,
         },
         {
@@ -378,6 +427,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
           label: 'Prev.',
           open: toClosedCount(stat.openQuoteCount, stat.openSentQuoteCount),
           sent: stat.openSentQuoteCount,
+          sentLabel: series[3].openSentSummaryLabel,
           total: stat.quoteCount,
         },
         {
@@ -422,8 +472,8 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
             </Typography>
             <Typography color="text.secondary" variant="body2">
               Andamento mensile dell&apos;intervallo selezionato. La parte piena rappresenta i documenti non aperti, la
-              parte chiara a strisce quelli aperti e inviati (resoconti e preventivi), mentre la parte vuota con bordo
-              quelli aperti non inviati.
+              parte chiara a strisce quelli aperti e inviati (resoconti e preventivi) o le prefatture (fatture), mentre
+              la parte vuota con bordo quelli aperti non inviati o le fatture aperte.
             </Typography>
           </Box>
 
@@ -500,7 +550,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
                           barSize={16}
                           dataKey={item.openSentDataKey}
                           fill={`url(#${hatchPatternId(item.stackId)})`}
-                          name={`${item.openLabel} inviati`}
+                          name={item.openSentName ?? `${item.openLabel} ${item.openSentLabel}`}
                           stackId={item.stackId}
                           stroke={item.color}
                         />,
@@ -509,7 +559,7 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
                           barSize={16}
                           dataKey={item.openUnsentDataKey}
                           fill="transparent"
-                          name={`${item.openLabel} non inviati`}
+                          name={item.openUnsentName ?? `${item.openLabel} ${item.openUnsentLabel}`}
                           stackId={item.stackId}
                           stroke={item.color}
                         />,

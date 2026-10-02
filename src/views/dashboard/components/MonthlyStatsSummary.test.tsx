@@ -21,6 +21,8 @@ const month = (overrides: Partial<DashboardMonthlyStat>): DashboardMonthlyStat =
   invoiceTotal: 0,
   openInvoiceCount: 0,
   openInvoiceTotal: 0,
+  openPreinvoiceCount: 0,
+  openPreinvoiceTotal: 0,
   quoteCount: 0,
   openQuoteCount: 0,
   openSentQuoteCount: 0,
@@ -37,6 +39,9 @@ const series = [
     totalDataKey: 'reportGroupCount',
     openDataKey: 'openReportGroupCount',
     openSentDataKey: 'openSentReportGroupCount',
+    openSentLabel: 'inviati',
+    openSentTotalDataKey: 'openSentReportGroupTotal',
+    openUnsentLabel: 'non inviati',
     totalAmountDataKey: 'reportGroupTotal',
     openTotalDataKey: 'openReportGroupTotal',
   },
@@ -47,6 +52,23 @@ const series = [
     totalDataKey: 'quoteCount',
     openDataKey: 'openQuoteCount',
     openSentDataKey: 'openSentQuoteCount',
+    openSentLabel: 'inviati',
+    openUnsentLabel: 'non inviati',
+  },
+  {
+    color: '#F59E0B',
+    label: 'Fatture',
+    stackId: 'invoices',
+    totalDataKey: 'invoiceCount',
+    openDataKey: 'openInvoiceCount',
+    openSentDataKey: 'openPreinvoiceCount',
+    openSentLabel: 'prefatture',
+    openSentName: 'Prefatture aperte',
+    openUnsentName: 'Fatture aperte',
+    openSentTotalDataKey: 'openPreinvoiceTotal',
+    openUnsentLabel: 'fatture',
+    totalAmountDataKey: 'invoiceTotal',
+    openTotalDataKey: 'openInvoiceTotal',
   },
 ] as const;
 
@@ -68,9 +90,10 @@ describe('MonthlyStatsSummary', () => {
     const reportGroups = within(screen.getByRole('article', { name: 'Resoconti' }));
     expect(reportGroups.getByText('13')).toBeTruthy();
     expect(reportGroups.getByText('6')).toBeTruthy();
-    expect(reportGroups.getByText('3')).toBeTruthy();
+    expect(reportGroups.getByText('Di cui inviati').nextSibling?.textContent).toBe('3');
+    expect(reportGroups.getByText('Di cui non inviati').nextSibling?.textContent).toBe('3');
     expect(reportGroups.getByText(/0,30/)).toBeTruthy();
-    expect(reportGroups.getByText(/0,10/)).toBeTruthy();
+    expect(reportGroups.getAllByText(/0,10/).length).toBeGreaterThan(0);
     const quotes = within(screen.getByRole('article', { name: 'Preventivi' }));
     expect(quotes.getByText('9')).toBeTruthy();
     expect(quotes.queryByText('Importo totale')).toBeNull();
@@ -78,6 +101,38 @@ describe('MonthlyStatsSummary', () => {
     rerender(<MonthlyStatsSummary series={series} stats={[month({ reportGroupCount: 7 })]} />);
     expect(reportGroups.getByText('7')).toBeTruthy();
     expect(reportGroups.queryByText('13')).toBeNull();
-    expect(reportGroups.getAllByText('0')).toHaveLength(2);
+    expect(reportGroups.getAllByText('0')).toHaveLength(3);
+  });
+
+  it('splits open documents into sent/unsent and open invoices into preinvoices/invoices', () => {
+    const stats = [
+      month({
+        reportGroupCount: 10,
+        openReportGroupCount: 6,
+        openSentReportGroupCount: 2,
+        reportGroupTotal: 1000,
+        openReportGroupTotal: 600,
+        openSentReportGroupTotal: 200,
+        invoiceCount: 9,
+        openInvoiceCount: 5,
+        openPreinvoiceCount: 3,
+        invoiceTotal: 900,
+        openInvoiceTotal: 500,
+        openPreinvoiceTotal: 300,
+      }),
+    ];
+    render(<MonthlyStatsSummary series={series} stats={stats} />);
+
+    const reportGroups = within(screen.getByRole('article', { name: 'Resoconti' }));
+    expect(reportGroups.getByText('Di cui inviati').nextSibling?.textContent).toBe('2');
+    expect(reportGroups.getByText('Di cui non inviati').nextSibling?.textContent).toBe('4');
+    expect(reportGroups.getByText(/200,00/)).toBeTruthy();
+    expect(reportGroups.getByText(/400,00/)).toBeTruthy();
+
+    const invoices = within(screen.getByRole('article', { name: 'Fatture' }));
+    expect(invoices.getByText('Prefatture aperte').nextSibling?.textContent).toBe('3');
+    expect(invoices.getByText('Fatture aperte').nextSibling?.textContent).toBe('2');
+    expect(invoices.getByText(/300,00/)).toBeTruthy();
+    expect(invoices.getByText(/200,00/)).toBeTruthy();
   });
 });
