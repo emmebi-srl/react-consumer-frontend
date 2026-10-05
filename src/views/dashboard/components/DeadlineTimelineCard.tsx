@@ -34,6 +34,7 @@ import HorizontalTimeline, {
 import { RouteConfig } from '~/routes/routeConfig';
 import { DashboardTimelineItem } from '~/types/aries-proxy/dashboard';
 import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
+import DeadlineTimelineSummary from './DeadlineTimelineSummary';
 
 type TimelineFilter = DashboardTimelineItem['type'];
 type DeadlineTimelineView = 'horizontal' | 'scheduler';
@@ -324,6 +325,8 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
         {!isLoading && isError ? (
           <Alert severity="error">Non sono riuscito a caricare la timeline delle scadenze.</Alert>
         ) : null}
+
+        {!isLoading && !isError ? <DeadlineTimelineSummary items={items} typeOptions={timelineTypeOptions} /> : null}
 
         {!isLoading && !isError && timelineView === 'horizontal' ? (
           <HorizontalTimeline
