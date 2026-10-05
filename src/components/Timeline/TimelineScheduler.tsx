@@ -22,6 +22,11 @@ export interface TimelineSchedulerRenderItemParams<TItem, TType extends string> 
   type: TType;
 }
 
+export interface TimelineSchedulerColumnSummaryParams<TItem, TType extends string> {
+  month: Date;
+  nodes: (TimelineSchedulerRenderItemParams<TItem, TType> & { isOpen: boolean })[];
+}
+
 export interface TimelineSchedulerProps<TItem, TType extends string> {
   dateRange?: TimelineDateRange;
   emptyMessage?: string;
@@ -34,6 +39,7 @@ export interface TimelineSchedulerProps<TItem, TType extends string> {
   initialVisibleTypes?: TType[];
   items: TItem[];
   maxHeight?: number | string;
+  renderColumnSummary?: (params: TimelineSchedulerColumnSummaryParams<TItem, TType>) => ReactNode;
   renderItem: (params: TimelineSchedulerRenderItemParams<TItem, TType>) => ReactNode;
   showTypeFilters?: boolean;
   typeOptions: TimelineTypeOption<TType>[];
@@ -66,6 +72,7 @@ const TimelineScheduler = <TItem, TType extends string>({
   initialVisibleTypes,
   items,
   maxHeight = 560,
+  renderColumnSummary,
   renderItem,
   showTypeFilters = true,
   typeOptions,
@@ -339,6 +346,18 @@ const TimelineScheduler = <TItem, TType extends string>({
                       {monthNodes.length}
                     </Typography>
                   </Stack>
+                  {renderColumnSummary && monthNodes.length > 0
+                    ? renderColumnSummary({
+                        month,
+                        nodes: monthNodes.map(({ color, date, isOpen, item, type }) => ({
+                          color,
+                          date,
+                          isOpen,
+                          item,
+                          type,
+                        })),
+                      })
+                    : null}
                 </Box>
 
                 <Stack spacing={1} sx={{ flex: '1 1 auto', p: 1.25 }}>

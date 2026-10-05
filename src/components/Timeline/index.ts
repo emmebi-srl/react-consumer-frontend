@@ -7,4 +7,8 @@ export type {
   TimelineRenderItemCardParams,
   TimelineTypeOption,
 } from './HorizontalTimeline';
-export type { TimelineSchedulerProps, TimelineSchedulerRenderItemParams } from './TimelineScheduler';
+export type {
+  TimelineSchedulerColumnSummaryParams,
+  TimelineSchedulerProps,
+  TimelineSchedulerRenderItemParams,
+} from './TimelineScheduler';
