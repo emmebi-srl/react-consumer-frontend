@@ -34,6 +34,7 @@ import HorizontalTimeline, {
 import { RouteConfig } from '~/routes/routeConfig';
 import { DashboardTimelineItem } from '~/types/aries-proxy/dashboard';
 import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
+import DeadlineTimelineColumnSummary from './DeadlineTimelineColumnSummary';
 import DeadlineTimelineSummary from './DeadlineTimelineSummary';
 
 type TimelineFilter = DashboardTimelineItem['type'];
@@ -360,6 +361,9 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
             getItemSortLabel={(item) => item.title}
             getItemType={(item) => item.type}
             items={filteredItems}
+            renderColumnSummary={({ nodes }) => (
+              <DeadlineTimelineColumnSummary nodes={nodes} typeOptions={timelineTypeOptions} />
+            )}
             renderItem={renderDeadlineSchedulerItemContent}
             typeOptions={timelineTypeOptions}
           />
