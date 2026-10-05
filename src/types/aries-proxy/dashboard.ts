@@ -88,6 +88,7 @@ export interface DashboardTimelineItem {
   urgency?: number;
   urgencyLabel?: string;
   isOpen: boolean;
+  amount?: number;
 }
 
 export interface DashboardMonthlyStat {
