@@ -8,7 +8,13 @@ interface TableNoDataProps {
 
 function TableNoData({ message, sx }: TableNoDataProps) {
   return (
-    <Box textAlign="center" sx={{ py: 4, ...sx }}>
+    <Box
+      sx={{
+        textAlign: 'center',
+        py: 4,
+        ...sx,
+      }}
+    >
       <Typography>{message || 'Nessun dato disponibile'}</Typography>
     </Box>
   );

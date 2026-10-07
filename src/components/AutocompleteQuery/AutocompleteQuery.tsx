@@ -54,7 +54,15 @@ const AutocompleteQuery = <TValue extends number | {}, TQueryData extends {}>({
 
   const textRef = useRef(null);
   return (
-    <Stack direction="column" mb={0.25} sx={sx}>
+    <Stack
+      direction="column"
+      sx={[
+        {
+          mb: 0.25,
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+    >
       <Autocomplete<TQueryData>
         loading={query.isLoading}
         options={query.data || []}
@@ -75,6 +83,7 @@ const AutocompleteQuery = <TValue extends number | {}, TQueryData extends {}>({
         isOptionEqualToValue={
           isOptionEqualToValue as unknown as ((option: TQueryData, value: TQueryData) => boolean) | undefined
         }
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- double cast required for generic TQueryData
         value={internalValue as unknown as TQueryData}
         getOptionDisabled={getOptionDisabled}
         slotProps={slotProps}
@@ -83,18 +92,22 @@ const AutocompleteQuery = <TValue extends number | {}, TQueryData extends {}>({
             inputRef={textRef}
             {...params}
             disabled={disabled}
-            InputProps={{
-              ...params.InputProps,
-              readOnly,
-              endAdornment: (
-                <React.Fragment>
-                  {query.isLoading || loading ? <CircularProgress color="inherit" size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </React.Fragment>
-              ),
-            }}
             label={label}
             error={!!error}
+            slotProps={{
+              ...params.slotProps,
+
+              input: {
+                ...params.slotProps.input,
+                readOnly,
+                endAdornment: (
+                  <React.Fragment>
+                    {query.isLoading || loading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {params.slotProps.input.endAdornment}
+                  </React.Fragment>
+                ),
+              },
+            }}
           />
         )}
       />

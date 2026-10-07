@@ -9,7 +9,12 @@ const ChecklistsDetailsGeneralCustomer: React.FC<{
 }> = ({ checklist }) => {
   const [editMode] = useEditMode();
   return (
-    <Stack gap={2} direction="column">
+    <Stack
+      direction="column"
+      sx={{
+        gap: 2,
+      }}
+    >
       <HeaderRow header={`Cliente - ${checklist.customerId}`} />
       <Grid container spacing={2}>
         <Grid

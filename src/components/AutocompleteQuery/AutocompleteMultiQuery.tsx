@@ -32,7 +32,7 @@ const AutocompleteMultiQuery = <TValue extends {}, TQueryData extends {}, TQuery
   const query = queryFunc(debouncedValue, queryParams);
   const textRef = useRef<HTMLInputElement>(null);
   return (
-    <Grid container spacing={2} direction={'column'}>
+    <Grid container spacing={2} sx={{ flexDirection: 'column' }}>
       <Grid>
         <Autocomplete<TQueryData>
           loading={query.isLoading}
@@ -57,16 +57,20 @@ const AutocompleteMultiQuery = <TValue extends {}, TQueryData extends {}, TQuery
               inputRef={textRef}
               {...params}
               disabled={disabled}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <React.Fragment>
-                    {query.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                    {params.InputProps.endAdornment}
-                  </React.Fragment>
-                ),
-              }}
               label={label}
+              slotProps={{
+                ...params.slotProps,
+
+                input: {
+                  ...params.slotProps.input,
+                  endAdornment: (
+                    <React.Fragment>
+                      {query.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                      {params.slotProps.input.endAdornment}
+                    </React.Fragment>
+                  ),
+                },
+              }}
             />
           )}
         />

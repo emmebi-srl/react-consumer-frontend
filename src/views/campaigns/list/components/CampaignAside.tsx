@@ -94,7 +94,12 @@ const CampaignAsideForm: React.FC<{
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
-      <Stack gap={3} direction="column">
+      <Stack
+        direction="column"
+        sx={{
+          gap: 3,
+        }}
+      >
         <Controller
           control={form.control}
           name="campaignTypeId"
@@ -140,7 +145,12 @@ const CampaignAsideForm: React.FC<{
           error={!!form.formState.errors.description}
           helperText={form.formState.errors.description?.message}
         />
-        <Stack direction="column" gap={2}>
+        <Stack
+          direction="column"
+          sx={{
+            gap: 2,
+          }}
+        >
           <Typography variant="subtitle1" gutterBottom>
             Template email
           </Typography>
@@ -172,7 +182,11 @@ const CampaignAsideForm: React.FC<{
             }}
           >
             {campaignTemplate.isLoading ? (
-              <Stack justifyContent="center">
+              <Stack
+                sx={{
+                  justifyContent: 'center',
+                }}
+              >
                 <CircularProgress />
               </Stack>
             ) : (
@@ -190,7 +204,14 @@ const CampaignAsideForm: React.FC<{
             {resolvedError.message}
           </Alert>
         )}
-        <Stack direction="row" gap={2} alignItems="center" justifyContent="flex-end">
+        <Stack
+          direction="row"
+          sx={{
+            gap: 2,
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Button
             variant="outlined"
             onClick={() =>
@@ -238,14 +259,25 @@ const CampaignActions: React.FC<{ campaign: Campaign }> = ({ campaign }) => {
   const error = campaignDelete.error ?? campaignUpdate.error;
   const resolvedError = error ? resolveError(error) : null;
   return (
-    <Stack gap={2} direction="column">
+    <Stack
+      direction="column"
+      sx={{
+        gap: 2,
+      }}
+    >
       {resolvedError && (
         <Alert severity="error">
           <AlertTitle>{resolvedError.title}</AlertTitle>
           {resolvedError.message}
         </Alert>
       )}
-      <Stack gap={2} direction="row" justifyContent="center">
+      <Stack
+        direction="row"
+        sx={{
+          gap: 2,
+          justifyContent: 'center',
+        }}
+      >
         <Button
           component={RouterLink}
           to={RouteConfig.CampaignDetail.buildLink({ campaignId: String(campaign.id) })}

@@ -50,39 +50,101 @@ const MonthlyStatsSummary = ({ series, stats }: Props) => {
           sx={{ bgcolor: alpha(item.color, 0.04), borderTop: 4, borderTopColor: item.color, minWidth: 0 }}
         >
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Typography color={item.color} fontWeight={700} variant="subtitle1">
+            <Typography
+              color={item.color}
+              variant="subtitle1"
+              sx={{
+                fontWeight: 700,
+              }}
+            >
               {item.label}
             </Typography>
             <Box>
-              <Typography component="p" fontWeight={700} variant="h3">
+              <Typography
+                component="p"
+                variant="h3"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {sumCount(item.totalDataKey)}
               </Typography>
-              <Typography color="text.secondary" variant="caption">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Documenti nel periodo
               </Typography>
             </Box>
             <Stack spacing={0.5}>
-              <Stack direction="row" justifyContent="space-between" spacing={1}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Typography variant="body2">Aperti</Typography>
-                <Typography fontWeight={700} variant="body2">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 700,
+                  }}
+                >
                   {sumCount(item.openDataKey)}
                 </Typography>
               </Stack>
               {item.openSentDataKey ? (
                 <>
-                  <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ pl: 1.5 }}>
-                    <Typography color="text.secondary" variant="body2">
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      justifyContent: 'space-between',
+                      pl: 1.5,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       {item.openSentName ?? `Di cui ${item.openSentLabel ?? 'inviati'}`}
                     </Typography>
-                    <Typography fontWeight={700} variant="body2">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
                       {sumCount(item.openSentDataKey)}
                     </Typography>
                   </Stack>
-                  <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ pl: 1.5 }}>
-                    <Typography color="text.secondary" variant="body2">
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      justifyContent: 'space-between',
+                      pl: 1.5,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       {item.openUnsentName ?? `Di cui ${item.openUnsentLabel ?? 'non inviati'}`}
                     </Typography>
-                    <Typography fontWeight={700} variant="body2">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
                       {sumCount(item.openDataKey) - sumCount(item.openSentDataKey)}
                     </Typography>
                   </Stack>
@@ -92,29 +154,75 @@ const MonthlyStatsSummary = ({ series, stats }: Props) => {
             {item.totalAmountDataKey && item.openTotalDataKey ? (
               <Box sx={{ mt: 'auto' }}>
                 <Divider sx={{ mb: 1.5 }} />
-                <Typography color="text.secondary" variant="caption">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   Importo totale
                 </Typography>
-                <Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }} variant="subtitle1">
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 700,
+                    overflowWrap: 'anywhere',
+                  }}
+                >
                   {sumAmount(item.totalAmountDataKey)}
                 </Typography>
-                <Typography color="text.secondary" variant="caption">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   Importo aperto
                 </Typography>
-                <Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }} variant="body2">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 700,
+                    overflowWrap: 'anywhere',
+                  }}
+                >
                   {sumAmount(item.openTotalDataKey)}
                 </Typography>
                 {item.openSentTotalDataKey ? (
                   <Box sx={{ mt: 0.5, pl: 1.5 }}>
-                    <Typography color="text.secondary" component="p" variant="caption">
+                    <Typography
+                      component="p"
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       {item.openSentName ?? `Di cui ${item.openSentLabel ?? 'inviati'}`}:{' '}
-                      <Typography component="span" fontWeight={700} variant="caption">
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{
+                          fontWeight: 700,
+                        }}
+                      >
                         {sumAmount(item.openSentTotalDataKey)}
                       </Typography>
                     </Typography>
-                    <Typography color="text.secondary" component="p" variant="caption">
+                    <Typography
+                      component="p"
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       {item.openUnsentName ?? `Di cui ${item.openUnsentLabel ?? 'non inviati'}`}:{' '}
-                      <Typography component="span" fontWeight={700} variant="caption">
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{
+                          fontWeight: 700,
+                        }}
+                      >
                         {subtractAmount(item.openTotalDataKey, item.openSentTotalDataKey)}
                       </Typography>
                     </Typography>

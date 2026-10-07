@@ -220,10 +220,22 @@ const RejectSubscriptionProposalContent: React.FC = () => {
             <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
               <Stack spacing={3}>
                 <Box>
-                  <Typography variant="h3" fontWeight={700} sx={{ lineHeight: 1.08, mb: 1.5 }}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 700,
+                      lineHeight: 1.08,
+                      mb: 1.5,
+                    }}
+                  >
                     HAI SCELTO DI NON ABBONARTI
                   </Typography>
-                  <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                  <Typography
+                    sx={{
+                      color: 'text.secondary',
+                      lineHeight: 1.7,
+                    }}
+                  >
                     Ci dispiace MA NESSUN PROBLEMA, resteremo comunque a disposizione. Anche se in questo momento
                     preferisci non aderire all&apos;abbonamento, continueremo comunque ad essere disponibili per
                     assisterti quando ne avrai bisogno.
@@ -233,10 +245,22 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                 <Divider />
 
                 <Box>
-                  <Typography variant="h4" fontWeight={700}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 700,
+                    }}
+                  >
                     MASSIMA TRASPARENZA
                   </Typography>
-                  <Typography color="text.secondary" sx={{ mt: 1.25, maxWidth: 900, lineHeight: 1.7 }}>
+                  <Typography
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 1.25,
+                      maxWidth: 900,
+                      lineHeight: 1.7,
+                    }}
+                  >
                     Vogliamo pero spiegarti in modo chiaro cosa comporta questa scelta, cosi da avere tutte le
                     informazioni utili prima di confermare la decisione.
                   </Typography>
@@ -246,10 +270,21 @@ const RejectSubscriptionProposalContent: React.FC = () => {
 
                 <Stack spacing={2.5}>
                   <Box>
-                    <Typography variant="h6" fontWeight={700}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
                       Cosa significa scegliere &quot;Non essere interessato&quot;
                     </Typography>
-                    <Typography color="text.secondary" sx={{ mt: 1, lineHeight: 1.75 }}>
+                    <Typography
+                      sx={{
+                        color: 'text.secondary',
+                        mt: 1,
+                        lineHeight: 1.75,
+                      }}
+                    >
                       La scelta di non aderire all&apos;abbonamento non blocca in alcun modo la possibilità di
                       richiedere assistenza futura. Semplicemente gli interventi verranno gestiti fuori abbonamento, con
                       le condizioni applicate ai servizi non in abbonamento.
@@ -279,12 +314,21 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                       >
                         <Typography
                           variant="caption"
-                          color="text.secondary"
-                          sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                          sx={{
+                            color: 'text.secondary',
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.7,
+                          }}
                         >
                           Ragione sociale
                         </Typography>
-                        <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 700,
+                            mt: 0.75,
+                          }}
+                        >
                           {proposal.companyName}
                         </Typography>
                       </Box>
@@ -298,12 +342,21 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                       >
                         <Typography
                           variant="caption"
-                          color="text.secondary"
-                          sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                          sx={{
+                            color: 'text.secondary',
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.7,
+                          }}
                         >
                           Tipo impianto
                         </Typography>
-                        <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 700,
+                            mt: 0.75,
+                          }}
+                        >
                           {formatSystemLabel(proposal.systemType, proposal.systemDescription)}
                         </Typography>
                       </Box>
@@ -316,12 +369,21 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                       >
                         <Typography
                           variant="caption"
-                          color="text.secondary"
-                          sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                          sx={{
+                            color: 'text.secondary',
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.7,
+                          }}
                         >
                           Indirizzo impianto
                         </Typography>
-                        <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 700,
+                            mt: 0.75,
+                          }}
+                        >
                           {proposal.systemAddress}
                         </Typography>
                       </Box>
@@ -343,8 +405,18 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                         <Stack direction="row" spacing={2}>
                           <ScheduleOutlined color="primary" />
                           <Box>
-                            <Typography fontWeight={700}>Manutenzioni future</Typography>
-                            <Typography color="text.secondary">
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                              }}
+                            >
+                              Manutenzioni future
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Se in futuro vorrai richiedere una manutenzione, il servizio saràdisponibile ma senza il
                               prezzo agevolato previsto per i clienti abbonati.
                             </Typography>
@@ -357,8 +429,18 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                         <Stack direction="row" spacing={2}>
                           <PhoneInTalkOutlined color="primary" />
                           <Box>
-                            <Typography fontWeight={700}>Supporto telefonico</Typography>
-                            <Typography color="text.secondary">
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                              }}
+                            >
+                              Supporto telefonico
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Resteremo comunque raggiungibili e operativi in orario di ufficio. Non portà essere
                               richiesta la reperibilità telefonica h24.
                             </Typography>
@@ -394,10 +476,20 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                     }}
                   >
                     <Stack spacing={2}>
-                      <Typography variant="h6" fontWeight={700}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                        }}
+                      >
                         Lascia una nota
                       </Typography>
-                      <Typography color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                      <Typography
+                        sx={{
+                          color: 'text.secondary',
+                          lineHeight: 1.7,
+                        }}
+                      >
                         Saremo interessati a conoscere i motivi della tua scelta.
                       </Typography>
 
@@ -411,7 +503,13 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                         helperText={form.formState.errors.note?.message}
                       />
 
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={1.5}
+                        sx={{
+                          alignItems: { sm: 'center' },
+                        }}
+                      >
                         <Button type="submit" variant="contained" size="large" color="primary" loading={isRejecting}>
                           Confermo che non sono interessato
                         </Button>
@@ -429,17 +527,40 @@ const RejectSubscriptionProposalContent: React.FC = () => {
                     }}
                   >
                     <CardContent sx={{ p: 3, height: '100%' }}>
-                      <Stack spacing={2} justifyContent="space-between" height="100%">
+                      <Stack
+                        spacing={2}
+                        sx={{
+                          justifyContent: 'space-between',
+                          height: '100%',
+                        }}
+                      >
                         <Box>
                           <Chip color="warning" variant="outlined" label="Alternativa disponibile" sx={{ mb: 2 }} />
-                          <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              fontWeight: 700,
+                              mb: 1,
+                            }}
+                          >
                             Oppure prenota un sopralluogo gratuito
                           </Typography>
-                          <Typography color="text.secondary" sx={{ lineHeight: 1.75, mb: 1.5 }}>
+                          <Typography
+                            sx={{
+                              color: 'text.secondary',
+                              lineHeight: 1.75,
+                              mb: 1.5,
+                            }}
+                          >
                             Se preferisci non chiudere subito la proposta, puoi richiedere un sopralluogo gratuito per
                             valutare meglio il tuo impianto prima di decidere.
                           </Typography>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: 'text.secondary',
+                            }}
+                          >
                             * Non è una manutenzione.
                           </Typography>
                         </Box>

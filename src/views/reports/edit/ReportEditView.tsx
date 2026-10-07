@@ -300,7 +300,14 @@ const ReportEditView = () => {
   return (
     <PageContainer>
       <Stack spacing={3}>
-        <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
           <IconButton
             component={RouterLink}
             to={RouteConfig.ReportList.buildLink()}
@@ -546,7 +553,11 @@ const ReportEditView = () => {
 
             <Divider />
             <Section title="Tecnici">
-              <Stack alignItems="flex-start">
+              <Stack
+                sx={{
+                  alignItems: 'flex-start',
+                }}
+              >
                 <Button
                   startIcon={<Add />}
                   variant="outlined"
@@ -670,7 +681,11 @@ const ReportEditView = () => {
 
             <Divider />
             <Section title="Manodopera">
-              <Stack alignItems="flex-start">
+              <Stack
+                sx={{
+                  alignItems: 'flex-start',
+                }}
+              >
                 <Button
                   startIcon={<Add />}
                   variant="outlined"
@@ -790,7 +805,11 @@ const ReportEditView = () => {
 
             <Divider />
             <Section title="Materiale">
-              <Stack alignItems="flex-start">
+              <Stack
+                sx={{
+                  alignItems: 'flex-start',
+                }}
+              >
                 <Button
                   startIcon={<Add />}
                   variant="outlined"
@@ -950,7 +969,13 @@ const ReportEditView = () => {
         ) : null}
 
         <Divider />
-        <Stack direction="row" justifyContent="flex-end" spacing={1}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            justifyContent: 'flex-end',
+          }}
+        >
           <Button component={RouterLink} to={RouteConfig.ReportList.buildLink()} disabled={isPending}>
             Annulla
           </Button>

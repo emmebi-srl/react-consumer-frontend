@@ -9,7 +9,13 @@ const ChecklistsDetailsGeneral: React.FC<{
 }> = ({ checklist }) => {
   return (
     <Box sx={{ borderTop: '1px solid', borderColor: (theme) => theme.palette.divider }}>
-      <Stack direction="column" sx={{ overflow: 'hidden' }} gap={4}>
+      <Stack
+        direction="column"
+        sx={{
+          gap: 4,
+          overflow: 'hidden',
+        }}
+      >
         <ChecklistsDetailsGeneralCustomer checklist={checklist} />
         <ChecklistsDetailsGeneralSystem checklist={checklist} />
       </Stack>

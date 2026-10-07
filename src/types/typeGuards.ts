@@ -32,5 +32,5 @@ export const isError = (error: unknown): error is Error => {
 };
 
 export const isInEnum = <E extends Record<string, unknown>>(value: unknown, enumType: E): value is E[keyof E] => {
-  return Object.values(enumType).includes(value as E);
+  return Object.values(enumType).includes(value);
 };

@@ -41,7 +41,13 @@ const CustomerListView = () => {
 
   return (
     <PageContainer>
-      <Stack spacing={3} direction="column" flexGrow={1}>
+      <Stack
+        spacing={3}
+        direction="column"
+        sx={{
+          flexGrow: 1,
+        }}
+      >
         <ScrollToTopButton
           onClick={() => {
             virtuoso.current?.scrollToIndex({

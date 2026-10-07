@@ -883,7 +883,12 @@ const MonthlyCashflowChartCard: React.FC<Props> = ({
             <Typography gutterBottom variant="h5">
               {chartTitle}
             </Typography>
-            <Typography color="text.secondary" variant="body2">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {chartDescription}
             </Typography>
           </Box>

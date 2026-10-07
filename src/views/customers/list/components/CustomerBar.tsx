@@ -19,12 +19,14 @@ const CustomerBar: React.FC = () => {
 
   return (
     <Box
-      display="flex"
-      flexDirection="column"
-      pt={1.5}
-      bgcolor="white"
-      borderBottom="1px solid"
-      borderColor={theme.palette.grey[300]}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        pt: 1.5,
+        bgcolor: 'white',
+        borderBottom: '1px solid',
+        borderColor: theme.palette.grey[300],
+      }}
     >
       <CustomerFilters />
       <Metadata filteredCount={filteredCount} totalCount={totalCount} />

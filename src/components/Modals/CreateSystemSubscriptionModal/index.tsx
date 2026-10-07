@@ -387,12 +387,14 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
       onClose={close}
       fullWidth
       fullScreen={isMobileDialog}
-      PaperProps={{
-        sx: {
-          width: { xs: '100%', md: 'min(1080px, calc(100vw - 48px))' },
-          maxHeight: { xs: '100%', sm: 'calc(100vh - 32px)' },
-          m: { xs: 0, sm: 2 },
-          borderRadius: { xs: 0, sm: 2 },
+      slotProps={{
+        paper: {
+          sx: {
+            width: { xs: '100%', md: 'min(1080px, calc(100vw - 48px))' },
+            maxHeight: { xs: '100%', sm: 'calc(100vh - 32px)' },
+            m: { xs: 0, sm: 2 },
+            borderRadius: { xs: 0, sm: 2 },
+          },
         },
       }}
     >
@@ -430,18 +432,35 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
             <CardContent sx={{ p: { xs: 1.5, sm: 2 }, '&:last-child': { pb: { xs: 1.5, sm: 2 } } }}>
               <Stack spacing={1.5}>
                 <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     Cliente - #{props.mail.customerId}
                   </Typography>
                   <Typography variant="h6">{customerName}</Typography>
                 </Box>
                 <Grid container spacing={1.5}>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Telefono principale
                     </Typography>
                     {primaryCustomerPhone ? (
-                      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                        }}
+                      >
                         <Link href={`tel:${sanitizePhoneLink(primaryCustomerPhone)}`} underline="hover">
                           {primaryCustomerPhone}
                         </Link>
@@ -459,11 +478,23 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                     )}
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Email principale
                     </Typography>
                     {primaryCustomerEmail ? (
-                      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                        }}
+                      >
                         <Link href={`mailto:${primaryCustomerEmail}`} underline="hover">
                           {primaryCustomerEmail}
                         </Link>
@@ -483,7 +514,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                 </Grid>
                 <Divider />
                 <Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     Impianto
                   </Typography>
                   <Typography variant="body1">
@@ -492,13 +528,23 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                 </Box>
                 <Grid container spacing={1.5}>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Stato impianto
                     </Typography>
                     <Typography variant="body1">{props.mail.system?.statusDescription ?? 'N/D'}</Typography>
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Abbonamento corrente
                     </Typography>
                     <Typography variant="body1">{currentSubscriptionLabel}</Typography>
@@ -513,12 +559,19 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
               <Stack spacing={1.5}>
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
-                  justifyContent="space-between"
-                  alignItems={{ xs: 'flex-start', sm: 'center' }}
                   spacing={2}
+                  sx={{
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                  }}
                 >
                   <Box>
-                    <Typography variant="subtitle2" color="text.secondary">
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Ultima campagna abbonamento
                     </Typography>
                     <Typography variant="body1">
@@ -541,19 +594,34 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                 </Stack>
                 <Grid container spacing={1.5}>
                   <Grid size={{ xs: 12, sm: 4 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Tipo campagna
                     </Typography>
                     <Typography variant="body1">{props.campaign?.campaignType?.name ?? 'N/D'}</Typography>
                   </Grid>
                   <Grid size={{ xs: 12, sm: 4 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Email destinatario
                     </Typography>
                     <Typography variant="body1">{props.mail.email}</Typography>
                   </Grid>
                   <Grid size={{ xs: 12, sm: 4 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Note campagna
                     </Typography>
                     <Typography variant="body1">{props.mail.note || 'Nessuna nota'}</Typography>
@@ -563,7 +631,13 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                   <>
                     <Divider />
                     {proposalAcceptancesQuery.isLoading ? (
-                      <Stack direction="row" justifyContent="center" alignItems="center">
+                      <Stack
+                        direction="row"
+                        sx={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
                         <CircularProgress size={18} />
                       </Stack>
                     ) : null}
@@ -571,13 +645,23 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                       <>
                         <Grid container spacing={1.5}>
                           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Manutenzioni
                             </Typography>
                             <Typography variant="body1">{campaignProposalAcceptance.maintenanceCount}</Typography>
                           </Grid>
                           <Grid size={{ xs: 12, sm: 4 }}>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Prezzo singola manutenzione
                             </Typography>
                             <Typography variant="body1">
@@ -585,7 +669,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                             </Typography>
                           </Grid>
                           <Grid size={{ xs: 12, sm: 4 }}>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Prezzo diritto di chiamata
                             </Typography>
                             <Typography variant="body1">
@@ -593,7 +682,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                             </Typography>
                           </Grid>
                           <Grid size={{ xs: 12, sm: 4 }}>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Accettata il
                             </Typography>
                             <Typography variant="body1">
@@ -605,7 +699,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                             </Typography>
                           </Grid>
                           <Grid size={{ xs: 12, sm: 8 }}>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Mesi richiesti
                             </Typography>
                             <Typography variant="body1">{formatMonthList(lastProposalMonths)}</Typography>
@@ -636,7 +735,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                     )}
                   </>
                 ) : (
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     I valori della proposta e l&apos;inizializzazione sono disponibili solo per campagne con esito
                     positivo.
                   </Typography>
@@ -650,12 +754,19 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
               <Stack spacing={1.5}>
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
-                  justifyContent="space-between"
-                  alignItems={{ xs: 'flex-start', sm: 'center' }}
                   spacing={2}
+                  sx={{
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                  }}
                 >
                   <Box>
-                    <Typography variant="subtitle2" color="text.secondary">
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Ultimo abbonamento registrato
                     </Typography>
                     <Typography variant="body1">
@@ -671,13 +782,23 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                   <>
                     <Grid container spacing={1.5}>
                       <Grid size={{ xs: 12, md: 6 }}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           Mesi pianificati
                         </Typography>
                         <Typography variant="body1">{formatMonthList(lastSystemMonths)}</Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 4, md: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           Importo abbonamento
                         </Typography>
                         <Typography variant="body1">
@@ -685,7 +806,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 4, md: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           Importo manutenzione
                         </Typography>
                         <Typography variant="body1">
@@ -693,7 +819,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 4, md: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           Diritto di chiamata
                         </Typography>
                         <Typography variant="body1">
@@ -701,7 +832,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 4, md: 2 }}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           Prima ora
                         </Typography>
                         <Typography variant="body1">
@@ -725,7 +861,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                     </Button>
                   </>
                 ) : (
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     Nessun abbonamento storico disponibile per questo impianto.
                   </Typography>
                 )}
@@ -860,7 +1001,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
               name="months"
               render={({ field, fieldState }) => (
                 <Stack spacing={1}>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     Mesi
                   </Typography>
                   <Grid container spacing={1}>

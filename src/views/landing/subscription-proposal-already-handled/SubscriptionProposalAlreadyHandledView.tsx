@@ -20,13 +20,23 @@ const SubscriptionProposalAlreadyHandledView: React.FC = () => {
         <Card sx={{ borderRadius: 4, boxShadow: '0 16px 36px rgba(15, 23, 42, 0.1)' }}>
           <CardContent sx={{ p: 4 }}>
             <Stack spacing={2.5}>
-              <Typography variant="h4" fontWeight={700}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 Proposta gia gestita
               </Typography>
               <Alert severity="info">
                 Questa proposta risulta gia conclusa, quindi non puo essere inviata nuovamente.
               </Alert>
-              <Typography color="text.secondary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                  lineHeight: 1.8,
+                }}
+              >
                 Se hai bisogno di ulteriori chiarimenti o di una nuova proposta, ti chiediamo di contattare il nostro
                 team.
               </Typography>

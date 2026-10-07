@@ -14,7 +14,13 @@ const CustomerDetailView = () => {
   return (
     <PageContainer>
       <Stack spacing={3}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <Typography variant="h4">{customer ? customer.companyName : `Cliente #${customerId}`}</Typography>
           <Typography
             component={RouterLink}
@@ -28,7 +34,14 @@ const CustomerDetailView = () => {
 
         {customer && (
           <Stack spacing={2}>
-            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
               <Chip label={`Stato: ${customer.status ?? 'N/D'}`} />
               <Chip label={`Tipo cliente: ${customer.customerTypeId ?? 'N/D'}`} />
               {customer.isInsolvent && <Chip color="error" label="Insolvente" />}
@@ -78,7 +91,12 @@ const CustomerDetailView = () => {
 
             <Typography variant="h6">Contatti</Typography>
             {(customer.contacts ?? []).length === 0 && (
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Nessun contatto registrato
               </Typography>
             )}
@@ -99,7 +117,12 @@ const CustomerDetailView = () => {
 
             <Typography variant="h6">Destinazioni</Typography>
             {(customer.destinations ?? []).length === 0 && (
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Nessuna destinazione registrata
               </Typography>
             )}

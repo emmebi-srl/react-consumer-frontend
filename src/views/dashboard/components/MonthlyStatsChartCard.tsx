@@ -470,7 +470,12 @@ const MonthlyStatsChartCard: React.FC<Props> = ({ dateRange, isError, isLoading,
             <Typography gutterBottom variant="h5">
               Andamento Documenti
             </Typography>
-            <Typography color="text.secondary" variant="body2">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Andamento mensile dell&apos;intervallo selezionato. La parte piena rappresenta i documenti non aperti, la
               parte chiara a strisce quelli aperti e inviati (resoconti e preventivi) o le prefatture (fatture), mentre
               la parte vuota con bordo quelli aperti non inviati o le fatture aperte.

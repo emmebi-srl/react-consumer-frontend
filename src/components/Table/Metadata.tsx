@@ -11,15 +11,23 @@ const Metadata: React.FC<PropsWithChildren<Props>> = ({ children, filteredCount,
   const theme = useTheme();
   return (
     <Box
-      display="flex"
-      justifyContent={isDefined(children) ? 'space-between' : 'center'}
-      mt={1}
-      bgcolor={theme.palette.secondary.light}
-      py={1}
-      px={3}
-      gap={16}
+      sx={{
+        display: 'flex',
+        justifyContent: isDefined(children) ? 'space-between' : 'center',
+        mt: 1,
+        bgcolor: theme.palette.secondary.light,
+        py: 1,
+        px: 3,
+        gap: 16,
+      }}
     >
-      <Typography variant="subtitle2" mt={0.5} fontWeight={500}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          mt: 0.5,
+          fontWeight: 500,
+        }}
+      >
         {filteredCount && filteredCount === totalCount ? (
           <>
             <strong>{filteredCount}</strong> Risultati su <strong>{totalCount}</strong> Totali

@@ -369,7 +369,12 @@ interface SectionProps {
 const Section: React.FC<PropsWithChildren<SectionProps>> = ({ children, title }) => (
   <Paper sx={{ p: 2, borderRadius: 1 }} variant="outlined">
     <Stack spacing={2}>
-      <Typography variant="subtitle1" fontWeight={700}>
+      <Typography
+        variant="subtitle1"
+        sx={{
+          fontWeight: 700,
+        }}
+      >
         {title}
       </Typography>
       <Grid container spacing={2}>
@@ -416,11 +421,13 @@ const NumberInput: React.FC<NumberInputProps> = ({ form, label, md = 3, name, on
   <Grid size={{ xs: 12, sm: 6, md }}>
     <TextField
       fullWidth
-      inputProps={{ inputMode: 'decimal' }}
       label={label}
       onChange={(event) => onChange(name, event.target.value)}
       size="small"
       value={form[name]}
+      slotProps={{
+        htmlInput: { inputMode: 'decimal' },
+      }}
     />
   </Grid>
 );
@@ -485,20 +492,35 @@ const LogoSection = () => {
               sx={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
             />
           ) : (
-            <Typography color="text.secondary" variant="body2">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Nessun logo caricato
             </Typography>
           )}
         </Box>
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
-        <Stack alignItems="flex-start" spacing={1.5}>
+        <Stack
+          spacing={1.5}
+          sx={{
+            alignItems: 'flex-start',
+          }}
+        >
           <Button component="label" disabled={isPending} startIcon={<UploadFile />} variant="outlined">
             Carica logo BMP
             <input accept=".bmp,image/bmp" hidden onChange={handleLogoChange} type="file" />
           </Button>
           {logo?.fileName ? (
-            <Typography color="text.secondary" variant="body2">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {logo.fileName}
             </Typography>
           ) : null}
@@ -682,24 +704,48 @@ const BankAccountsSection = () => {
                       justifyContent: 'space-between',
                     }}
                   >
-                    <Stack direction="row" spacing={1} alignItems="center">
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{
+                        alignItems: 'center',
+                      }}
+                    >
                       <AccountBalance color="action" fontSize="small" />
                       <Box>
-                        <Typography fontWeight={700}>{account.name}</Typography>
-                        <Typography color="text.secondary" variant="body2">
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                          }}
+                        >
+                          {account.name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           {[formatBankLabel(account.bank), account.iban].filter(Boolean).join(' - ') || '-'}
                         </Typography>
                       </Box>
                     </Stack>
                     <Stack
-                      alignItems={{ xs: 'flex-start', sm: 'center' }}
                       direction={{ xs: 'column', sm: 'row' }}
                       spacing={2}
+                      sx={{
+                        alignItems: { xs: 'flex-start', sm: 'center' },
+                      }}
                     >
                       <Typography variant="body2">
                         Ultimo saldo: <strong>{formatCurrency(account.latestBalance?.amount)}</strong>
                       </Typography>
-                      <Typography color="text.secondary" variant="body2">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {formatDate(account.latestBalance?.balanceDate)}
                       </Typography>
                       <FormControlLabel
@@ -837,10 +883,20 @@ const CompanySettingsView = () => {
           }}
         >
           <Box>
-            <Typography variant="h5" fontWeight={700}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+              }}
+            >
               Gestione azienda
             </Typography>
-            <Typography color="text.secondary" variant="body2">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {form.businessName || 'Azienda'}
             </Typography>
           </Box>

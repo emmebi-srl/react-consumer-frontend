@@ -142,15 +142,30 @@ const InvoicePaymentForm = (props: InvoicePaymentFormProps) => {
         {props.payment && !hasError ? (
           <Stack spacing={2.25} sx={{ pt: 1 }}>
             <Box>
-              <Typography fontWeight={700} variant="subtitle1">
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {props.heading}
               </Typography>
               {props.counterpartName ? (
-                <Typography color="text.secondary" variant="body2">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {props.counterpartName}
                 </Typography>
               ) : null}
-              <Typography color="text.secondary" variant="body2">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {formatMoney(newMoney(props.payment.totalPayment ?? 0, 'EUR'))}
               </Typography>
             </Box>

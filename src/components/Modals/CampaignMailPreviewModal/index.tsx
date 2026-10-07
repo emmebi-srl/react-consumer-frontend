@@ -118,7 +118,12 @@ const CampaignMailPreviewModal = ({ closeModal, mailId, recipient }: CampaignMai
       </DialogTitle>
       <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', height: '75vh', p: 0 }}>
         {isLoading ? (
-          <Stack alignItems="center" py={6}>
+          <Stack
+            sx={{
+              alignItems: 'center',
+              py: 6,
+            }}
+          >
             <CircularProgress />
           </Stack>
         ) : null}
@@ -129,22 +134,52 @@ const CampaignMailPreviewModal = ({ closeModal, mailId, recipient }: CampaignMai
         ) : null}
         {content ? (
           <>
-            <Box px={2} py={1.5} borderBottom="1px solid" borderColor="divider">
-              <Typography variant="subtitle1" fontWeight={600}>
+            <Box
+              sx={{
+                px: 2,
+                py: 1.5,
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 {content.subject}
               </Typography>
               {recipient ? (
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   A: {recipient}
                 </Typography>
               ) : null}
               {content.sender ? (
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   Da: {content.sender}
                 </Typography>
               ) : null}
               {content.attachments.length ? (
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap mt={1}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  useFlexGap
+                  sx={{
+                    flexWrap: 'wrap',
+                    mt: 1,
+                  }}
+                >
                   {content.attachments.map((attachment, index) => (
                     <Chip
                       key={`${attachment.filename}-${index}`}

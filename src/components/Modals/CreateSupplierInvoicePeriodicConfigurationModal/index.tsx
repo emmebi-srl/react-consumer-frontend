@@ -129,7 +129,15 @@ const CreateSupplierInvoicePeriodicConfigurationModal = (
     <Dialog open onClose={close} maxWidth="md" fullWidth fullScreen={isMobileDialog}>
       <DialogTitle>Fattura fornitore periodica</DialogTitle>
       <DialogContent>
-        <Stack component="form" id="supplier-invoice-periodic-form" spacing={2.5} pt={1} onSubmit={submit}>
+        <Stack
+          component="form"
+          id="supplier-invoice-periodic-form"
+          spacing={2.5}
+          onSubmit={submit}
+          sx={{
+            pt: 1,
+          }}
+        >
           <Controller
             name="supplierId"
             control={form.control}

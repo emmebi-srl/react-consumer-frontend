@@ -57,8 +57,20 @@ const CampaignTabs: React.FC = () => {
         }}
       />
 
-      <Box display="flex" gap={1} alignItems="center">
-        <Box display="flex" alignItems="flex-end" justifyContent="space-between">
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 1,
+          alignItems: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+          }}
+        >
           <Button
             variant="contained"
             color="primary"

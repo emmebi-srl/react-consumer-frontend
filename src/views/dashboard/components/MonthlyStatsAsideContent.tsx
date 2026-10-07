@@ -67,34 +67,46 @@ const ItemRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = ({ i
 
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', py: 1.25 }}>
-      <Stack alignItems="flex-start" direction="row" justifyContent="space-between" spacing={1.5}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        }}
+      >
         <Box sx={{ minWidth: 0 }}>
           {item.counterpartName ? (
             counterpartLink ? (
               <Typography
-                color="text.primary"
                 component={RouterLink}
-                display="block"
-                fontWeight={600}
+                to={counterpartLink}
+                variant="body1"
                 sx={{
+                  color: 'text.primary',
+                  display: 'block',
+                  fontWeight: 600,
                   maxWidth: '100%',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                   textDecoration: 'underline',
                 }}
-                to={counterpartLink}
-                variant="body1"
               >
                 {item.counterpartName}
               </Typography>
             ) : (
               <Typography
-                color="text.primary"
-                display="block"
-                fontWeight={600}
-                sx={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                 variant="body1"
+                sx={{
+                  color: 'text.primary',
+                  display: 'block',
+                  fontWeight: 600,
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
               >
                 {item.counterpartName}
               </Typography>
@@ -102,25 +114,43 @@ const ItemRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = ({ i
           ) : null}
           <Typography
             color={item.counterpartName ? 'text.secondary' : 'text.primary'}
-            fontWeight={item.counterpartName ? undefined : 600}
             noWrap
             variant={item.counterpartName ? 'body2' : 'body1'}
+            sx={{
+              fontWeight: item.counterpartName ? undefined : 600,
+            }}
           >
             {`${item.title} del ${format(date, 'dd/MM/yyyy')}`}
           </Typography>
           {item.subtitle ? (
             <Typography
-              color="text.secondary"
-              display="block"
-              sx={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
               variant="caption"
+              sx={{
+                color: 'text.secondary',
+                display: 'block',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
             >
               {item.subtitle}
             </Typography>
           ) : null}
         </Box>
-        <Stack alignItems="flex-end" spacing={0.75}>
-          <Stack alignItems="center" direction="row" spacing={0.5}>
+        <Stack
+          spacing={0.75}
+          sx={{
+            alignItems: 'flex-end',
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={0.5}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             {pdfMutation ? (
               <Button
                 color="primary"
@@ -142,7 +172,13 @@ const ItemRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = ({ i
             />
           </Stack>
           {typeof item.amount === 'number' ? (
-            <Typography color="text.primary" fontWeight={700} variant="h6">
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'text.primary',
+                fontWeight: 700,
+              }}
+            >
               {formatMoney(newMoney(item.amount, 'EUR'))}
             </Typography>
           ) : null}
@@ -156,10 +192,10 @@ const AsideSection: React.FC<{ section: DashboardAsideSection }> = ({ section })
   return (
     <Box>
       <Stack
-        alignItems="center"
         direction="row"
-        justifyContent="space-between"
         sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
           bgcolor: 'primary.main',
           color: 'primary.contrastText',
           mb: 1,
@@ -167,14 +203,23 @@ const AsideSection: React.FC<{ section: DashboardAsideSection }> = ({ section })
           px: 1.5,
           py: 0.75,
           top: 0,
+
           // Forces its own compositing layer so it doesn't flicker/render behind
           // scrolled content in Chromium when a sticky element sits inside an
           // ancestor with a CSS transform (SplitAside wraps this view in <Slide>).
           transform: 'translateZ(0)',
+
           zIndex: 2,
         }}
       >
-        <Typography fontWeight={700} letterSpacing={0.5} sx={{ textTransform: 'uppercase' }} variant="subtitle2">
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 700,
+            letterSpacing: 0.5,
+            textTransform: 'uppercase',
+          }}
+        >
           {section.title}
         </Typography>
         <Chip

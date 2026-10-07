@@ -24,7 +24,13 @@ const PdfPreviewModal = ({ closeModal, pdf, title }: PdfPreviewModalProps) => {
     <Dialog fullWidth maxWidth="lg" onClose={close} open>
       <DialogTitle sx={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between' }}>
         {title}
-        <Stack alignItems="center" direction="row" spacing={0.5}>
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           <Tooltip title="Apri in una nuova scheda">
             <span>
               <IconButton disabled={!pdfUrl} onClick={() => window.open(pdfUrl)} size="small">

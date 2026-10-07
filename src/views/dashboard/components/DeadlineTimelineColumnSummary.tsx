@@ -53,15 +53,25 @@ const DeadlineTimelineColumnSummary = ({ nodes, typeOptions }: Props) => {
               row.hasAmount ? `, ${formatMoney(row.openAmount)} aperti` : ''
             }`}
           >
-            <Stack alignItems="center" direction="row" spacing={0.5}>
+            <Stack
+              direction="row"
+              spacing={0.5}
+              sx={{
+                alignItems: 'center',
+              }}
+            >
               <Box sx={{ bgcolor: row.color, borderRadius: '50%', flexShrink: 0, height: 7, width: 7 }} />
               <Typography sx={{ fontFeatureSettings: '"tnum"', fontSize: 11, fontWeight: 700, lineHeight: 1.2 }}>
                 {row.open}
                 {row.closed > 0 ? (
                   <Typography
-                    color="text.secondary"
                     component="span"
-                    sx={{ fontSize: 'inherit', fontWeight: 600, lineHeight: 'inherit' }}
+                    sx={{
+                      color: 'text.secondary',
+                      fontSize: 'inherit',
+                      fontWeight: 600,
+                      lineHeight: 'inherit',
+                    }}
                   >
                     ·{row.closed}
                   </Typography>

@@ -11,12 +11,14 @@ const ChecklistsBar: React.FC<Props> = ({ checklists }) => {
   const theme = useTheme();
   return (
     <Box
-      display="flex"
-      flexDirection="column"
-      pt={1.5}
-      bgcolor="white"
-      borderBottom="1px solid"
-      borderColor={theme.palette.grey[300]}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        pt: 1.5,
+        bgcolor: 'white',
+        borderBottom: '1px solid',
+        borderColor: theme.palette.grey[300],
+      }}
     >
       <ChecklistsFilters />
       <Metadata totalCount={checklists.length} />

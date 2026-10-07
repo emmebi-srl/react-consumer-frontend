@@ -268,7 +268,14 @@ const CampaignNewView = () => {
             </Grid>
           </Grid>
         </Stack>
-        <Stack direction="row" gap={2} alignItems="center" justifyContent="flex-end">
+        <Stack
+          direction="row"
+          sx={{
+            gap: 2,
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Button variant="outlined" onClick={() => navigate(-1)} disabled={isCreating}>
             Annulla
           </Button>

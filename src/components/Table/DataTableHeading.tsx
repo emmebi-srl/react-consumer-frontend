@@ -56,8 +56,10 @@ const DataTableHeading = <Id extends string>({
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={Boolean(rowCount > 0 && numSelected === rowCount)}
               onChange={(e, checked) => onSelectAllClick(checked)}
-              inputProps={{
-                'aria-label': 'Select all',
+              slotProps={{
+                input: {
+                  'aria-label': 'Select all',
+                },
               }}
             />
           </TableCell>

@@ -124,10 +124,22 @@ const QuoteRevisionEditView = () => {
     <PageContainer>
       <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
         <Stack spacing={3}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" gap={2}>
+          <Stack
+            direction="row"
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+            }}
+          >
             <Stack spacing={0.5}>
               <Typography variant="h5">Modifica revisione</Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Preventivo #{quoteId} / {year} - Rev. {revisionId}
               </Typography>
             </Stack>
@@ -152,9 +164,11 @@ const QuoteRevisionEditView = () => {
             <TextField
               {...form.register('revisionDate')}
               fullWidth
-              InputLabelProps={{ shrink: true }}
               label="Data revisione"
               type="date"
+              slotProps={{
+                inputLabel: { shrink: true },
+              }}
             />
           </Stack>
 
@@ -197,7 +211,13 @@ const QuoteRevisionEditView = () => {
           <TextField {...form.register('note')} fullWidth label="Nota" minRows={3} multiline />
           <TextField {...form.register('body')} fullWidth label="Corpo" minRows={8} multiline />
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2}>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              justifyContent: 'flex-end',
+            }}
+          >
             <Button onClick={() => navigate(-1)} variant="outlined">
               Annulla
             </Button>

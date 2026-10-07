@@ -53,7 +53,13 @@ const LoginView: React.FC = () => {
         <Card elevation={3} sx={{ minWidth: 600, p: 2 }}>
           <CardHeader
             title={
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: 'center',
+                }}
+              >
                 <Icon component={PersonRounded} fontSize="large" /> <span>Accesso</span>
               </Stack>
             }

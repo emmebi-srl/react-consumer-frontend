@@ -84,9 +84,9 @@ const ChecklistRowWrapper: React.FC<PropsWithChildren<{ description: string; hel
   return (
     <Stack
       direction="column"
-      gap={2}
-      py={2}
       sx={{
+        gap: 2,
+        py: 2,
         borderBottom: '1px solid',
         borderColor: (theme) => theme.palette.divider,
       }}
@@ -112,7 +112,12 @@ const ChecklistsDetailsParagraph: React.FC<ChecklistsDetailsParagraphProps> = (p
   const { rows } = data;
 
   return (
-    <Stack direction="column" gap={2}>
+    <Stack
+      direction="column"
+      sx={{
+        gap: 2,
+      }}
+    >
       {rows?.map((row, index) => {
         if (row.rowType === ChecklistRowTypeEnum.Header) {
           return (

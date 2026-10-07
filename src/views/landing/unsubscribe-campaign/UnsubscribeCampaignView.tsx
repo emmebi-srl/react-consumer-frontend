@@ -151,10 +151,21 @@ const UnsubscribeCampaignContent: React.FC = () => {
                 />
 
                 <Box>
-                  <Typography variant="h4" fontWeight={700} sx={{ mb: 1.5 }}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 1.5,
+                    }}
+                  >
                     Disiscrivi questa email dalle future comunicazioni
                   </Typography>
-                  <Typography color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                  <Typography
+                    sx={{
+                      color: 'text.secondary',
+                      lineHeight: 1.8,
+                    }}
+                  >
                     Confermando la richiesta, l&apos;indirizzo <strong>{unsubscribeInfo.email}</strong> non ricevera più
                     campagne relative a <strong>{unsubscribeInfo.campaignTypeName}</strong>.
                   </Typography>
@@ -186,39 +197,87 @@ const UnsubscribeCampaignContent: React.FC = () => {
           <SummaryCard>
             <CardContent sx={{ p: { xs: 3, md: 4 } }}>
               <Stack spacing={2.5}>
-                <Typography variant="h6" fontWeight={700}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                  }}
+                >
                   Ambito della richiesta
                 </Typography>
                 <Divider />
                 <Stack spacing={2}>
                   <SummaryItem>
                     <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         Email
                       </Typography>
-                      <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Stack
+                        direction="row"
+                        spacing={1.5}
+                        sx={{
+                          alignItems: 'center',
+                        }}
+                      >
                         <EmailOutlined color="action" fontSize="small" />
-                        <Typography fontWeight={600}>{unsubscribeInfo.email}</Typography>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                          }}
+                        >
+                          {unsubscribeInfo.email}
+                        </Typography>
                       </Stack>
                     </Stack>
                   </SummaryItem>
 
                   <SummaryItem>
                     <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         Tipo campagna
                       </Typography>
-                      <Typography fontWeight={600}>{unsubscribeInfo.campaignTypeName}</Typography>
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                        }}
+                      >
+                        {unsubscribeInfo.campaignTypeName}
+                      </Typography>
                     </Stack>
                   </SummaryItem>
 
                   <SummaryItem>
                     <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         Cliente / contesto
                       </Typography>
-                      <Typography fontWeight={600}>{unsubscribeInfo.companyName || '-'}</Typography>
-                      <Typography color="text.secondary">
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                        }}
+                      >
+                        {unsubscribeInfo.companyName || '-'}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {[unsubscribeInfo.systemType, unsubscribeInfo.systemDescription].filter(Boolean).join(' - ') ||
                           '-'}
                       </Typography>

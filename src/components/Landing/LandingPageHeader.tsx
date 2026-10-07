@@ -19,17 +19,36 @@ const LandingPageHeader: React.FC<LandingPageHeaderProps> = ({
       <Stack
         direction={{ xs: 'column', md: 'row' }}
         spacing={2}
-        py={2}
-        alignItems={{ md: 'center' }}
-        justifyContent="space-between"
+        sx={{
+          py: 2,
+          alignItems: { md: 'center' },
+          justifyContent: 'space-between',
+        }}
       >
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 1.5, md: 4 }} alignItems={{ md: 'center' }}>
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          spacing={{ xs: 1.5, md: 4 }}
+          sx={{
+            alignItems: { md: 'center' },
+          }}
+        >
           <Logo sx={{ height: 60 }} />
           <Box>
-            <Typography variant="h6" fontWeight={700}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+              }}
+            >
               {title}
             </Typography>
-            <Typography color="text.secondary">{subtitle}</Typography>
+            <Typography
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
+              {subtitle}
+            </Typography>
           </Box>
         </Stack>
 

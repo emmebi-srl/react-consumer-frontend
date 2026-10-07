@@ -118,12 +118,14 @@ const PeriodicConfigurationBar: React.FC<PeriodicConfigurationBarProps> = ({
 
   return (
     <Box
-      display="flex"
-      flexDirection="column"
-      pt={1.5}
-      bgcolor="white"
-      borderBottom="1px solid"
-      borderColor={theme.palette.grey[300]}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        pt: 1.5,
+        bgcolor: 'white',
+        borderBottom: '1px solid',
+        borderColor: theme.palette.grey[300],
+      }}
     >
       <CollapsibleFilters onClearFilters={onReset} isDirty={isDirty}>
         <PrimaryFilters dirtyState={dirtyState} additionalFilters={['enabled']}>
@@ -271,7 +273,14 @@ const SupplierInvoicePeriodicConfigurationListView = () => {
           />
         </TableCell>
         <TableCell align="right">
-          <Stack direction="row" spacing={1} justifyContent="flex-end" alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+            }}
+          >
             <Tooltip title={configuration.enabled ? 'Disabilita' : 'Abilita'}>
               <Switch
                 size="small"
@@ -303,7 +312,13 @@ const SupplierInvoicePeriodicConfigurationListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                alignItems: 'center',
+              }}
+            >
               <Tooltip title="Torna alle fatture">
                 <IconButton component={RouterLink} to={RouteConfig.SupplierInvoiceList.buildLink()}>
                   <ArrowBack />

@@ -38,7 +38,12 @@ export const AsideSummaryView = ({ icon: IconComponent, title, subtitle, childre
       <MainDetailsContainer>
         {IconComponent && <Icon component={IconComponent} />}
         <Details>
-          <Typography variant="h5" fontWeight="600">
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: '600',
+            }}
+          >
             {title}
           </Typography>
           <Typography variant="h6" color="textSecondary">

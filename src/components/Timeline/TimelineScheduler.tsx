@@ -256,7 +256,13 @@ const TimelineScheduler = <TItem, TType extends string>({
                   <Typography sx={{ fontSize: 13, fontWeight: 600 }} variant="body2">
                     {option.label}
                   </Typography>
-                  <Typography color="text.secondary" sx={{ fontSize: 12 }} variant="caption">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                      fontSize: 12,
+                    }}
+                  >
                     {countsByType.get(option.key) ?? 0}
                   </Typography>
                 </Box>
@@ -338,11 +344,25 @@ const TimelineScheduler = <TItem, TType extends string>({
                     zIndex: 2,
                   }}
                 >
-                  <Stack alignItems="baseline" direction="row" justifyContent="space-between" spacing={1}>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      alignItems: 'baseline',
+                      justifyContent: 'space-between',
+                    }}
+                  >
                     <Typography sx={{ fontSize: 14, fontWeight: 800 }} variant="subtitle2">
                       {capitalize(format(month, 'MMMM yyyy', { locale: it }))}
                     </Typography>
-                    <Typography color="text.secondary" sx={{ fontSize: 12, fontWeight: 700 }} variant="caption">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                        fontSize: 12,
+                        fontWeight: 700,
+                      }}
+                    >
                       {monthNodes.length}
                     </Typography>
                   </Stack>

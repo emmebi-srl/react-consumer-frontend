@@ -289,10 +289,23 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
               <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
                 <Stack spacing={3}>
                   <Box>
-                    <Typography variant="h3" fontWeight={700} sx={{ lineHeight: 1.08, mb: 1.5 }}>
+                    <Typography
+                      variant="h3"
+                      sx={{
+                        fontWeight: 700,
+                        lineHeight: 1.08,
+                        mb: 1.5,
+                      }}
+                    >
                       SIAMO FELICI CHE TU STIA VALUTANDO DI ABBONARTI
                     </Typography>
-                    <Typography color="text.secondary" sx={{ lineHeight: 1.7, maxWidth: 980 }}>
+                    <Typography
+                      sx={{
+                        color: 'text.secondary',
+                        lineHeight: 1.7,
+                        maxWidth: 980,
+                      }}
+                    >
                       Qui puoi consultare il riepilogo della proposta ricevuta e indicare i mesi preferiti per le
                       manutenzioni previste.
                     </Typography>
@@ -301,10 +314,22 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                   <Divider />
 
                   <Box>
-                    <Typography variant="h4" fontWeight={700}>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
                       MASSIMA TRASPARENZA
                     </Typography>
-                    <Typography color="text.secondary" sx={{ mt: 1.25, maxWidth: 920, lineHeight: 1.7 }}>
+                    <Typography
+                      sx={{
+                        color: 'text.secondary',
+                        mt: 1.25,
+                        maxWidth: 920,
+                        lineHeight: 1.7,
+                      }}
+                    >
                       Ti mostriamo in modo chiaro cosa include l&apos;abbonamento, cosi da poter confermare la proposta
                       con tutte le informazioni utili.
                     </Typography>
@@ -315,7 +340,13 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                   <Divider />
 
                   <Box>
-                    <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 2,
+                      }}
+                    >
                       Dati impianto
                     </Typography>
                     <Box
@@ -359,12 +390,21 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                           >
                             <Typography
                               variant="caption"
-                              color="text.secondary"
-                              sx={{ textTransform: 'uppercase', letterSpacing: 0.7 }}
+                              sx={{
+                                color: 'text.secondary',
+                                textTransform: 'uppercase',
+                                letterSpacing: 0.7,
+                              }}
                             >
                               {label}
                             </Typography>
-                            <Typography variant="body1" fontWeight={700} sx={{ mt: 0.75 }}>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: 700,
+                                mt: 0.75,
+                              }}
+                            >
                               {value}
                             </Typography>
                           </Box>
@@ -388,8 +428,18 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                         <Stack direction="row" spacing={2}>
                           <ScheduleOutlined color="primary" />
                           <Box>
-                            <Typography fontWeight={700}>Manutenzioni periodiche</Typography>
-                            <Typography color="text.secondary">
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                              }}
+                            >
+                              Manutenzioni periodiche
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               Check-up periodici per mantenere il sistema affidabile e senza sorprese.
                             </Typography>
                           </Box>
@@ -401,8 +451,18 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                         <Stack direction="row" spacing={2}>
                           <PhoneInTalkOutlined color="primary" />
                           <Box>
-                            <Typography fontWeight={700}>Supporto telefonico incluso</Typography>
-                            <Typography color="text.secondary">
+                            <Typography
+                              sx={{
+                                fontWeight: 700,
+                              }}
+                            >
+                              Supporto telefonico incluso
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               reperibilità telefonica inclusa h24, 7 giorni su 7.
                             </Typography>
                           </Box>
@@ -413,7 +473,12 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
 
                   <SectionBox>
                     <Stack spacing={2}>
-                      <Typography variant="h6" fontWeight={700}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                        }}
+                      >
                         Selezione mesi manutenzione
                       </Typography>
                       <Box
@@ -520,7 +585,12 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
 
                   <SectionBox>
                     <Stack spacing={2}>
-                      <Typography variant="h6" fontWeight={700}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 700,
+                        }}
+                      >
                         Condizioni generali
                       </Typography>
                       <Box
@@ -550,7 +620,13 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                                 borderTop: index === 0 ? 'none' : (theme) => `1px solid ${theme.palette.divider}`,
                               }}
                             >
-                              <Typography fontWeight={600}>{label}</Typography>
+                              <Typography
+                                sx={{
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {label}
+                              </Typography>
                             </Box>
                             <Box
                               sx={{
@@ -569,10 +645,22 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
 
                   <Divider />
                   <Box>
-                    <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 2,
+                      }}
+                    >
                       Confermo la mia volonta di abbonarmi
                     </Typography>
-                    <Typography color="text.secondary" sx={{ lineHeight: 1.75, mb: 2.5 }}>
+                    <Typography
+                      sx={{
+                        color: 'text.secondary',
+                        lineHeight: 1.75,
+                        mb: 2.5,
+                      }}
+                    >
                       Bene, puoi confermare la proposta e inviarci eventuali note aggiuntive.
                     </Typography>
 
@@ -580,7 +668,12 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                       <TextField {...form.register('notes')} label="Note aggiuntive" fullWidth multiline minRows={4} />
 
                       <Alert severity="warning" sx={{ alignItems: 'flex-start' }}>
-                        <Typography fontWeight={700} sx={{ mb: 0.75 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            mb: 0.75,
+                          }}
+                        >
                           Informazione importante
                         </Typography>
                         <Typography sx={{ lineHeight: 1.7 }}>
@@ -630,7 +723,13 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                         )}
                       />
 
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                      <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={1.5}
+                        sx={{
+                          alignItems: { sm: 'center' },
+                        }}
+                      >
                         <Button type="submit" variant="contained" size="large" loading={isAccepting}>
                           Conferma e aderisci
                         </Button>

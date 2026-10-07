@@ -128,7 +128,13 @@ const ConfigurationLanRow: React.FC<CentralInfoRowProps> = ({ data, onChange, re
       >
         <FormControl fullWidth>
           <FormLabel id="p2p-label">Peer-to-Peer</FormLabel>
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <Checkbox
               value={peerToPeer}
               onChange={(ev) => onChange({ field: 'peerToPeer', value: ev.target.checked, type: 'boolean' })}

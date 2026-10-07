@@ -75,8 +75,13 @@ export const PrimaryFilters = <T extends object>(props: PrimaryFiltersProps<T>) 
   }, 0);
 
   return (
-    <Box display="flex" gap={1}>
-      <FiltersBox pt={1}>
+    <Box
+      sx={{
+        display: 'flex',
+        gap: 1,
+      }}
+    >
+      <FiltersBox sx={{ pt: 1 }}>
         {children}
         <MoreFiltersButton counter={counter} />
       </FiltersBox>
@@ -92,8 +97,7 @@ export const AdditionalFilters: React.FC<PropsWithChildren> = (props) => {
   return (
     <FiltersBox
       ref={filtersRef}
-      pt={isExpanded ? 1 : 0}
-      maxHeight={isExpanded ? (filtersRef.current?.scrollHeight ?? 0) + 8 : '0px'}
+      sx={{ pt: isExpanded ? 1 : 0, maxHeight: isExpanded ? (filtersRef.current?.scrollHeight ?? 0) + 8 : '0px' }}
     >
       {children}
     </FiltersBox>
@@ -105,7 +109,16 @@ const CollapsibleFilters: React.FC<CollapsibleFiltersProps> = (props) => {
   const [isExpanded, setExpanded] = useState(false);
 
   return (
-    <Box display="flex" gap={1} flexDirection="column" width="100%" px={3} mt={1}>
+    <Box
+      sx={{
+        display: 'flex',
+        gap: 1,
+        flexDirection: 'column',
+        width: '100%',
+        px: 3,
+        mt: 1,
+      }}
+    >
       <CollapsibleFiltersContext.Provider
         value={{
           isExpanded,
@@ -115,7 +128,11 @@ const CollapsibleFilters: React.FC<CollapsibleFiltersProps> = (props) => {
         {children}
       </CollapsibleFiltersContext.Provider>
       {isDirty ? (
-        <Box textAlign="left">
+        <Box
+          sx={{
+            textAlign: 'left',
+          }}
+        >
           <ClearFiltersButton onClick={onClearFilters} disabled={!isDirty} />
         </Box>
       ) : null}

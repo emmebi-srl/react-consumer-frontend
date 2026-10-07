@@ -39,12 +39,23 @@ const LandingOutcomePage: React.FC<LandingOutcomePageProps> = ({
           <CardContent sx={{ p: 4 }}>
             <Stack spacing={2.5}>
               <Logo sx={{ height: 52 }} />
-              <Typography variant="h4" fontWeight={700}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {title}
               </Typography>
               {alertText ? <Alert severity={severity}>{alertText}</Alert> : null}
               {messages.map((message) => (
-                <Typography key={message} color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                <Typography
+                  key={message}
+                  sx={{
+                    color: 'text.secondary',
+                    lineHeight: 1.8,
+                  }}
+                >
                   {message}
                 </Typography>
               ))}

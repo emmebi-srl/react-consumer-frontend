@@ -99,7 +99,13 @@ const QuoteListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                alignItems: 'center',
+              }}
+            >
               <Typography variant="h4">Preventivi</Typography>
               <Button variant="outlined" onClick={() => quotesQuery.refetch()} disabled={quotesQuery.isFetching}>
                 Aggiorna

@@ -216,7 +216,13 @@ const QuoteLotItemRow: React.FC<ItemRowProps> = ({
       <TableCell align="right">{item.quantity ?? 0}</TableCell>
       <TableCell align="right">{item.price ?? 0}</TableCell>
       <TableCell align="right">
-        <Stack direction="row" justifyContent="flex-end" spacing={0.5}>
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{
+            justifyContent: 'flex-end',
+          }}
+        >
           <Tooltip title="Salva descrizione">
             <span>
               <IconButton
@@ -307,14 +313,14 @@ const QuoteLotEditView = () => {
   const handleSubmit = async (values: FormValues) => {
     if (isNew) {
       await createLot.mutateAsync({
-        data: buildPayload(values) as QuoteLotCreate,
+        data: buildPayload(values),
         id: quoteId,
         revisionId,
         year,
       });
     } else {
       await updateLot.mutateAsync({
-        data: buildPayload(values) as QuoteLotUpdate,
+        data: buildPayload(values),
         id: quoteId,
         position: lotPosition,
         revisionId,
@@ -347,10 +353,22 @@ const QuoteLotEditView = () => {
     <PageContainer>
       <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
         <Stack spacing={3}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" gap={2}>
+          <Stack
+            direction="row"
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+            }}
+          >
             <Stack spacing={0.5}>
               <Typography variant="h5">{isNew ? 'Nuovo lotto' : 'Modifica lotto'}</Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Preventivo #{quoteId} / {year} - Rev. {revisionId}
                 {isNew ? '' : ` - Lotto ${lotPosition}`}
               </Typography>
@@ -435,7 +453,12 @@ const QuoteLotEditView = () => {
                   {items.length === 0 && !itemsQuery.isLoading ? (
                     <TableRow>
                       <TableCell colSpan={6}>
-                        <Typography color="text.secondary" variant="body2">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           Nessuna riga presente.
                         </Typography>
                       </TableCell>
@@ -446,7 +469,13 @@ const QuoteLotEditView = () => {
             </Stack>
           ) : null}
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2}>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              justifyContent: 'flex-end',
+            }}
+          >
             <Button onClick={() => navigate(-1)} variant="outlined">
               Annulla
             </Button>

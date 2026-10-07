@@ -23,10 +23,7 @@ export interface SelectedTimelineItem {
 }
 
 type DashboardAsideItem =
-  | SelectedMonthlyStats
-  | SelectedMonthlyCashflow
-  | SelectedMonthlyInvoices
-  | SelectedTimelineItem;
+  SelectedMonthlyStats | SelectedMonthlyCashflow | SelectedMonthlyInvoices | SelectedTimelineItem;
 
 const dashboardAsideItem = atom<DashboardAsideItem>();
 

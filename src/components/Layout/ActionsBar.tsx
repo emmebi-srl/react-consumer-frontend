@@ -7,11 +7,24 @@ const ActionsBar: React.FC<PropsWithChildren> = ({ children }) => {
   const navigate = useNavigate();
 
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+    <Stack
+      direction="row"
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+      }}
+    >
       <Button startIcon={<ArrowBack />} onClick={() => navigate(-1)}>
         Indietro
       </Button>
-      <Stack direction="row" alignItems="center" spacing={1}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         {children}
       </Stack>
     </Stack>

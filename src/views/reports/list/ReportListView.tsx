@@ -118,7 +118,14 @@ const ReportListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
               <Typography variant="h4">Rapporti</Typography>
               <Button
                 component={RouterLink}
@@ -162,7 +169,12 @@ const ReportListView = () => {
                     {mobileReports.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6}>
-                          <Typography color="text.secondary" variant="body2">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: 'text.secondary',
+                            }}
+                          >
                             Nessun rapporto mobile da gestire.
                           </Typography>
                         </TableCell>

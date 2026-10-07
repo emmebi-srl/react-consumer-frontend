@@ -37,30 +37,75 @@ const DeadlineTimelineSummary = ({ items, typeOptions }: Props) => (
           sx={{ bgcolor: alpha(option.color, 0.04), borderTop: 4, borderTopColor: option.color, minWidth: 0 }}
         >
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Stack alignItems="center" direction="row" spacing={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: 'center',
+              }}
+            >
               <Icon fontSize="small" sx={{ color: option.color }} />
-              <Typography color={option.color} fontWeight={700} variant="subtitle1">
+              <Typography
+                color={option.color}
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {option.label}
               </Typography>
             </Stack>
             <Box>
-              <Typography component="p" fontWeight={700} variant="h3">
+              <Typography
+                component="p"
+                variant="h3"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
                 {typeItems.length}
               </Typography>
-              <Typography color="text.secondary" variant="caption">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Scadenze nel periodo
               </Typography>
             </Box>
             <Stack spacing={0.5}>
-              <Stack direction="row" justifyContent="space-between" spacing={1}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Typography variant="body2">Aperte</Typography>
-                <Typography fontWeight={700} variant="body2">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 700,
+                  }}
+                >
                   {openItems.length}
                 </Typography>
               </Stack>
-              <Stack direction="row" justifyContent="space-between" spacing={1}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Typography variant="body2">Chiuse</Typography>
-                <Typography fontWeight={700} variant="body2">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 700,
+                  }}
+                >
                   {typeItems.length - openItems.length}
                 </Typography>
               </Stack>
@@ -68,14 +113,30 @@ const DeadlineTimelineSummary = ({ items, typeOptions }: Props) => (
             {hasAmount ? (
               <Box sx={{ mt: 'auto' }}>
                 <Divider sx={{ mb: 1.5 }} />
-                <Typography color="text.secondary" variant="caption">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   Importo aperto
                 </Typography>
-                <Typography fontWeight={700} sx={{ overflowWrap: 'anywhere' }} variant="subtitle1">
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 700,
+                    overflowWrap: 'anywhere',
+                  }}
+                >
                   {formatMoney(openAmount)}
                 </Typography>
                 {pricedOpenItems.length < openItems.length ? (
-                  <Typography color="text.secondary" variant="caption">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {openItems.length - pricedOpenItems.length} senza importo
                   </Typography>
                 ) : null}

@@ -77,7 +77,13 @@ const LotRows: React.FC<{ quoteId: number; year: number; revisionId: number; lot
             <TableCell>
               <Stack spacing={0.5}>
                 <Typography variant="body2">{lot.lotName || `Lotto ${lot.lotId}`}</Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap">
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{
+                    flexWrap: 'wrap',
+                  }}
+                >
                   {lot.optional ? <Chip label="Opzionale" color="warning" size="small" /> : null}
                   <Chip label={`${lot.items?.length ?? 0} righe`} size="small" />
                 </Stack>
@@ -141,7 +147,13 @@ const QuoteAside = () => {
       />
       <AsideContentView sx={{ flexDirection: 'column', gap: 3, overflowY: 'auto' }}>
         {quoteQuery.isLoading ? (
-          <Stack alignItems="center" justifyContent="center" minHeight={180}>
+          <Stack
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 180,
+            }}
+          >
             <CircularProgress />
           </Stack>
         ) : null}
@@ -150,7 +162,13 @@ const QuoteAside = () => {
 
         {quote && currentRevision ? (
           <>
-            <Stack direction="row" gap={1} flexWrap="wrap">
+            <Stack
+              direction="row"
+              sx={{
+                gap: 1,
+                flexWrap: 'wrap',
+              }}
+            >
               <Chip label={`Stato: ${quote.status?.name ?? quote.statusId ?? 'N/D'}`} />
               <Chip label={`Tipo: ${quote.quoteType?.name ?? quote.quoteTypeId}`} />
               <Chip label={`Rev. corrente: ${currentRevision.id}`} />
@@ -158,12 +176,23 @@ const QuoteAside = () => {
 
             <Box>
               <Typography variant="subtitle2">Oggetto</Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {currentRevision.subject || quote.note || 'Nessuna nota'}
               </Typography>
             </Box>
 
-            <Stack direction="row" gap={1} flexWrap="wrap">
+            <Stack
+              direction="row"
+              sx={{
+                gap: 1,
+                flexWrap: 'wrap',
+              }}
+            >
               <Button
                 component={RouterLink}
                 to={RouteConfig.QuoteDetail.buildLink({ quoteId: String(quote.id), year: String(quote.year) })}
@@ -192,7 +221,13 @@ const QuoteAside = () => {
             <Divider />
 
             <Stack spacing={1.5}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Stack
+                direction="row"
+                sx={{
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Typography variant="h6">Lotti</Typography>
                 <Button
                   component={RouterLink}
@@ -211,7 +246,12 @@ const QuoteAside = () => {
               {lots.length > 0 ? (
                 <LotRows lots={lots} quoteId={quote.id} revisionId={currentRevision.id} year={quote.year} />
               ) : (
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   Nessun lotto presente.
                 </Typography>
               )}
@@ -222,7 +262,14 @@ const QuoteAside = () => {
             <Stack spacing={1}>
               <Typography variant="h6">Revisioni</Typography>
               {revisions.map((revision) => (
-                <Stack key={revision.id} direction="row" justifyContent="space-between" alignItems="center">
+                <Stack
+                  key={revision.id}
+                  direction="row"
+                  sx={{
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
                   <Typography variant="body2">
                     Rev. {revision.id} - {formatDate(revision.revisionDate ?? revision.createdAt)}
                   </Typography>

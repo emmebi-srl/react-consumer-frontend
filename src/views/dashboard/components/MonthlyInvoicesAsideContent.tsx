@@ -41,34 +41,46 @@ const InvoiceRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = (
 
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', py: 1.25 }}>
-      <Stack alignItems="flex-start" direction="row" justifyContent="space-between" spacing={1.5}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        }}
+      >
         <Box sx={{ minWidth: 0 }}>
           {item.counterpartName ? (
             counterpartLink ? (
               <Typography
-                color="text.primary"
                 component={RouterLink}
-                display="block"
-                fontWeight={600}
+                to={counterpartLink}
+                variant="body1"
                 sx={{
+                  color: 'text.primary',
+                  display: 'block',
+                  fontWeight: 600,
                   maxWidth: '100%',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                   textDecoration: 'underline',
                 }}
-                to={counterpartLink}
-                variant="body1"
               >
                 {item.counterpartName}
               </Typography>
             ) : (
               <Typography
-                color="text.primary"
-                display="block"
-                fontWeight={600}
-                sx={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                 variant="body1"
+                sx={{
+                  color: 'text.primary',
+                  display: 'block',
+                  fontWeight: 600,
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
               >
                 {item.counterpartName}
               </Typography>
@@ -76,34 +88,57 @@ const InvoiceRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = (
           ) : null}
           <Typography
             color={item.counterpartName ? 'text.secondary' : 'text.primary'}
-            fontWeight={item.counterpartName ? undefined : 600}
             noWrap
             variant={item.counterpartName ? 'body2' : 'body1'}
+            sx={{
+              fontWeight: item.counterpartName ? undefined : 600,
+            }}
           >
             {item.title}
           </Typography>
           {item.subtitle ? (
             <Typography
-              color="text.secondary"
-              display="block"
-              sx={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
               variant="caption"
+              sx={{
+                color: 'text.secondary',
+                display: 'block',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
             >
               {item.subtitle}
             </Typography>
           ) : null}
-          <Typography color="text.secondary" display="block" variant="caption">
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {format(date, 'dd MMM yyyy', { locale: it })}
           </Typography>
         </Box>
-        <Stack alignItems="flex-end" spacing={0.75}>
+        <Stack
+          spacing={0.75}
+          sx={{
+            alignItems: 'flex-end',
+          }}
+        >
           <Chip
             color={item.isOpen ? 'warning' : 'default'}
             label={getStatusLabel(sectionKey, item.isOpen)}
             size="small"
             variant={item.isOpen ? 'filled' : 'outlined'}
           />
-          <Typography fontWeight={700} variant="body2">
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             {formatMoney(newMoney(item.amount ?? 0, 'EUR'))}
           </Typography>
         </Stack>
@@ -114,11 +149,28 @@ const InvoiceRow: React.FC<{ item: DashboardAsideItem; sectionKey: string }> = (
 
 const AsideSection: React.FC<{ section: DashboardAsideSection }> = ({ section }) => (
   <Box>
-    <Stack alignItems="center" direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-      <Typography fontWeight={700} variant="subtitle1">
+    <Stack
+      direction="row"
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        mb: 1,
+      }}
+    >
+      <Typography
+        variant="subtitle1"
+        sx={{
+          fontWeight: 700,
+        }}
+      >
         {section.title}
       </Typography>
-      <Typography color="text.secondary" variant="caption">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {section.items.length}
       </Typography>
     </Stack>

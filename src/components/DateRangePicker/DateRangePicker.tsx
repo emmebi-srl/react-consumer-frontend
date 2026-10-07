@@ -175,12 +175,23 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
           <Stack spacing={2}>
             <Box>
               <Typography variant="subtitle1">Intervallo date</Typography>
-              <Typography color="text.secondary" variant="body2">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 Seleziona il periodo da applicare alla dashboard.
               </Typography>
             </Box>
 
-            <Stack direction="row" flexWrap="wrap" gap={1}>
+            <Stack
+              direction="row"
+              sx={{
+                flexWrap: 'wrap',
+                gap: 1,
+              }}
+            >
               {quickRanges.map((range) => (
                 <Chip
                   key={range.label}
@@ -206,10 +217,6 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
             <Stack direction={{ md: 'row', xs: 'column' }} spacing={1.5}>
               <TextField
                 fullWidth
-                inputProps={{
-                  max: toInputValue(maxDate),
-                  min: toInputValue(minDate),
-                }}
                 label="Da"
                 onChange={(event) =>
                   setDraftRange((currentRange) => ({
@@ -218,16 +225,19 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
                   }))
                 }
                 size="small"
-                InputLabelProps={{ shrink: true }}
                 type="date"
                 value={toInputValue(draftRange.startDate)}
+                slotProps={{
+                  htmlInput: {
+                    max: toInputValue(maxDate),
+                    min: toInputValue(minDate),
+                  },
+
+                  inputLabel: { shrink: true },
+                }}
               />
               <TextField
                 fullWidth
-                inputProps={{
-                  max: toInputValue(maxDate),
-                  min: toInputValue(minDate),
-                }}
                 label="A"
                 onChange={(event) =>
                   setDraftRange((currentRange) => ({
@@ -236,14 +246,33 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
                   }))
                 }
                 size="small"
-                InputLabelProps={{ shrink: true }}
                 type="date"
                 value={toInputValue(draftRange.endDate)}
+                slotProps={{
+                  htmlInput: {
+                    max: toInputValue(maxDate),
+                    min: toInputValue(minDate),
+                  },
+
+                  inputLabel: { shrink: true },
+                }}
               />
             </Stack>
 
-            <Stack alignItems="center" direction="row" justifyContent="space-between" spacing={1}>
-              <Typography color="text.secondary" variant="body2">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {hasSelectedValue ? getButtonLabel(currentValue) : locale ? format(today, 'MMMM yyyy', { locale }) : ''}
               </Typography>
               <Stack direction="row" spacing={1}>

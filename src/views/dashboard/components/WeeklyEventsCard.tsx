@@ -110,11 +110,24 @@ const WeeklyEventsCard = () => {
           }}
         >
           <Box sx={{ minWidth: 0 }}>
-            <Stack alignItems="center" direction="row" spacing={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: 'center',
+              }}
+            >
               <EventNoteRoundedIcon color="primary" fontSize="small" />
               <Typography variant="h5">Calendario settimanale</Typography>
             </Stack>
-            <Typography color="text.secondary" fontWeight={700} sx={{ mt: 0.5 }} variant="body2">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                fontWeight: 700,
+                mt: 0.5,
+              }}
+            >
               {capitalize(format(weekRange.startDate, 'd MMM', { locale: it }))} -{' '}
               {capitalize(format(weekRange.endDate, 'd MMM yyyy', { locale: it }))}
             </Typography>
@@ -194,15 +207,38 @@ const WeeklyEventsCard = () => {
                         pb: { md: 1, xs: 0 },
                       }}
                     >
-                      <Typography color="text.secondary" fontWeight={800} variant="caption">
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                          fontWeight: 800,
+                        }}
+                      >
                         {format(day.date, 'EEE', { locale: it }).toUpperCase()}
                       </Typography>
-                      <Stack alignItems="baseline" direction="row" spacing={0.75}>
-                        <Typography fontWeight={800} variant="h4">
+                      <Stack
+                        direction="row"
+                        spacing={0.75}
+                        sx={{
+                          alignItems: 'baseline',
+                        }}
+                      >
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            fontWeight: 800,
+                          }}
+                        >
                           {format(day.date, 'd')}
                         </Typography>
                         {isToday ? (
-                          <Typography color="primary" fontWeight={800} variant="caption">
+                          <Typography
+                            color="primary"
+                            variant="caption"
+                            sx={{
+                              fontWeight: 800,
+                            }}
+                          >
                             Oggi
                           </Typography>
                         ) : null}
@@ -232,27 +268,27 @@ const WeeklyEventsCard = () => {
                               }}
                             >
                               <Typography
+                                title={event.subject}
+                                variant="subtitle2"
                                 sx={{
+                                  fontWeight: 800,
                                   color: event.wasPerformed ? 'text.secondary' : 'text.primary',
                                   overflowWrap: 'anywhere',
                                   textDecoration: event.wasPerformed ? 'line-through' : 'none',
                                 }}
-                                fontWeight={800}
-                                title={event.subject}
-                                variant="subtitle2"
                               >
                                 {abbreviateEventSubject(event.subject)}
                               </Typography>
                               {timeRange || event.description ? (
                                 <Typography
-                                  color="text.secondary"
+                                  variant="caption"
                                   sx={{
+                                    color: 'text.secondary',
                                     display: 'block',
                                     mt: 0.35,
                                     overflowWrap: 'anywhere',
                                     whiteSpace: 'pre-wrap',
                                   }}
-                                  variant="caption"
                                 >
                                   {timeRange}
                                   {timeRange && event.description ? ' - ' : null}

@@ -55,17 +55,16 @@ const Map: React.FC<MapProps> = ({ zoomLevel = 13, startLng = 0, startLat = 0, h
 
   return (
     <Box
+      component={'div'}
+      id={mapId.current}
+      ref={(el: HTMLDivElement | null) => {
+        setContainer(el);
+      }}
       sx={{
         height: `${height}px`,
         width: '100%',
         display: 'inline-block',
         ...sx,
-      }}
-      component={'div'}
-      id={mapId.current}
-      height={height}
-      ref={(el: HTMLDivElement | null) => {
-        setContainer(el);
       }}
     ></Box>
   );

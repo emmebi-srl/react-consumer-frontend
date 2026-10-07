@@ -44,7 +44,14 @@ const EventDescription = ({ text }: { text: string }) => (
           {field ? (
             <>
               {field[1]}
-              <Typography component="span" color="text.primary" fontWeight={700} variant="body2">
+              <Typography
+                component="span"
+                variant="body2"
+                sx={{
+                  color: 'text.primary',
+                  fontWeight: 700,
+                }}
+              >
                 <ContactText text={field[2] ?? ''} />
               </Typography>
             </>

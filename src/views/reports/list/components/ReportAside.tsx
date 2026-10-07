@@ -18,7 +18,12 @@ const parseReportSelectionId = (activeId: string | null) => {
 
 const DetailRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
   <Box>
-    <Typography variant="caption" color="text.secondary">
+    <Typography
+      variant="caption"
+      sx={{
+        color: 'text.secondary',
+      }}
+    >
       {label}
     </Typography>
     <Typography variant="body2">{value || '-'}</Typography>
@@ -41,21 +46,39 @@ const ReportAside = () => {
       />
       <AsideContentView sx={{ gap: 3, overflowY: 'auto' }}>
         {reportQuery.isLoading ? (
-          <Stack alignItems="center" justifyContent="center" minHeight={180}>
+          <Stack
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 180,
+            }}
+          >
             <CircularProgress />
           </Stack>
         ) : null}
         {reportQuery.isError ? <Alert severity="error">Impossibile caricare il rapporto.</Alert> : null}
         {report ? (
           <>
-            <Stack direction="row" gap={1} flexWrap="wrap">
+            <Stack
+              direction="row"
+              sx={{
+                gap: 1,
+                flexWrap: 'wrap',
+              }}
+            >
               <Chip label={`Stato: ${report.statusName ?? report.statusId}`} />
               <Chip label={`Cliente: ${report.customerId}`} />
               <Chip label={`Impianto: ${report.systemId}`} />
               {report.isInvoiced ? <Chip color="success" label="Fatturato" /> : null}
             </Stack>
 
-            <Stack direction="row" gap={1} flexWrap="wrap">
+            <Stack
+              direction="row"
+              sx={{
+                gap: 1,
+                flexWrap: 'wrap',
+              }}
+            >
               <Button
                 component={RouterLink}
                 to={RouteConfig.ReportEdit.buildLink({ reportId: report.id.toString(), year: report.year.toString() })}
@@ -79,28 +102,52 @@ const ReportAside = () => {
 
             <Box>
               <Typography variant="subtitle2">Relazione tecnica</Typography>
-              <Typography variant="body2" color="text.secondary" whiteSpace="pre-wrap">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
                 {report.technicalReport || '-'}
               </Typography>
             </Box>
 
             <Box>
               <Typography variant="subtitle2">Note in evidenza</Typography>
-              <Typography variant="body2" color="text.secondary" whiteSpace="pre-wrap">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
                 {report.notesHighlights || '-'}
               </Typography>
             </Box>
 
             <Box>
               <Typography variant="subtitle2">Appunti tecnico</Typography>
-              <Typography variant="body2" color="text.secondary" whiteSpace="pre-wrap">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
                 {report.technicianNotes || '-'}
               </Typography>
             </Box>
 
             <Divider />
 
-            <Stack direction="row" gap={4} flexWrap="wrap">
+            <Stack
+              direction="row"
+              sx={{
+                gap: 4,
+                flexWrap: 'wrap',
+              }}
+            >
               <DetailRow label="Prezzo" value={`${report.price.toFixed(2)} EUR`} />
               <DetailRow label="Costo" value={`${report.cost.toFixed(2)} EUR`} />
               <DetailRow label="Allegati" value={report.attachmentsCount} />

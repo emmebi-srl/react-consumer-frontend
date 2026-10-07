@@ -284,7 +284,13 @@ const HorizontalTimeline = <TItem, TType extends string>({
                   <Typography sx={{ fontSize: 13, fontWeight: 600 }} variant="body2">
                     {option.label}
                   </Typography>
-                  <Typography color="text.secondary" sx={{ fontSize: 12 }} variant="caption">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                      fontSize: 12,
+                    }}
+                  >
                     {countsByType.get(option.key) ?? 0}
                   </Typography>
                 </Box>

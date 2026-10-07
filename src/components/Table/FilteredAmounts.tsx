@@ -28,7 +28,15 @@ const AmountBox: React.FC<{ value?: Money; icon: React.ReactElement }> = ({ valu
   if (!value) return;
 
   return (
-    <Box display="flex" gap={1} alignItems="center" justifyContent="end" width={theme.spacing(20)}>
+    <Box
+      sx={{
+        display: 'flex',
+        gap: 1,
+        alignItems: 'center',
+        justifyContent: 'end',
+        width: theme.spacing(20),
+      }}
+    >
       {icon}
       <MonospaceTypography variant="subtitle1">{formatMoneyShort(value)}</MonospaceTypography>
     </Box>
@@ -41,7 +49,7 @@ const BreakdownAmountBox: React.FC<{ value?: Money }> = ({ value }) => {
   if (!value) return;
 
   return (
-    <MonospaceTypography variant="subtitle2" textAlign="right" width={theme.spacing(20)}>
+    <MonospaceTypography variant="subtitle2" sx={{ textAlign: 'right', width: theme.spacing(20) }}>
       {formatMoneyShort(value)}
     </MonospaceTypography>
   );
@@ -55,7 +63,14 @@ const FilteredAmounts: React.FC<Props> = ({ breakdown, total }) => {
 
   return (
     <Container>
-      <Box display="flex" flexDirection="row" gap={3} alignItems="center">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 3,
+          alignItems: 'center',
+        }}
+      >
         <AmountBox value={total.negative} icon={<Icon component={TrendingDown} fontSize="small" color="error" />} />
         <AmountBox value={total.positive} icon={<Icon component={TrendingUp} fontSize="small" color="success" />} />
 
@@ -72,7 +87,15 @@ const FilteredAmounts: React.FC<Props> = ({ breakdown, total }) => {
 
       {breakdownOpen &&
         breakdown?.map((breakdownTotal) => (
-          <Box display="flex" flexDirection="row" gap={3} alignItems="end" key={breakdownTotal.positive.currency}>
+          <Box
+            key={breakdownTotal.positive.currency}
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 3,
+              alignItems: 'end',
+            }}
+          >
             <BreakdownAmountBox value={breakdownTotal.negative} />
             <BreakdownAmountBox value={breakdownTotal.positive} />
             <BreakdownAmountBox value={breakdownTotal.net} />

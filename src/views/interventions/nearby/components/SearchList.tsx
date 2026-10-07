@@ -42,8 +42,20 @@ const SearchItemList: React.FC<{
       <ListItem key={work.systemId} sx={{ flexDirection: 'column', width: '100%', bgcolor }}>
         <Accordion expanded={open} sx={{ boxShadow: 'none', width: '100%', bgcolor }}>
           <AccordionSummary>
-            <Stack direction="row" alignItems="center" width="100%" gap={1}>
-              <Stack direction="column" flex={1}>
+            <Stack
+              direction="row"
+              sx={{
+                alignItems: 'center',
+                width: '100%',
+                gap: 1,
+              }}
+            >
+              <Stack
+                direction="column"
+                sx={{
+                  flex: 1,
+                }}
+              >
                 <Typography variant="body1">
                   {work.customerId} - {work.companyName}
                 </Typography>
@@ -55,7 +67,12 @@ const SearchItemList: React.FC<{
                   {work.destination.street} {work.destination.houseNumber}
                 </Typography>
               </Stack>
-              <Stack direction="column" alignItems="flex-end">
+              <Stack
+                direction="column"
+                sx={{
+                  alignItems: 'flex-end',
+                }}
+              >
                 <Typography variant="body2">
                   Distanza
                   <span style={{ fontWeight: 600 }}>
@@ -65,7 +82,12 @@ const SearchItemList: React.FC<{
                   </span>
                 </Typography>
                 {maintenance ? (
-                  <Typography color="error.main" variant="body2">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'error.main',
+                    }}
+                  >
                     Controllo Periodico
                   </Typography>
                 ) : null}

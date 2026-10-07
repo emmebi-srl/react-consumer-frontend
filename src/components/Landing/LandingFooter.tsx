@@ -63,17 +63,36 @@ const LandingFooter: React.FC<LandingFooterProps> = ({ companyInfo, hideLogo, sx
       <Stack
         direction={{ xs: 'column', md: 'row' }}
         spacing={3}
-        alignItems={{ xs: 'flex-start', md: 'center' }}
-        justifyContent="space-between"
+        sx={{
+          alignItems: { xs: 'flex-start', md: 'center' },
+          justifyContent: 'space-between',
+        }}
       >
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{
+            alignItems: { sm: 'center' },
+          }}
+        >
           {!hideLogo && <Logo sx={{ height: 48 }} />}
           <Box>
-            <Typography variant="h6" fontWeight={700}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+              }}
+            >
               {companyInfo.businessName}
             </Typography>
             {addressLines.map((line) => (
-              <Typography key={line} variant="body2" color="text.secondary">
+              <Typography
+                key={line}
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {line}
               </Typography>
             ))}
@@ -82,17 +101,35 @@ const LandingFooter: React.FC<LandingFooterProps> = ({ companyInfo, hideLogo, sx
 
         <Box sx={{ maxWidth: 620 }}>
           {contactLine ? (
-            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                lineHeight: 1.8,
+              }}
+            >
               {contactLine}
             </Typography>
           ) : null}
           {registryLine ? (
-            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                lineHeight: 1.8,
+              }}
+            >
               {registryLine}
             </Typography>
           ) : null}
           {extraLine ? (
-            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                lineHeight: 1.8,
+              }}
+            >
               {extraLine}
             </Typography>
           ) : null}

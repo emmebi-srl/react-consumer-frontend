@@ -169,7 +169,11 @@ const SearchMap: React.FC<{
       <Typography variant="h5" gutterBottom>
         Lista risultati
       </Typography>
-      <Box position="relative">
+      <Box
+        sx={{
+          position: 'relative',
+        }}
+      >
         <Map
           height={700}
           startLat={START_LAT}
@@ -179,13 +183,18 @@ const SearchMap: React.FC<{
         />
         {isLoading ? (
           <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            width="100%"
-            zIndex={4000}
-            height={700}
-            sx={{ position: 'absolute', top: 0, left: 0, backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              zIndex: 4000,
+              height: 700,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            }}
           >
             <CircularProgress size={40} />
           </Box>

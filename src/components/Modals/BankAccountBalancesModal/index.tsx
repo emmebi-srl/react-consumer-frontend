@@ -156,8 +156,19 @@ const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesMo
 
           {selectedAccount ? (
             <Box>
-              <Typography fontWeight={700}>{selectedAccount.name}</Typography>
-              <Typography color="text.secondary" variant="body2">
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
+                {selectedAccount.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {[formatBankLabel(selectedAccount.bank), selectedAccount.iban].filter(Boolean).join(' - ') || '-'}
               </Typography>
             </Box>
@@ -177,11 +188,13 @@ const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesMo
             <Grid size={{ xs: 12, md: 3 }}>
               <TextField
                 fullWidth
-                inputProps={{ inputMode: 'decimal' }}
                 label="Saldo"
                 onChange={(event) => handleDraftChange('amount', event.target.value)}
                 size="small"
                 value={draft.amount}
+                slotProps={{
+                  htmlInput: { inputMode: 'decimal' },
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -230,8 +243,19 @@ const BankAccountBalancesModal = ({ account, closeModal }: BankAccountBalancesMo
                   }}
                 >
                   <Box>
-                    <Typography fontWeight={700}>{formatCurrency(balance.amount)}</Typography>
-                    <Typography color="text.secondary" variant="body2">
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
+                      {formatCurrency(balance.amount)}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       {formatDate(balance.balanceDate)}
                       {balance.notes ? ` - ${balance.notes}` : ''}
                     </Typography>

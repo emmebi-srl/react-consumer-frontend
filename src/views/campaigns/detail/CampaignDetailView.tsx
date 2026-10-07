@@ -101,7 +101,12 @@ const StatCard: React.FC<{ label: string; value: number | string }> = ({ label, 
       }}
     >
       <SecondaryLabel>{label}</SecondaryLabel>
-      <Typography variant="h5" fontWeight={700}>
+      <Typography
+        variant="h5"
+        sx={{
+          fontWeight: 700,
+        }}
+      >
         {value}
       </Typography>
     </Box>
@@ -118,7 +123,16 @@ const CampaignMailFiltersBar: React.FC<{
   onUpdate: <K extends keyof CampaignMailFilters>(name: K, value: CampaignMailFilters[K]) => void;
 }> = ({ filters, isDirty, filteredCount, totalCount, statusOptions, onReset, onUpdate }) => {
   return (
-    <Box display="flex" flexDirection="column" pt={1.5} bgcolor="white" borderBottom="1px solid" borderColor="grey.300">
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        pt: 1.5,
+        bgcolor: 'white',
+        borderBottom: '1px solid',
+        borderColor: 'grey.300',
+      }}
+    >
       <CollapsibleFilters onClearFilters={onReset} isDirty={isDirty}>
         <PrimaryFilters dirtyState={filters} additionalFilters={[]}>
           <InlineSearchFilter<CampaignMailFilters>
@@ -216,8 +230,10 @@ const CampaignMailTableRowContent: React.FC<{
         <Checkbox
           checked={mail.isUnsubscribed}
           disableRipple
-          inputProps={{ readOnly: true, 'aria-label': 'Disiscritta' }}
           sx={{ p: 0, pointerEvents: 'none' }}
+          slotProps={{
+            input: { readOnly: true, 'aria-label': 'Disiscritta' },
+          }}
         />
       </TableCell>
       <TableCell sx={{ maxWidth: 0 }}>
@@ -250,7 +266,13 @@ const CampaignMailTableRowContent: React.FC<{
         </Typography>
       </TableCell>
       <TableCell align="center" width={180}>
-        <Stack direction="row" spacing={1} justifyContent="center">
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            justifyContent: 'center',
+          }}
+        >
           {mail.mailId && mail.status?.applicationReference !== CampaignMailStatusReference.WaitingForSend ? (
             <Tooltip title="Anteprima email">
               <IconButton aria-label="Anteprima email" color="primary" size="small" onClick={() => onPreview(mail)}>
@@ -449,9 +471,29 @@ const CampaignDetailView = () => {
 
   return (
     <PageContainer>
-      <Stack spacing={3} direction="column" flexGrow={1} minHeight={0}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" alignItems="center">
-          <Stack direction="row" spacing={2} alignItems="center">
+      <Stack
+        spacing={3}
+        direction="column"
+        sx={{
+          flexGrow: 1,
+          minHeight: 0,
+        }}
+      >
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <IconButton
               component={RouterLink}
               to={RouteConfig.CampaignList.buildLink()}
@@ -483,7 +525,12 @@ const CampaignDetailView = () => {
         </Stack>
 
         {isPageLoading && !campaign ? (
-          <Stack alignItems="center" py={6}>
+          <Stack
+            sx={{
+              alignItems: 'center',
+              py: 6,
+            }}
+          >
             <CircularProgress />
           </Stack>
         ) : null}
@@ -496,15 +543,39 @@ const CampaignDetailView = () => {
           <Card variant="outlined">
             <CardContent>
               <Stack spacing={3}>
-                <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2}>
+                <Stack
+                  direction={{ xs: 'column', md: 'row' }}
+                  spacing={2}
+                  sx={{
+                    justifyContent: 'space-between',
+                  }}
+                >
                   <Box>
-                    <Typography variant="overline" color="text.secondary">
+                    <Typography
+                      variant="overline"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       Campagna #{campaign.id}
                     </Typography>
                     <Typography variant="h5">{campaign.name}</Typography>
-                    <Typography color="text.secondary">{campaign.description || 'Nessuna descrizione'}</Typography>
+                    <Typography
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
+                      {campaign.description || 'Nessuna descrizione'}
+                    </Typography>
                   </Box>
-                  <Stack direction="row" spacing={1} alignItems="flex-start" flexWrap="wrap">
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap',
+                    }}
+                  >
                     <Chip
                       label={getCampaignStateLabel(campaign.active)}
                       color={campaign.active ? 'success' : 'default'}
@@ -515,7 +586,13 @@ const CampaignDetailView = () => {
                   </Stack>
                 </Stack>
 
-                <Box display="flex" gap={2} flexWrap="wrap">
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: 2,
+                    flexWrap: 'wrap',
+                  }}
+                >
                   <StatCard label="Destinatari contattati" value={summary.recipientsCount} />
                   <StatCard label="Mail in campagna" value={summary.mailsCount} />
                   <StatCard label="Riscontro positivo" value={summary.positiveCount} />

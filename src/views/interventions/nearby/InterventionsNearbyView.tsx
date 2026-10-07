@@ -38,7 +38,11 @@ const NearbyView = () => {
           }
         />
         <Divider />
-        <Box alignSelf={'flex-end'}>
+        <Box
+          sx={{
+            alignSelf: 'flex-end',
+          }}
+        >
           <ToggleButtonGroup
             exclusive
             aria-label="View Mode"

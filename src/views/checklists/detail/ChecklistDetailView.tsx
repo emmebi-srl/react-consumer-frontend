@@ -43,8 +43,8 @@ const ChecklistDetailView = () => {
       <Stack
         spacing={3}
         direction="column"
-        flexGrow={1}
         sx={{
+          flexGrow: 1,
           height: '100%',
         }}
       >
@@ -52,8 +52,8 @@ const ChecklistDetailView = () => {
         <Stack
           direction="row"
           spacing={2}
-          flexGrow={1}
           sx={{
+            flexGrow: 1,
             height: '100%',
           }}
         >

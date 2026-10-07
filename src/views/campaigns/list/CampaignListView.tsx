@@ -46,7 +46,13 @@ const CampaignListView = () => {
     <SplitLayout>
       <SplitMain sidebarOpen={isSidebarOpen} ref={scrollerRef}>
         <PageContainer>
-          <Stack spacing={3} direction="column" flexGrow={1}>
+          <Stack
+            spacing={3}
+            direction="column"
+            sx={{
+              flexGrow: 1,
+            }}
+          >
             <CampaignTabs />
             <ScrollToTopButton
               onClick={() => {

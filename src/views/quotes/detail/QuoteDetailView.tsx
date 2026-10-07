@@ -23,7 +23,13 @@ const QuoteDetailView = () => {
       <SplitMain>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Stack
+              direction="row"
+              sx={{
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <Typography variant="h4">
                 Preventivo #{quoteId} / {year}
               </Typography>
@@ -39,12 +45,24 @@ const QuoteDetailView = () => {
 
             {quote && (
               <Stack spacing={2}>
-                <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  sx={{
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                  }}
+                >
                   <Chip label={`Stato: ${quote.status?.name ?? quote.statusId ?? 'N/D'}`} />
                   <Chip label={`Tipo: ${quote.quoteType?.name ?? quote.quoteTypeId}`} />
                   <Chip label={`Revisione corrente: ${quote.revisionId ?? 'N/D'}`} />
                 </Stack>
-                <Typography variant="body1" color="text.secondary">
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: 'text.secondary',
+                  }}
+                >
                   {quote.note || 'Nessuna nota'}
                 </Typography>
 
@@ -54,7 +72,13 @@ const QuoteDetailView = () => {
                 {(quote.revisions ?? []).map((rev) => (
                   <Accordion key={`${rev.year}-${rev.id}`} defaultExpanded>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                      <Stack direction="row" spacing={2} alignItems="center">
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        sx={{
+                          alignItems: 'center',
+                        }}
+                      >
                         <Typography variant="subtitle1">
                           Rev. {rev.id} ({rev.revisionDate ?? 'data n/d'})
                         </Typography>
@@ -71,7 +95,12 @@ const QuoteDetailView = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <Stack spacing={2}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        >
                           {rev.note || 'Nessuna nota'}
                         </Typography>
                         <Typography variant="subtitle2">Lotti</Typography>
@@ -81,12 +110,23 @@ const QuoteDetailView = () => {
                             spacing={1}
                             sx={{ border: '1px solid #eee', borderRadius: 1, p: 2 }}
                           >
-                            <Stack direction="row" spacing={2} alignItems="center">
+                            <Stack
+                              direction="row"
+                              spacing={2}
+                              sx={{
+                                alignItems: 'center',
+                              }}
+                            >
                               <Typography variant="body1">Lotto #{lot.position}</Typography>
                               <Chip label={`Id lotto: ${lot.lotId}`} size="small" />
                               {lot.optional && <Chip label="Opzionale" color="warning" size="small" />}
                             </Stack>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'text.secondary',
+                              }}
+                            >
                               {lot.note || 'Nessuna nota'}
                             </Typography>
                             <Typography variant="subtitle2">Articoli</Typography>
@@ -95,13 +135,21 @@ const QuoteDetailView = () => {
                                 key={item.tabId}
                                 direction="row"
                                 spacing={1}
-                                alignItems="center"
-                                sx={{ borderBottom: '1px dashed #eee', pb: 1 }}
+                                sx={{
+                                  alignItems: 'center',
+                                  borderBottom: '1px dashed #eee',
+                                  pb: 1,
+                                }}
                               >
                                 <Typography variant="body2">
                                   [{item.tabId}] {item.articleId ?? 'N/D'}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    color: 'text.secondary',
+                                  }}
+                                >
                                   {item.shortDescription ?? ''}
                                 </Typography>
                                 <Chip label={`Q.tà ${item.quantity ?? 0}`} size="small" />
@@ -109,14 +157,24 @@ const QuoteDetailView = () => {
                               </Stack>
                             ))}
                             {(!lot.items || lot.items.length === 0) && (
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: 'text.secondary',
+                                }}
+                              >
                                 Nessun articolo presente.
                               </Typography>
                             )}
                           </Stack>
                         ))}
                         {(!rev.lots || rev.lots.length === 0) && (
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: 'text.secondary',
+                            }}
+                          >
                             Nessun lotto presente.
                           </Typography>
                         )}

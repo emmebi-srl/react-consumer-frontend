@@ -110,9 +110,11 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
       {item.customerName ? (
         customerLink ? (
           <Link
-            color="text.primary"
             component={RouterLink}
+            to={customerLink}
+            underline="hover"
             sx={{
+              color: 'text.primary',
               display: 'block',
               fontSize: 11,
               fontWeight: 600,
@@ -120,8 +122,6 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
               opacity: item.isOpen ? 1 : 0.75,
               textDecorationColor: alpha('#000000', 0.25),
             }}
-            to={customerLink}
-            underline="hover"
           >
             {item.customerName}
           </Link>
@@ -139,9 +139,13 @@ const renderDeadlineItemSummary = (item: DashboardTimelineItem) => {
       {item.systemDescription ? (
         <Typography
           noWrap
-          color="text.secondary"
-          sx={{ display: 'block', mt: 0.35, opacity: item.isOpen ? 1 : 0.72 }}
           variant="caption"
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+            mt: 0.35,
+            opacity: item.isOpen ? 1 : 0.72,
+          }}
         >
           {item.systemDescription}
         </Typography>
@@ -177,7 +181,14 @@ const renderDeadlineTimelineCardContent = ({
 
   return (
     <>
-      <Stack direction="row" justifyContent="space-between" spacing={1} sx={{ mb: 0.75 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          justifyContent: 'space-between',
+          mb: 0.75,
+        }}
+      >
         <Typography sx={{ fontSize: 12, fontWeight: 700 }} variant="caption">
           {capitalize(format(date, 'dd MMM yyyy', { locale: it }))}
         </Typography>
@@ -247,20 +258,30 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
             <Typography gutterBottom variant="h5">
               Timeline Scadenze
             </Typography>
-            <Typography color="text.secondary" variant="body2">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               Timeline orizzontale unica con tutte le scadenze del periodo, compresi ticket, controlli periodici e
               materiali e SIM impianto in scadenza. Il marker di oggi viene evidenziato e la vista si posiziona
               automaticamente su di lui.
             </Typography>
           </Box>
 
-          <Stack alignItems={{ md: 'flex-end', xs: 'stretch' }} spacing={1.25}>
+          <Stack
+            spacing={1.25}
+            sx={{
+              alignItems: { md: 'flex-end', xs: 'stretch' },
+            }}
+          >
             <Stack
-              alignItems={{ md: 'center', xs: 'stretch' }}
               direction={{ md: 'row', xs: 'column' }}
-              justifyContent="flex-end"
               spacing={1.25}
               sx={{
+                alignItems: { md: 'center', xs: 'stretch' },
+                justifyContent: 'flex-end',
                 width: { md: 'auto', xs: '100%' },
               }}
             >
@@ -268,9 +289,11 @@ const DeadlineTimelineCard: React.FC<Props> = ({ dateRange, isError, isLoading, 
                 control={
                   <Switch
                     checked={showOnlyPending}
-                    inputProps={{ 'aria-label': 'Mostra solo scadenze pendenti' }}
                     onChange={(_event, checked) => setShowOnlyPending(checked)}
                     size="small"
+                    slotProps={{
+                      input: { 'aria-label': 'Mostra solo scadenze pendenti' },
+                    }}
                   />
                 }
                 label="Solo pendenti"

@@ -83,7 +83,12 @@ const CampaignTemplateDropZone: React.FC<CampaignTemplateDropZoneProps> = ({ cla
         <Typography variant="subtitle1" align="center">
           Trascina qui il file HTML o clicca per selezionarlo
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           Formato consentito: .html &middot; Dimensione massima: {MAX_FILE_SIZE_MB}MB
         </Typography>
       </Box>

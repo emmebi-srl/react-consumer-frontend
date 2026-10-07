@@ -56,7 +56,14 @@ const SystemFiltersBar: React.FC<{
   onReset: () => void;
 }> = ({ search, filteredCount, totalCount, onChange, onReset }) => {
   return (
-    <Stack pt={1.5} bgcolor="white" borderBottom="1px solid" borderColor="grey.300">
+    <Stack
+      sx={{
+        pt: 1.5,
+        bgcolor: 'white',
+        borderBottom: '1px solid',
+        borderColor: 'grey.300',
+      }}
+    >
       <CollapsibleFilters onClearFilters={onReset} isDirty={search.trim().length > 0}>
         <PrimaryFilters dirtyState={{ search }} additionalFilters={[]}>
           <InlineSearchFilter
@@ -141,7 +148,13 @@ const SystemListView = () => {
 
   return (
     <PageContainer>
-      <Stack spacing={3} direction="column" flexGrow={1}>
+      <Stack
+        spacing={3}
+        direction="column"
+        sx={{
+          flexGrow: 1,
+        }}
+      >
         <ScrollToTopButton
           onClick={() => {
             virtuoso.current?.scrollToIndex({
