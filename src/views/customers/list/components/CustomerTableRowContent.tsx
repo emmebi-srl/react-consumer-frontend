@@ -5,12 +5,17 @@ import LabelWithTooltip from '~/components/Table/LabelWithTooltip';
 import { MainLabel } from '~/components/Table/TableLabels';
 import { Customer } from '~/types/aries-proxy/customers';
 import { RouteConfig } from '~/routes/routeConfig';
+import { getMainDestination } from '../../customerHelpers';
+import CustomerStatusChip from '../../components/CustomerStatusChip';
 
 interface Props {
   customer: Customer;
 }
 
 const CustomerTableRowContent: React.FC<Props> = ({ customer }) => {
+  const mainDestination = getMainDestination(customer);
+  const address = mainDestination ? `${mainDestination.street} ${mainDestination.houseNumber}`.trim() : '';
+
   return (
     <>
       <TableCell align="right">
@@ -31,6 +36,18 @@ const CustomerTableRowContent: React.FC<Props> = ({ customer }) => {
 
       <TableCell align="left">
         <DetailDataCell>{customer.vat}</DetailDataCell>
+      </TableCell>
+      <TableCell align="left">
+        <DetailDataCell>{mainDestination?.province ?? '—'}</DetailDataCell>
+      </TableCell>
+      <TableCell align="left">
+        <DetailDataCell>{mainDestination?.municipality ?? '—'}</DetailDataCell>
+      </TableCell>
+      <TableCell align="left">
+        <DetailDataCell>{address || '—'}</DetailDataCell>
+      </TableCell>
+      <TableCell align="left">
+        <CustomerStatusChip statusId={customer.status} />
       </TableCell>
       <TableCell align="right">
         <Button

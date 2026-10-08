@@ -12,6 +12,7 @@ export interface CustomerDestination {
   longitude?: number | null;
   latitude?: number | null;
   postalCode?: string | null;
+  mainDestination: boolean;
 }
 
 export interface CustomerContact {
@@ -24,6 +25,7 @@ export interface CustomerContact {
   mobilePhone?: string | null;
   email?: string | null;
   hasReminderCustomer: boolean;
+  isMain: boolean;
 }
 
 export interface Customer {

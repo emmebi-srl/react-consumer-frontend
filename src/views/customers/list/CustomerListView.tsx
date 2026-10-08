@@ -32,6 +32,7 @@ const CustomerListView = () => {
       search: filters.search,
       statusId: filters.statusId,
       customerTypeId: filters.customerTypeId,
+      includes: 'destinations',
     }),
     [filters.search, filters.statusId, filters.customerTypeId],
   );
