@@ -86,3 +86,34 @@ export interface CustomerStatusEntry {
 export interface CustomerStatusList {
   statuses: CustomerStatusEntry[];
 }
+
+export interface CustomerUpdateRequest {
+  companyName?: string;
+  companyName2?: string;
+  vat?: string;
+  taxCode?: string;
+  attentionTo?: string;
+  status?: string;
+  customerTypeId?: number;
+  website?: string;
+  isInsolvent?: boolean;
+  uniqueCode?: string;
+  recipientCode?: string;
+}
+
+export interface CustomerContactUpdateRequest {
+  title?: string;
+  name?: string;
+  phone?: string;
+  mobilePhone?: string;
+  email?: string;
+}
+
+export interface CustomerDestinationUpdateRequest {
+  street?: string;
+  houseNumber?: number;
+  other?: string;
+  province?: string;
+  km?: number;
+  minutes?: number;
+}

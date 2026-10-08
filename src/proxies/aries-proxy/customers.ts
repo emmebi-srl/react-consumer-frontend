@@ -1,4 +1,5 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import useExceptionLogger from '~/hooks/useExceptionLogger';
 import {
   getCustomerById,
   getCustomerStatuses,
@@ -6,8 +7,16 @@ import {
   getCustomers,
   getCustomersMetadata,
   searchCustomers,
+  updateCustomer,
+  updateCustomerMainContact,
+  updateCustomerMainDestination,
 } from './api/customers';
-import { CustomerSearchRequest } from '~/types/aries-proxy/customers';
+import {
+  CustomerContactUpdateRequest,
+  CustomerDestinationUpdateRequest,
+  CustomerSearchRequest,
+  CustomerUpdateRequest,
+} from '~/types/aries-proxy/customers';
 
 const CustomerSearchPageSize = 50;
 
@@ -84,5 +93,44 @@ export const useCustomerStatuses = () => {
   return useQuery({
     queryKey: CustomersQueryKeys.statuses,
     queryFn: async () => (await getCustomerStatuses()).data,
+  });
+};
+
+export const useUpdateCustomer = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: CustomerUpdateRequest }) =>
+      (await updateCustomer(id, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.id) }),
+        queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.all }),
+      ]),
+  });
+};
+
+export const useUpdateCustomerMainContact = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ customerId, data }: { customerId: number; data: CustomerContactUpdateRequest }) =>
+      (await updateCustomerMainContact(customerId, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
+  });
+};
+
+export const useUpdateCustomerMainDestination = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ customerId, data }: { customerId: number; data: CustomerDestinationUpdateRequest }) =>
+      (await updateCustomerMainDestination(customerId, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
   });
 };
