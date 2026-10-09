@@ -45,6 +45,18 @@ export const updateCustomerMainDestination = (customerId: number, model: Custome
   return ariesServicesClient.patch<CustomerDestination>(`customer/${customerId}/destination/main`, model);
 };
 
+export const updateCustomerContact = (customerId: number, contactId: number, model: CustomerContactUpdateRequest) => {
+  return ariesServicesClient.patch<CustomerContact>(`customer/${customerId}/contact/${contactId}`, model);
+};
+
+export const updateCustomerDestination = (
+  customerId: number,
+  destinationId: number,
+  model: CustomerDestinationUpdateRequest,
+) => {
+  return ariesServicesClient.patch<CustomerDestination>(`customer/${customerId}/destination/${destinationId}`, model);
+};
+
 export const getCustomerTypes = () => {
   return ariesServicesClient.get<CustomerTypeList>('customer/type');
 };

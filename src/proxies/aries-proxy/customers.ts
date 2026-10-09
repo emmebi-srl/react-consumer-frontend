@@ -8,6 +8,8 @@ import {
   getCustomersMetadata,
   searchCustomers,
   updateCustomer,
+  updateCustomerContact,
+  updateCustomerDestination,
   updateCustomerMainContact,
   updateCustomerMainDestination,
 } from './api/customers';
@@ -129,6 +131,44 @@ export const useUpdateCustomerMainDestination = () => {
   return useMutation({
     mutationFn: async ({ customerId, data }: { customerId: number; data: CustomerDestinationUpdateRequest }) =>
       (await updateCustomerMainDestination(customerId, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
+  });
+};
+
+export const useUpdateCustomerContact = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      customerId,
+      contactId,
+      data,
+    }: {
+      customerId: number;
+      contactId: number;
+      data: CustomerContactUpdateRequest;
+    }) => (await updateCustomerContact(customerId, contactId, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
+  });
+};
+
+export const useUpdateCustomerDestination = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      customerId,
+      destinationId,
+      data,
+    }: {
+      customerId: number;
+      destinationId: number;
+      data: CustomerDestinationUpdateRequest;
+    }) => (await updateCustomerDestination(customerId, destinationId, data)).data,
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
     onSuccess: (_data, variables) =>
       queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),

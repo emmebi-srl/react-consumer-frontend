@@ -21,6 +21,7 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import PageContainer from '~/components/Layout/PageContainer';
+import { useModal } from '~/modals/Modal';
 import {
   useCustomerById,
   useCustomerStatuses,
@@ -30,6 +31,8 @@ import {
   useUpdateCustomerMainDestination,
 } from '~/proxies/aries-proxy/customers';
 import { RouteConfig } from '~/routes/routeConfig';
+import CustomerContactEditModal from '../components/CustomerContactEditModal';
+import CustomerDestinationEditModal from '../components/CustomerDestinationEditModal';
 import CustomerStatusChip from '../components/CustomerStatusChip';
 import { getMainContact, getMainDestination } from '../customerHelpers';
 
@@ -72,6 +75,7 @@ const CustomerDetailView = () => {
   const updateCustomerMutation = useUpdateCustomer();
   const updateMainContactMutation = useUpdateCustomerMainContact();
   const updateMainDestinationMutation = useUpdateCustomerMainDestination();
+  const modal = useModal();
 
   const mainDestination = customer ? getMainDestination(customer) : undefined;
   const mainContact = customer ? getMainContact(customer) : undefined;
@@ -652,7 +656,7 @@ const CustomerDetailView = () => {
                         <TableCell>Provincia</TableCell>
                         <TableCell align="right">Km</TableCell>
                         <TableCell align="right">Tempo (min)</TableCell>
-                        <TableCell />
+                        <TableCell align="right" />
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -664,7 +668,22 @@ const CustomerDetailView = () => {
                           <TableCell align="right">{destination.km}</TableCell>
                           <TableCell align="right">{destination.minutes}</TableCell>
                           <TableCell align="right">
-                            {destination.mainDestination && <Chip size="small" label="Principale" color="primary" />}
+                            {destination.mainDestination ? (
+                              <Chip size="small" label="Principale" color="primary" />
+                            ) : (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() =>
+                                  modal.showModal({
+                                    component: CustomerDestinationEditModal,
+                                    props: { customerId: customer.id, destination },
+                                  })
+                                }
+                              >
+                                Modifica
+                              </Button>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -690,7 +709,7 @@ const CustomerDetailView = () => {
                         <TableCell>Telefono</TableCell>
                         <TableCell>Cellulare</TableCell>
                         <TableCell>Email</TableCell>
-                        <TableCell />
+                        <TableCell align="right" />
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -702,7 +721,22 @@ const CustomerDetailView = () => {
                           <TableCell>{contact.mobilePhone}</TableCell>
                           <TableCell>{contact.email}</TableCell>
                           <TableCell align="right">
-                            {contact.isMain && <Chip size="small" label="Principale" color="primary" />}
+                            {contact.isMain ? (
+                              <Chip size="small" label="Principale" color="primary" />
+                            ) : (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() =>
+                                  modal.showModal({
+                                    component: CustomerContactEditModal,
+                                    props: { customerId: customer.id, contact },
+                                  })
+                                }
+                              >
+                                Modifica
+                              </Button>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
