@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useExceptionLogger from '~/hooks/useExceptionLogger';
 import {
+  createCustomer,
   createCustomerContact,
   createCustomerDestination,
   deleteCustomerContact,
@@ -21,6 +22,7 @@ import {
 import {
   CustomerContactCreateRequest,
   CustomerContactUpdateRequest,
+  CustomerCreateRequest,
   CustomerDestinationCreateRequest,
   CustomerDestinationUpdateRequest,
   CustomerSearchRequest,
@@ -103,6 +105,16 @@ export const useCustomerStatuses = () => {
   return useQuery({
     queryKey: CustomersQueryKeys.statuses,
     queryFn: async () => (await getCustomerStatuses()).data,
+  });
+};
+
+export const useCreateCustomer = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: CustomerCreateRequest) => (await createCustomer(data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: { data } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.all }),
   });
 };
 

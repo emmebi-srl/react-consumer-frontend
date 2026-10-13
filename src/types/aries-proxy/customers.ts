@@ -102,6 +102,12 @@ export interface CustomerUpdateRequest {
   recipientCode?: string;
 }
 
+export interface CustomerCreateRequest extends CustomerUpdateRequest {
+  companyName: string;
+  mainContact: Omit<CustomerContactCreateRequest, 'figureId'> & { figureId?: number };
+  mainDestination: Omit<CustomerDestinationCreateRequest, 'description'>;
+}
+
 export interface CustomerContactUpdateRequest {
   title?: string;
   name?: string;

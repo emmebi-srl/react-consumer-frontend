@@ -1,6 +1,8 @@
 import { Add } from '@mui/icons-material';
-import { Box, Button, styled, Tooltip } from '@mui/material';
+import { Button, styled } from '@mui/material';
+import { Link } from 'react-router-dom';
 import NavigationTabs, { StateTabData } from '~/components/Layout/NavigationTabs';
+import { RouteConfig } from '~/routes/routeConfig';
 
 const Container = styled('div')(({ theme }) => ({
   paddingLeft: theme.spacing(3),
@@ -23,14 +25,15 @@ const CustomerTabs: React.FC = () => {
     <Container>
       <NavigationTabs tabs={Tabs} selectedTabKey="all" onSelect={() => {}} />
 
-      <Tooltip title="In arrivo">
-        {/* Disabled buttons don't emit mouse events, so the tooltip needs a wrapper. */}
-        <Box component="span">
-          <Button variant="contained" color="primary" startIcon={<Add />} disabled>
-            Nuovo cliente
-          </Button>
-        </Box>
-      </Tooltip>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<Add />}
+        component={Link}
+        to={RouteConfig.CustomerNew.buildLink()}
+      >
+        Nuovo cliente
+      </Button>
     </Container>
   );
 };

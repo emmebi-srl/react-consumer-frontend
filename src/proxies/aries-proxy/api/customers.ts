@@ -5,6 +5,7 @@ import {
   CustomerContact,
   CustomerContactCreateRequest,
   CustomerContactFigureList,
+  CustomerCreateRequest,
   CustomerContactUpdateRequest,
   CustomerDestination,
   CustomerDestinationCreateRequest,
@@ -34,6 +35,10 @@ export const getCustomersMetadata = (req: CustomerSearchRequest) => {
 
 export const getCustomerById = (id: number, options?: { includes?: string }) => {
   return ariesServicesClient.get<CustomerList>(`customer/${id}`, { params: options });
+};
+
+export const createCustomer = (model: CustomerCreateRequest) => {
+  return ariesServicesClient.post<CustomerList>('customer', model);
 };
 
 export const updateCustomer = (id: number, model: CustomerUpdateRequest) => {
