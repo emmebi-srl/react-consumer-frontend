@@ -51,6 +51,7 @@ export interface Customer {
   updatedAt?: number | null;
   contacts?: CustomerContact[];
   destinations?: CustomerDestination[];
+  customerStatus?: CustomerStatusEntry | null;
 }
 
 export interface CustomerList {

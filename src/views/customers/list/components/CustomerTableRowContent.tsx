@@ -1,4 +1,4 @@
-import { Button, TableCell } from '@mui/material';
+import { Link, TableCell } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import DetailDataCell from '~/components/Table/DetailDataCell';
 import LabelWithTooltip from '~/components/Table/LabelWithTooltip';
@@ -27,13 +27,21 @@ const CustomerTableRowContent: React.FC<Props> = ({ customer }) => {
             overflow: 'hidden',
           }}
         >
-          <LabelWithTooltip variant="secondary" label={customer.companyName} />
+          <Link
+            component={RouterLink}
+            to={RouteConfig.CustomerDetail.buildLink({ customerId: String(customer.id) })}
+            color="inherit"
+            underline="hover"
+            onClick={(event) => event.stopPropagation()}
+            onAuxClick={(event) => event.stopPropagation()}
+          >
+            <LabelWithTooltip variant="secondary" label={customer.companyName} />
+          </Link>
         </DetailDataCell>
       </TableCell>
       <TableCell align="left">
         <DetailDataCell>{customer.taxCode}</DetailDataCell>
       </TableCell>
-
       <TableCell align="left">
         <DetailDataCell>{customer.vat}</DetailDataCell>
       </TableCell>
@@ -47,18 +55,7 @@ const CustomerTableRowContent: React.FC<Props> = ({ customer }) => {
         <DetailDataCell>{address || '—'}</DetailDataCell>
       </TableCell>
       <TableCell align="left">
-        <CustomerStatusChip statusId={customer.status} />
-      </TableCell>
-      <TableCell align="right">
-        <Button
-          component={RouterLink}
-          to={RouteConfig.CustomerDetail.buildLink({ customerId: String(customer.id) })}
-          size="small"
-          variant="outlined"
-          onClick={(event) => event.stopPropagation()}
-        >
-          Dettaglio
-        </Button>
+        <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />
       </TableCell>
     </>
   );

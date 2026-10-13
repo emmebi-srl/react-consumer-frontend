@@ -15,7 +15,6 @@ const CustomerTableHeading: React.FC<Props> = ({ children }) => {
     { id: 'municipality', label: 'Comune', align: 'left' },
     { id: 'address', label: 'Indirizzo', align: 'left' },
     { id: 'status', label: 'Stato', align: 'left' },
-    { id: 'actions', label: 'Azioni', align: 'right' },
   ];
 
   return (

@@ -6,7 +6,6 @@ import DataTableContainer from '~/components/Table/DataTableContainer';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import { Customer } from '~/types/aries-proxy/customers';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
-import DataTableRow from '~/components/Table/DataTableRow';
 import DataTableHead from '~/components/Table/DataTableHead';
 import DataTableBody from '~/components/Table/DataTableBody';
 import DataTable from '~/components/Table/DataTable';
@@ -14,12 +13,14 @@ import { useFilterState } from './state';
 import CustomerTableRowContent from './components/CustomerTableRowContent';
 import CustomerTableHeading from './components/CustomerTableHeading';
 import CustomerBar from './components/CustomerBar';
+import CustomerTableRow from './components/CustomerTableRow';
+import CustomerTabs from './components/CustomerTabs';
 
 const CustomersTableComponents: TableComponents<Customer> = {
   Table: DataTable,
   TableHead: DataTableHead,
   TableBody: DataTableBody,
-  TableRow: DataTableRow,
+  TableRow: ({ item, ...props }) => <CustomerTableRow entity={item} {...props} />,
 };
 
 const CustomerListView = () => {
@@ -32,7 +33,7 @@ const CustomerListView = () => {
       search: filters.search,
       statusId: filters.statusId,
       customerTypeId: filters.customerTypeId,
-      includes: 'destinations',
+      includes: 'destinations,status',
     }),
     [filters.search, filters.statusId, filters.customerTypeId],
   );
@@ -49,6 +50,7 @@ const CustomerListView = () => {
           flexGrow: 1,
         }}
       >
+        <CustomerTabs />
         <ScrollToTopButton
           onClick={() => {
             virtuoso.current?.scrollToIndex({

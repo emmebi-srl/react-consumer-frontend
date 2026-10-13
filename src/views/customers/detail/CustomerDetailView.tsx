@@ -69,7 +69,7 @@ const CustomerDetailView = () => {
   const params = useParams<{ customerId?: string }>();
   const customerId = Number(params.customerId);
 
-  const customerQuery = useCustomerById(customerId, { includes: 'contacts,destinations' });
+  const customerQuery = useCustomerById(customerId, { includes: 'contacts,destinations,status' });
   const customer = customerQuery.data?.customers.at(0);
   const { data: typesData } = useCustomerTypes();
   const { data: statusesData } = useCustomerStatuses();
@@ -225,7 +225,7 @@ const CustomerDetailView = () => {
         <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
             <Typography variant="h4">{customer ? customer.companyName : `Cliente #${customerId}`}</Typography>
-            {customer && <CustomerStatusChip statusId={customer.status} />}
+            {customer && <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />}
             {customer?.isInsolvent && <Chip size="small" color="error" label="Insolvente" />}
           </Stack>
           <Typography
