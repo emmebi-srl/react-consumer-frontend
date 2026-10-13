@@ -117,3 +117,33 @@ export interface CustomerDestinationUpdateRequest {
   km?: number;
   minutes?: number;
 }
+
+export interface CustomerContactFigure {
+  id: number;
+  name: string;
+}
+
+export interface CustomerContactFigureList {
+  figures: CustomerContactFigure[];
+}
+
+export interface CustomerContactCreateRequest {
+  title?: string;
+  name: string;
+  figureId: number;
+  phone?: string;
+  mobilePhone?: string;
+  email?: string;
+}
+
+export interface CustomerDestinationCreateRequest {
+  description: string;
+  street?: string;
+  houseNumber?: number;
+  other?: string;
+  province?: string;
+  comuneId: number;
+  frazioneId?: number;
+  km?: number;
+  minutes?: number;
+}

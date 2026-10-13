@@ -31,8 +31,10 @@ import {
   useUpdateCustomerMainDestination,
 } from '~/proxies/aries-proxy/customers';
 import { RouteConfig } from '~/routes/routeConfig';
-import CustomerContactEditModal from '../components/CustomerContactEditModal';
-import CustomerDestinationEditModal from '../components/CustomerDestinationEditModal';
+import CustomerContactCreateModal from '../components/CustomerContactCreateModal';
+import CustomerContactRowActions from '../components/CustomerContactRowActions';
+import CustomerDestinationCreateModal from '../components/CustomerDestinationCreateModal';
+import CustomerDestinationRowActions from '../components/CustomerDestinationRowActions';
 import CustomerStatusChip from '../components/CustomerStatusChip';
 import { getMainContact, getMainDestination } from '../customerHelpers';
 
@@ -641,7 +643,23 @@ const CustomerDetailView = () => {
             </Card>
 
             <Card variant="outlined">
-              <CardHeader title="Destinazioni" />
+              <CardHeader
+                title="Destinazioni"
+                action={
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() =>
+                      modal.showModal({
+                        component: CustomerDestinationCreateModal,
+                        props: { customerId: customer.id },
+                      })
+                    }
+                  >
+                    Aggiungi destinazione
+                  </Button>
+                }
+              />
               <CardContent>
                 {(customer.destinations ?? []).length === 0 ? (
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -668,22 +686,7 @@ const CustomerDetailView = () => {
                           <TableCell align="right">{destination.km}</TableCell>
                           <TableCell align="right">{destination.minutes}</TableCell>
                           <TableCell align="right">
-                            {destination.mainDestination ? (
-                              <Chip size="small" label="Principale" color="primary" />
-                            ) : (
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                onClick={() =>
-                                  modal.showModal({
-                                    component: CustomerDestinationEditModal,
-                                    props: { customerId: customer.id, destination },
-                                  })
-                                }
-                              >
-                                Modifica
-                              </Button>
-                            )}
+                            <CustomerDestinationRowActions customerId={customer.id} destination={destination} />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -694,7 +697,23 @@ const CustomerDetailView = () => {
             </Card>
 
             <Card variant="outlined">
-              <CardHeader title="Contatti / Riferimenti" />
+              <CardHeader
+                title="Contatti / Riferimenti"
+                action={
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() =>
+                      modal.showModal({
+                        component: CustomerContactCreateModal,
+                        props: { customerId: customer.id },
+                      })
+                    }
+                  >
+                    Aggiungi contatto
+                  </Button>
+                }
+              />
               <CardContent>
                 {(customer.contacts ?? []).length === 0 ? (
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -721,22 +740,7 @@ const CustomerDetailView = () => {
                           <TableCell>{contact.mobilePhone}</TableCell>
                           <TableCell>{contact.email}</TableCell>
                           <TableCell align="right">
-                            {contact.isMain ? (
-                              <Chip size="small" label="Principale" color="primary" />
-                            ) : (
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                onClick={() =>
-                                  modal.showModal({
-                                    component: CustomerContactEditModal,
-                                    props: { customerId: customer.id, contact },
-                                  })
-                                }
-                              >
-                                Modifica
-                              </Button>
-                            )}
+                            <CustomerContactRowActions customerId={customer.id} contact={contact} />
                           </TableCell>
                         </TableRow>
                       ))}

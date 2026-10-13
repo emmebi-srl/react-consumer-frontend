@@ -3,8 +3,11 @@ import { SearchMetadata } from '~/types/aries-proxy/shared';
 import {
   Customer,
   CustomerContact,
+  CustomerContactCreateRequest,
+  CustomerContactFigureList,
   CustomerContactUpdateRequest,
   CustomerDestination,
+  CustomerDestinationCreateRequest,
   CustomerDestinationUpdateRequest,
   CustomerList,
   CustomerSearchRequest,
@@ -57,10 +60,30 @@ export const updateCustomerDestination = (
   return ariesServicesClient.patch<CustomerDestination>(`customer/${customerId}/destination/${destinationId}`, model);
 };
 
+export const createCustomerContact = (customerId: number, model: CustomerContactCreateRequest) => {
+  return ariesServicesClient.post<CustomerContact>(`customer/${customerId}/contact`, model);
+};
+
+export const deleteCustomerContact = (customerId: number, contactId: number) => {
+  return ariesServicesClient.delete(`customer/${customerId}/contact/${contactId}`);
+};
+
+export const createCustomerDestination = (customerId: number, model: CustomerDestinationCreateRequest) => {
+  return ariesServicesClient.post<CustomerDestination>(`customer/${customerId}/destination`, model);
+};
+
+export const deleteCustomerDestination = (customerId: number, destinationId: number) => {
+  return ariesServicesClient.delete(`customer/${customerId}/destination/${destinationId}`);
+};
+
 export const getCustomerTypes = () => {
   return ariesServicesClient.get<CustomerTypeList>('customer/type');
 };
 
 export const getCustomerStatuses = () => {
   return ariesServicesClient.get<CustomerStatusList>('customer/status');
+};
+
+export const getCustomerContactFigures = () => {
+  return ariesServicesClient.get<CustomerContactFigureList>('customer/contact/figure');
 };

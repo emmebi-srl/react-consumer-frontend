@@ -1,7 +1,12 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import useExceptionLogger from '~/hooks/useExceptionLogger';
 import {
+  createCustomerContact,
+  createCustomerDestination,
+  deleteCustomerContact,
+  deleteCustomerDestination,
   getCustomerById,
+  getCustomerContactFigures,
   getCustomerStatuses,
   getCustomerTypes,
   getCustomers,
@@ -14,7 +19,9 @@ import {
   updateCustomerMainDestination,
 } from './api/customers';
 import {
+  CustomerContactCreateRequest,
   CustomerContactUpdateRequest,
+  CustomerDestinationCreateRequest,
   CustomerDestinationUpdateRequest,
   CustomerSearchRequest,
   CustomerUpdateRequest,
@@ -29,6 +36,7 @@ export const CustomersQueryKeys = {
   byId: (id: number) => ['Customer', id] as const,
   types: ['CustomerTypes'] as const,
   statuses: ['CustomerStatuses'] as const,
+  contactFigures: ['CustomerContactFigures'] as const,
 };
 
 export const useCustomers = () => {
@@ -169,6 +177,63 @@ export const useUpdateCustomerDestination = () => {
       destinationId: number;
       data: CustomerDestinationUpdateRequest;
     }) => (await updateCustomerDestination(customerId, destinationId, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
+  });
+};
+
+export const useCustomerContactFigures = () => {
+  return useQuery({
+    queryKey: CustomersQueryKeys.contactFigures,
+    queryFn: async () => (await getCustomerContactFigures()).data,
+  });
+};
+
+export const useCreateCustomerContact = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ customerId, data }: { customerId: number; data: CustomerContactCreateRequest }) =>
+      (await createCustomerContact(customerId, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
+  });
+};
+
+export const useDeleteCustomerContact = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ customerId, contactId }: { customerId: number; contactId: number }) => {
+      await deleteCustomerContact(customerId, contactId);
+    },
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
+  });
+};
+
+export const useCreateCustomerDestination = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ customerId, data }: { customerId: number; data: CustomerDestinationCreateRequest }) =>
+      (await createCustomerDestination(customerId, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: (_data, variables) =>
+      queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
+  });
+};
+
+export const useDeleteCustomerDestination = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ customerId, destinationId }: { customerId: number; destinationId: number }) => {
+      await deleteCustomerDestination(customerId, destinationId);
+    },
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
     onSuccess: (_data, variables) =>
       queryClient.invalidateQueries({ queryKey: CustomersQueryKeys.byId(variables.customerId) }),
