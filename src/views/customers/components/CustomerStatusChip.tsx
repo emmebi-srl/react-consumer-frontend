@@ -1,12 +1,13 @@
 import { Chip } from '@mui/material';
+import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
 import { CustomerStatusEntry } from '~/types/aries-proxy/customers';
-import { getStatusChipColor } from '../customerHelpers';
 
 interface Props {
   statusId?: string | null;
   status?: CustomerStatusEntry | null;
 }
 
+// The customer status id (stato_clienti.Id_stato) is itself the Delphi color of the status.
 const CustomerStatusChip: React.FC<Props> = ({ statusId, status }) => {
   if (!statusId && !status) {
     return <Chip size="small" label="N/D" variant="outlined" />;
@@ -14,7 +15,7 @@ const CustomerStatusChip: React.FC<Props> = ({ statusId, status }) => {
 
   const label = status?.name ?? statusId ?? '';
 
-  return <Chip size="small" label={label} color={getStatusChipColor(label)} />;
+  return <DelphiColorChip label={label} delphiColor={status?.id ?? statusId} />;
 };
 
 export default CustomerStatusChip;

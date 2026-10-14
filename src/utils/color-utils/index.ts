@@ -11,6 +11,11 @@ export const normalizeToHexColor = (value: string | null | undefined) => {
     return null;
   }
 
+  // Digits-only values without `#` are Delphi decimal TColors (e.g. "255" = red), not CSS hex.
+  if (/^-?\d+$/.test(trimmedValue)) {
+    return oleColorToHex(Number.parseInt(trimmedValue, 10));
+  }
+
   if (/^#?[0-9a-f]{6}$/i.test(trimmedValue)) {
     const hexValue = trimmedValue.startsWith('#') ? trimmedValue.slice(1) : trimmedValue;
     return `#${hexValue.toUpperCase()}`;
@@ -33,11 +38,39 @@ export const normalizeToHexColor = (value: string | null | undefined) => {
     return oleColorToHex(Number.parseInt(trimmedValue.slice(2), 16));
   }
 
-  if (/^-?\d+$/.test(trimmedValue)) {
-    return oleColorToHex(Number.parseInt(trimmedValue, 10));
+  const delphiNamedColor = DELPHI_NAMED_COLORS[trimmedValue.toLowerCase()];
+  if (delphiNamedColor) {
+    return delphiNamedColor;
   }
 
   return null;
+};
+
+// Delphi TColor named constants (Graphics.pas), as written by StringToColor/ColorToString.
+// System colors (clBtnFace, clWindow, ...) depend on the OS theme and are intentionally missing.
+const DELPHI_NAMED_COLORS: Record<string, string> = {
+  clblack: '#000000',
+  clmaroon: '#800000',
+  clgreen: '#008000',
+  clolive: '#808000',
+  clnavy: '#000080',
+  clpurple: '#800080',
+  clteal: '#008080',
+  clgray: '#808080',
+  clsilver: '#C0C0C0',
+  clred: '#FF0000',
+  cllime: '#00FF00',
+  clyellow: '#FFFF00',
+  clblue: '#0000FF',
+  clfuchsia: '#FF00FF',
+  claqua: '#00FFFF',
+  clwhite: '#FFFFFF',
+  clltgray: '#C0C0C0',
+  cldkgray: '#808080',
+  clmoneygreen: '#C0DCC0',
+  clskyblue: '#A6CAF0',
+  clcream: '#FFFBF0',
+  clmedgray: '#A0A0A4',
 };
 
 export const getReadableTextColor = (backgroundColor: string) => {
@@ -59,7 +92,8 @@ const oleColorToHex = (value: number) => {
 
   // Delphi/OLE system colors (0x800000xx) depend on the host OS theme.
   // When they appear, we prefer a neutral fallback instead of guessing.
-  if ((unsignedValue & 0xff000000) === 0x80000000) {
+  // `&` yields a signed 32-bit int, so normalize it back to unsigned before comparing.
+  if ((unsignedValue & 0xff000000) >>> 0 === 0x80000000) {
     return null;
   }
 

@@ -101,6 +101,14 @@ When a backend resource exposes both a legacy endpoint and a newer `/new` endpoi
 - Reuse existing modal patterns from `src/components/Modals`.
 - Keep route views focused on composition; extract repeatable sections into local `components` folders when they grow.
 
+### Delphi Colors
+
+Some data carries colors written by the Delphi desktop app, in Delphi `TColor` format: named constants (`clRed`, `clMoneyGreen`, ...), `$00BBGGRR` hex (BGR, not RGB) or a decimal integer. The backend returns them **raw**; the conversion happens **only here**:
+
+- Convert with `normalizeToHexColor` from `src/utils/color-utils` (returns `#RRGGBB` or `null` for missing/OS-dependent system colors) and pick the text color with `getReadableTextColor`. Do not write another converter, and do not ask the backend to convert.
+- For status chips use `src/components/DataDisplay/DelphiColorChip`, which falls back to a neutral outlined chip when the color can't be converted.
+- Known sources: customer status (`stato_clienti.Id_stato`: the **status id itself is the color**, see `CustomerStatusChip`), product status (`productStatus.color` from the `status` include of `product/new`). Campaign and subscription colors use the same utils.
+
 ## Forms And Mutations
 
 - Prefer React Hook Form for non-trivial forms.
@@ -159,7 +167,7 @@ Prefer the smallest useful validation set for the files you changed, but do not 
 
 - The customer list (`src/views/customers/list`) now uses server-side search/pagination via `GET customer/search` (`useCustomersSearch`, `useInfiniteQuery`), mirroring the quotes list pattern in `src/views/quotes/list`. Do not reintroduce client-side `.filter()` over a fully-fetched customer array.
 - List rows have no "Dettaglio" button: `CustomerTableRow` navigates on click, and opens a new tab on Cmd/Ctrl+click or middle-click (a `<tr>` can't be an `<a>`). The company name is also a real `RouterLink` (with `stopPropagation`) so right-click → "open in new tab" works. Reuse this pattern for other lists that should behave like links.
-- The status chip reads the backend-included `customerStatus` (`includes=status`, JSON `customer_status`) — `CustomerStatusChip` is purely presentational and no longer fetches the status list itself. Pass `status` from the include; `statusId` is only a fallback label.
+- The status chip reads the backend-included `customerStatus` (`includes=status`, JSON `customer_status`) — `CustomerStatusChip` is purely presentational and no longer fetches the status list itself. Pass `status` from the include; `statusId` is only a fallback label. The chip color is the status id converted as a Delphi color (see "Delphi Colors" above), not a keyword match on the name.
 - Customer create (`RouteConfig.CustomerNew`, `customers/new`, `src/views/customers/new/CustomerNewView.tsx`) and edit (`CustomerDetailView`) share the same form: `src/views/customers/form/CustomerFormFields.tsx` (`mode: 'create' | 'edit'`), `customerFormValues.ts` and `CustomerFormSaveBar.tsx`. Change fields there, not in the views. In `create` mode Comune/Frazione of the main destination are editable (comune autocomplete is required), the read-only commercial ids and the contacts/destinations tables are hidden, and the dirty highlight is off. After `POST customer` the view navigates to the detail with `replace: true`. Status `ATTIVO` and customer type 1 are preselected, as the Delphi client does.
 - `customer/status` and `customer/type` are two distinct lookup endpoints (`useCustomerStatuses`, `useCustomerTypes`) backing the two list filters. **`statusId` is a string** (backend `Stato_cliente` is a short varchar code, not numeric), while `customerTypeId` is numeric. Don't assume both are numbers.
 - `GET customer` (no params, full unfiltered list) and `GET customer/mobile-sync` still exist unchanged for backward compatibility (Android + any other legacy consumer). Do not repurpose them for the searchable list; use `customer/search` instead.
