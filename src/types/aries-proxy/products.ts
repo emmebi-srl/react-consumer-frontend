@@ -4,6 +4,8 @@ export interface ProductStatus {
   id: number;
   name: string;
   isBlocked: boolean;
+  // Raw Delphi color, only returned by the product_status include (convert with normalizeToHexColor).
+  color?: string | null;
 }
 
 export interface Brand {

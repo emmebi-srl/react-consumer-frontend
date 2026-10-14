@@ -1,5 +1,6 @@
 import { Chip, TableCell } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
+import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
 import DetailDataCell from '~/components/Table/DetailDataCell';
 import LabelWithTooltip from '~/components/Table/LabelWithTooltip';
 import { MainLabel } from '~/components/Table/TableLabels';
@@ -41,12 +42,7 @@ const ProductTableRowContent: React.FC<Props> = ({ product }) => {
       <TableCell align="center">{product.isKit ? <CheckIcon fontSize="small" color="primary" /> : null}</TableCell>
       <TableCell align="left">
         {product.productStatus ? (
-          <Chip
-            size="small"
-            label={product.productStatus.name}
-            color={product.productStatus.isBlocked ? 'error' : 'default'}
-            variant={product.productStatus.isBlocked ? 'filled' : 'outlined'}
-          />
+          <DelphiColorChip label={product.productStatus.name} delphiColor={product.productStatus.color} />
         ) : (
           <Chip size="small" label="N/D" variant="outlined" />
         )}
