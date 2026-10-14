@@ -44,6 +44,7 @@ export const RouteConfig = {
   CustomerNew: defineRoute('customers/new'),
   CustomerDetail: defineRoute('customers/:customerId'),
   SystemList: defineRoute('systems'),
+  ProductList: defineRoute('products'),
   ChecklistList: defineRoute('checklists'),
   ChecklistDetail: defineRoute('checklists/:checklistId'),
   InterventionsNearby: defineRoute('interventions/nearby'),
