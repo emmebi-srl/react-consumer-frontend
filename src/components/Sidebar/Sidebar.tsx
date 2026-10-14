@@ -23,6 +23,7 @@ import UnfoldMore from '@mui/icons-material/UnfoldMore';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import PeopleOutlined from '@mui/icons-material/PeopleOutlined';
 import HomeWorkOutlined from '@mui/icons-material/HomeWorkOutlined';
+import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
 import RequestQuoteOutlined from '@mui/icons-material/RequestQuoteOutlined';
 import AssignmentOutlined from '@mui/icons-material/AssignmentOutlined';
 import ReceiptLongOutlined from '@mui/icons-material/ReceiptLongOutlined';
@@ -62,6 +63,7 @@ const sections: SidebarSection[] = [
     items: [
       { label: 'Clienti', path: RouteConfig.CustomerList.buildLink(), icon: <PeopleOutlined /> },
       { label: 'Impianti', path: RouteConfig.SystemList.buildLink(), icon: <HomeWorkOutlined /> },
+      { label: 'Articoli', path: RouteConfig.ProductList.buildLink(), icon: <Inventory2Outlined /> },
     ],
   },
   {
