@@ -7,7 +7,7 @@ interface Props {
   onCancel: () => void;
 }
 
-const CustomerFormSaveBar: React.FC<Props> = ({ saving, cancelLabel, submitLabel, onCancel }) => (
+const FormSaveBar: React.FC<Props> = ({ saving, cancelLabel, submitLabel, onCancel }) => (
   <Paper
     elevation={4}
     sx={{
@@ -31,4 +31,4 @@ const CustomerFormSaveBar: React.FC<Props> = ({ saving, cancelLabel, submitLabel
   </Paper>
 );
 
-export default CustomerFormSaveBar;
+export default FormSaveBar;

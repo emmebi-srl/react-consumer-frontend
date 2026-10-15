@@ -64,13 +64,138 @@ export interface Product {
   expirationMonths?: number | null;
   warrantyMonths?: number | null;
   lastSalePrice?: number | null;
+  subcategoryLevel2Id?: number | null;
+  weight?: number | null;
+  height?: number | null;
+  width?: number | null;
+  depth?: number | null;
+  minTemperature?: number | null;
+  maxTemperature?: number | null;
+  humidity?: number | null;
+  liters?: number | null;
+  standbyAbsorption?: number | null;
+  activeAbsorption?: number | null;
+  multiplier?: number | null;
+  minQuantity?: number | null;
+  maxQuantity?: number | null;
+  packageQuantity?: number | null;
+  maintenanceMinutes?: number | null;
+  color?: string | null;
+  modificationDate?: number | null;
   productStatus?: ProductStatus;
   productBrand?: Brand;
   category?: ProductCategory;
   subcategory?: ProductSubcategory;
+  subcategoryLevel2?: ProductSubcategoryLevel2;
   measurementUnit?: MeasurementUnit;
   productionCostType?: ProductionCostType;
   supplier?: Supplier;
+  // Detail includes (single product only).
+  codes?: ProductCode[];
+  spareParts?: ProductLinkedProduct[];
+  equipment?: ProductLinkedProduct[];
+  operations?: ProductOperation[];
+  notes?: ProductNote[];
+  // Raw Delphi RTF (articolo_nota 'GENERALE'): decode with decodeRtf from ~/utils/rtf-utils.
+  extendedDescription?: string;
+  regulations?: Regulation[];
+  priceListEntries?: ProductPriceListEntry[];
+}
+
+export interface ProductSubcategoryLevel2 {
+  id: number;
+  subcategoryId: number;
+  name: string;
+  description?: string | null;
+}
+
+export interface ProductCode {
+  code: string;
+  supplierId?: number | null;
+  supplier?: Supplier;
+}
+
+// Spare part / equipment row: another product linked to this one.
+export interface ProductLinkedProduct {
+  code: string;
+  quantity?: number | null;
+  description?: string | null;
+  productDescription?: string | null;
+  supplierProductCode?: string | null;
+}
+
+export interface ProductOperation {
+  operationId: number;
+  name?: string | null;
+  description?: string | null;
+}
+
+export interface ProductNote {
+  description: string;
+  // Raw Delphi RTF.
+  note?: string | null;
+  editDate?: number | null;
+}
+
+export interface Regulation {
+  id: number;
+  name: string;
+  description?: string | null;
+  note?: string | null;
+}
+
+export type ProductPriceListEntryType = 'internal' | 'supplier' | 'brand';
+
+export interface ProductPriceListEntry {
+  type: ProductPriceListEntryType;
+  name: string;
+  priceListId?: number | null;
+  price?: number | null;
+  cost?: number | null;
+  lastPrice?: number | null;
+}
+
+// Full editable state, sent with PUT product/new/{code}.
+export interface ProductSaveRequest {
+  description: string;
+  barcode: string;
+  supplierProductCode: string;
+  brandCode: string | null;
+  supplierId: number | null;
+  status: number;
+  productionCostTypeId: number | null;
+  categoryId: number | null;
+  subcategoryId: number | null;
+  subcategoryLevel2Id: number | null;
+  measurementUnits: string | null;
+  installationTime: number;
+  maintenanceMinutes: number;
+  expirationMonths: number;
+  warrantyMonths: number;
+  minQuantity: number;
+  maxQuantity: number;
+  packageQuantity: number;
+  weight: number;
+  height: number;
+  width: number;
+  depth: number;
+  minTemperature: number;
+  maxTemperature: number;
+  humidity: number;
+  liters: number;
+  standbyAbsorption: number;
+  activeAbsorption: number;
+  multiplier: number;
+  color: string | null;
+  depotPositionDescription: string;
+  depotShelf: string;
+  depotShelfTier: string;
+  // Raw RTF; omit to leave the extended description untouched.
+  extendedDescription?: string;
+}
+
+export interface ProductSubcategoryLevel2List {
+  subcategories: ProductSubcategoryLevel2[];
 }
 
 export interface ProductList {
@@ -85,6 +210,9 @@ export interface ProductSearchRequest {
   subcategoryId?: number;
   supplierId?: number;
   isKit?: boolean;
+  // Exact matches.
+  barcode?: string;
+  supplierProductCode?: string;
   pageIndex?: number;
   pageSize?: number;
   includes?: string;

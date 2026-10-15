@@ -1,6 +1,10 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import useExceptionLogger from '~/hooks/useExceptionLogger';
 import {
   getBrands,
+  getProductByCode,
+  getProductSubcategoriesLevel2,
+  saveProduct,
   getMeasurementUnits,
   getProductCategories,
   getProductStatuses,
@@ -9,7 +13,7 @@ import {
   getProductsMetadata,
   searchProducts,
 } from './api/products';
-import { ProductSearchRequest } from '~/types/aries-proxy/products';
+import { ProductSaveRequest, ProductSearchRequest } from '~/types/aries-proxy/products';
 
 const ProductSearchPageSize = 50;
 
@@ -17,6 +21,8 @@ export const ProductsQueryKeys = {
   all: ['Products'] as const,
   search: (params: ProductSearchRequest) => ['Products', 'search', params] as const,
   metadata: (params: ProductSearchRequest) => ['Products', 'metadata', params] as const,
+  byCode: (productCode: string, includes?: string) => ['Products', 'byCode', productCode, includes] as const,
+  subcategoriesLevel2: (subcategoryId?: number) => ['ProductSubcategoriesLevel2', subcategoryId] as const,
   statuses: ['ProductStatuses'] as const,
   brands: ['Brands'] as const,
   categories: ['ProductCategories'] as const,
@@ -60,6 +66,39 @@ export const useProductsMetadata = (params: ProductSearchRequest) => {
   return useQuery({
     queryKey: ProductsQueryKeys.metadata(params),
     queryFn: async () => (await getProductsMetadata(params)).data,
+  });
+};
+
+export const useProductByCode = (productCode: string, options?: { includes?: string }) => {
+  return useQuery({
+    queryKey: ProductsQueryKeys.byCode(productCode, options?.includes),
+    queryFn: async () => (await getProductByCode(productCode, options)).data,
+    enabled: !!productCode,
+  });
+};
+
+export const useSaveProduct = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ productCode, data }: { productCode: string; data: ProductSaveRequest }) =>
+      (await saveProduct(productCode, data)).data,
+    onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ProductsQueryKeys.all }),
+  });
+};
+
+// Products matching exactly a barcode or supplier code (used to warn about duplicates before saving).
+export const findProductsByExactCode = async (filter: { barcode?: string; supplierProductCode?: string }) => {
+  const res = await searchProducts({ ...filter, pageIndex: 1, pageSize: 10 });
+  return res.data.products;
+};
+
+export const useProductSubcategoriesLevel2 = (subcategoryId?: number) => {
+  return useQuery({
+    queryKey: ProductsQueryKeys.subcategoriesLevel2(subcategoryId),
+    queryFn: async () => (await getProductSubcategoriesLevel2(subcategoryId)).data,
+    enabled: subcategoryId !== undefined,
   });
 };
 

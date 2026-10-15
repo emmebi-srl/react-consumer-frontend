@@ -20,6 +20,7 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import PageContainer from '~/components/Layout/PageContainer';
+import { decodeRtf, encodeRtfText } from '~/utils/rtf-utils';
 import {
   useCreateQuoteLot,
   useDeleteQuoteItem,
@@ -66,96 +67,6 @@ const defaultValues: FormValues = {
 const toNullableNumber = (value: string) => {
   const trimmed = value.trim();
   return trimmed ? Number(trimmed) : null;
-};
-
-const rtfControlDestinations = new Set(['colortbl', 'fonttbl', 'info', 'pict', 'stylesheet']);
-
-const decodeRtf = (value?: string | null) => {
-  if (!value) return '';
-  if (!value.trimStart().startsWith('{\\rtf')) return value;
-
-  const stack: boolean[] = [];
-  let ignore = false;
-  let result = '';
-
-  for (let index = 0; index < value.length; index += 1) {
-    const char = value[index];
-
-    if (char === '{') {
-      const groupStart = /^\\\*?([a-zA-Z]+)/.exec(value.slice(index + 1));
-      const destination = groupStart?.[1] ?? '';
-      stack.push(ignore);
-      ignore = ignore || rtfControlDestinations.has(destination);
-      continue;
-    }
-
-    if (char === '}') {
-      ignore = stack.pop() ?? false;
-      continue;
-    }
-
-    if (ignore) continue;
-
-    if (char !== '\\') {
-      if (char !== '\r' && char !== '\n') result += char;
-      continue;
-    }
-
-    const next = value[index + 1];
-    if (next === '\\' || next === '{' || next === '}') {
-      result += next;
-      index += 1;
-      continue;
-    }
-
-    if (next === "'") {
-      const hex = value.slice(index + 2, index + 4);
-      const code = Number.parseInt(hex, 16);
-      if (!Number.isNaN(code)) result += String.fromCharCode(code);
-      index += 3;
-      continue;
-    }
-
-    const match = /^([a-zA-Z]+)(-?\d+)? ?/.exec(value.slice(index + 1));
-    if (!match) {
-      index += 1;
-      continue;
-    }
-
-    const [, word, parameter] = match;
-    if (word === 'par' || word === 'line') result += '\n';
-    if (word === 'tab') result += '\t';
-    if (word === 'u' && parameter) result += String.fromCharCode(Number(parameter));
-
-    index += match[0].length;
-  }
-
-  return result
-    .replace(/\n{3,}/g, '\n\n')
-    .replace(/[ \t]+\n/g, '\n')
-    .trim();
-};
-
-const encodeRtfText = (value: string) => {
-  const encodeChar = (char: string) => {
-    if (char === '\\' || char === '{' || char === '}') return `\\${char}`;
-
-    const code = char.charCodeAt(0);
-    if (code > 127) {
-      const signedCode = code > 32767 ? code - 65536 : code;
-      return `\\u${signedCode}?`;
-    }
-
-    return char;
-  };
-
-  const body = value
-    .replace(/\r\n/g, '\n')
-    .split('\n')
-    .map((line) => line.split('').map(encodeChar).join(''))
-    .join('\\par\n');
-
-  return `{\\rtf1\\ansi\\ansicpg1252\\deff0{\\fonttbl{\\f0\\fnil Arial;}}\\viewkind4\\uc1\\f0\\fs20 ${body}}`;
 };
 
 interface ItemRowProps {
