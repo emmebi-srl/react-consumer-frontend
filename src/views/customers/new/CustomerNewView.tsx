@@ -7,7 +7,7 @@ import useSnackbar from '~/hooks/useSnackbar';
 import { useCreateCustomer, useCustomerStatuses, useCustomerTypes } from '~/proxies/aries-proxy/customers';
 import { RouteConfig } from '~/routes/routeConfig';
 import CustomerFormFields from '../form/CustomerFormFields';
-import CustomerFormSaveBar from '../form/CustomerFormSaveBar';
+import FormSaveBar from '~/components/Layout/FormSaveBar';
 import { CustomerFormValues, getCustomerFormValues, toOptionalNumber } from '../form/customerFormValues';
 
 // Same defaults the Delphi client preselects on a new customer.
@@ -110,7 +110,7 @@ const CustomerNewView = () => {
           hasMainContact={false}
         />
 
-        <CustomerFormSaveBar
+        <FormSaveBar
           saving={isSubmitting || createMutation.isPending}
           cancelLabel="Annulla"
           submitLabel="Crea cliente"

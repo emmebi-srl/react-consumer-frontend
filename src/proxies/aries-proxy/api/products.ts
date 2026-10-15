@@ -5,7 +5,9 @@ import {
   MeasurementUnitList,
   ProductCategoryList,
   ProductList,
+  ProductSaveRequest,
   ProductSearchRequest,
+  ProductSubcategoryLevel2List,
   ProductStatus,
   ProductSubcategoryList,
   ProductionCostTypeList,
@@ -17,6 +19,20 @@ export const searchProducts = (req: ProductSearchRequest) => {
 
 export const getProductsMetadata = (req: ProductSearchRequest) => {
   return ariesServicesClient.get<SearchMetadata>('product/new/metadata', { params: req });
+};
+
+export const getProductByCode = (productCode: string, options?: { includes?: string }) => {
+  return ariesServicesClient.get<ProductList>(`product/${encodeURIComponent(productCode)}`, { params: options });
+};
+
+export const saveProduct = (productCode: string, model: ProductSaveRequest) => {
+  return ariesServicesClient.put<ProductList>(`product/${encodeURIComponent(productCode)}`, model);
+};
+
+export const getProductSubcategoriesLevel2 = (subcategoryId?: number) => {
+  return ariesServicesClient.get<ProductSubcategoryLevel2List>('product/subcategory-level2', {
+    params: { subcategoryId },
+  });
 };
 
 export const getProductStatuses = () => {

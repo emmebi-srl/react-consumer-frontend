@@ -9,7 +9,7 @@ import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import DataTableHead from '~/components/Table/DataTableHead';
 import DataTableBody from '~/components/Table/DataTableBody';
 import DataTable from '~/components/Table/DataTable';
-import DataTableRow from '~/components/Table/DataTableRow';
+import ProductTableRow from './components/ProductTableRow';
 import { useFilterState } from './state';
 import ProductTableRowContent from './components/ProductTableRowContent';
 import ProductTableHeading from './components/ProductTableHeading';
@@ -19,7 +19,7 @@ const ProductsTableComponents: TableComponents<Product> = {
   Table: DataTable,
   TableHead: DataTableHead,
   TableBody: DataTableBody,
-  TableRow: DataTableRow,
+  TableRow: ({ item, ...props }) => <ProductTableRow entity={item} {...props} />,
 };
 
 const ProductListView = () => {

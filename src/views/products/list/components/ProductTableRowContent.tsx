@@ -1,4 +1,6 @@
-import { Chip, TableCell } from '@mui/material';
+import { Chip, Link, TableCell } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import { buildProductDetailLink } from '../../productHelpers';
 import CheckIcon from '@mui/icons-material/Check';
 import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
 import DetailDataCell from '~/components/Table/DetailDataCell';
@@ -14,7 +16,16 @@ const ProductTableRowContent: React.FC<Props> = ({ product }) => {
   return (
     <>
       <TableCell align="left">
-        <MainLabel>{product.productCode}</MainLabel>
+        <Link
+          component={RouterLink}
+          to={buildProductDetailLink(product.productCode)}
+          color="inherit"
+          underline="hover"
+          onClick={(event) => event.stopPropagation()}
+          onAuxClick={(event) => event.stopPropagation()}
+        >
+          <MainLabel>{product.productCode}</MainLabel>
+        </Link>
       </TableCell>
       <TableCell sx={{ width: '100%', maxWidth: 0 }}>
         <DetailDataCell sx={{ overflow: 'hidden' }}>

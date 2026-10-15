@@ -109,6 +109,17 @@ Some data carries colors written by the Delphi desktop app, in Delphi `TColor` f
 - For status chips use `src/components/DataDisplay/DelphiColorChip`, which falls back to a neutral outlined chip when the color can't be converted.
 - Known sources: customer status (`stato_clienti.Id_stato`: the **status id itself is the color**, see `CustomerStatusChip`), product status (`productStatus.color` from the `status` include of `product/new`). Campaign and subscription colors use the same utils.
 
+### Delphi RTF Text
+
+Several long-text fields are stored as RTF by the Delphi app (quote bodies/items, product extended description and notes). The backend returns them raw.
+
+- Decode/encode only with `decodeRtf` / `encodeRtfText` from `src/utils/rtf-utils`. Do not inline another RTF parser.
+- The web edits them as plain text: re-encode and send the field **only when the user changed it** (dirty), because re-encoding drops the original Delphi formatting.
+
+### API Errors
+
+- Backend business validations (`AriesException`) arrive as HTTP 400 `{ message }`. Show them with `getApiErrorMessage(error, fallback)` from `src/utils/api-error-utils` instead of a generic error toast.
+
 ## Forms And Mutations
 
 - Prefer React Hook Form for non-trivial forms.
@@ -168,7 +179,7 @@ Prefer the smallest useful validation set for the files you changed, but do not 
 - The customer list (`src/views/customers/list`) now uses server-side search/pagination via `GET customer/search` (`useCustomersSearch`, `useInfiniteQuery`), mirroring the quotes list pattern in `src/views/quotes/list`. Do not reintroduce client-side `.filter()` over a fully-fetched customer array.
 - List rows have no "Dettaglio" button: `CustomerTableRow` navigates on click, and opens a new tab on Cmd/Ctrl+click or middle-click (a `<tr>` can't be an `<a>`). The company name is also a real `RouterLink` (with `stopPropagation`) so right-click → "open in new tab" works. Reuse this pattern for other lists that should behave like links.
 - The status chip reads the backend-included `customerStatus` (`includes=status`, JSON `customer_status`) — `CustomerStatusChip` is purely presentational and no longer fetches the status list itself. Pass `status` from the include; `statusId` is only a fallback label. The chip color is the status id converted as a Delphi color (see "Delphi Colors" above), not a keyword match on the name.
-- Customer create (`RouteConfig.CustomerNew`, `customers/new`, `src/views/customers/new/CustomerNewView.tsx`) and edit (`CustomerDetailView`) share the same form: `src/views/customers/form/CustomerFormFields.tsx` (`mode: 'create' | 'edit'`), `customerFormValues.ts` and `CustomerFormSaveBar.tsx`. Change fields there, not in the views. In `create` mode Comune/Frazione of the main destination are editable (comune autocomplete is required), the read-only commercial ids and the contacts/destinations tables are hidden, and the dirty highlight is off. After `POST customer` the view navigates to the detail with `replace: true`. Status `ATTIVO` and customer type 1 are preselected, as the Delphi client does.
+- Customer create (`RouteConfig.CustomerNew`, `customers/new`, `src/views/customers/new/CustomerNewView.tsx`) and edit (`CustomerDetailView`) share the same form: `src/views/customers/form/CustomerFormFields.tsx` (`mode: 'create' | 'edit'`), `customerFormValues.ts` and the shared `src/components/Layout/FormSaveBar.tsx`. Change fields there, not in the views. In `create` mode Comune/Frazione of the main destination are editable (comune autocomplete is required), the read-only commercial ids and the contacts/destinations tables are hidden, and the dirty highlight is off. After `POST customer` the view navigates to the detail with `replace: true`. Status `ATTIVO` and customer type 1 are preselected, as the Delphi client does.
 - `customer/status` and `customer/type` are two distinct lookup endpoints (`useCustomerStatuses`, `useCustomerTypes`) backing the two list filters. **`statusId` is a string** (backend `Stato_cliente` is a short varchar code, not numeric), while `customerTypeId` is numeric. Don't assume both are numbers.
 - `GET customer` (no params, full unfiltered list) and `GET customer/mobile-sync` still exist unchanged for backward compatibility (Android + any other legacy consumer). Do not repurpose them for the searchable list; use `customer/search` instead.
 - `RouteConfig.CustomerDetail` (`customers/:customerId`) is wired to `src/views/customers/detail/CustomerDetailView.tsx`. It's a single React Hook Form (`useForm` with `values: defaultValues, resetOptions: { keepDirtyValues: true }`) covering the customer's core fields, main contact, and main destination, with a sticky bottom save bar (shown only when `isDirty`) and changed fields highlighted via `formState.dirtyFields` (light-yellow `#fff9c4` background). On submit it fires up to 3 independent PATCH mutations (`useUpdateCustomer`, `useUpdateCustomerMainContact`, `useUpdateCustomerMainDestination`), each only if its own section has dirty fields.
@@ -193,3 +204,12 @@ When extending system subscription flows:
 - if the UI shows a single "latest subscription campaign" summary, merge secondary data into that card instead of rendering separate cards with overlapping labels
 - if the modal offers "initialize from previous data", keep the initialization logic in small helpers and validate that the chosen year still represents a new record
 - if the page supports deep links that auto-open the modal, drive them from query string parameters, resolve the target mail explicitly, and clear the trigger params immediately after opening
+
+## Notes For Product Search/Detail Work
+
+- Product endpoints: list/count use `product/new` and `product/new/metadata` (because `GET product` is still the full-list sync of old Android versions); the detail uses `GET product/{code}?includes=...` and saves with `PUT product/{code}` (the Android app shares the GET without includes and keeps its own `PATCH`). Do not call the legacy `product/search` from the web.
+- Product codes are free text (e.g. `1303131**`): build detail links with `buildProductDetailLink` (`src/views/products/productHelpers.ts`), which URL-encodes the code; API calls encode it too.
+- The detail page (`src/views/products/detail`) mirrors the customer one: one React Hook Form, sticky `FormSaveBar`, dirty fields highlighted. Save is `PUT product/{code}` with the **full editable state** (`toProductSaveRequest`), so nullable FKs (brand, supplier, subcategories, color) can be cleared. `extendedDescription` is sent only when dirty (RTF, see above).
+- Before saving, a changed barcode / supplier code already used by another product asks for confirmation (exact-match search with `barcode` / `supplierProductCode`), like the Delphi client. Hard validations (category required, multiplier != 0, production cost type when `ENABLE_PRODUCT_REQUIRED_PRODUCTION_COST_TYPE` is on, subcategory consistency) are enforced by the backend and shown via `getApiErrorMessage`.
+- Not editable on the web yet (phase 2): product code (renaming moves document/photo folders in Delphi), kit composition (kit installation time is derived and the field is disabled), prices, detail tables (codes, spare parts/equipment/operations, notes, regulations), image, insert/delete/duplicate/label/print.
+- The "Listino" `%` column is computed client-side by `getPriceListEntryMargin`: the internal row follows the Ricarico/Sconto toggle, supplier rows always use the discount formula, brand rows have no cost.

@@ -31,7 +31,7 @@ import CustomerDestinationRowActions from '../components/CustomerDestinationRowA
 import CustomerStatusChip from '../components/CustomerStatusChip';
 import { getMainContact, getMainDestination } from '../customerHelpers';
 import CustomerFormFields from '../form/CustomerFormFields';
-import CustomerFormSaveBar from '../form/CustomerFormSaveBar';
+import FormSaveBar from '~/components/Layout/FormSaveBar';
 import { CustomerFormValues, getCustomerFormValues, toOptionalNumber } from '../form/customerFormValues';
 
 const CustomerDetailView = () => {
@@ -306,7 +306,7 @@ const CustomerDetailView = () => {
         )}
 
         {isDirty && (
-          <CustomerFormSaveBar
+          <FormSaveBar
             saving={isSaving}
             cancelLabel="Annulla modifiche"
             submitLabel="Salva modifiche"

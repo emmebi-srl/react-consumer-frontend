@@ -45,6 +45,8 @@ export const RouteConfig = {
   CustomerDetail: defineRoute('customers/:customerId'),
   SystemList: defineRoute('systems'),
   ProductList: defineRoute('products'),
+  // Product codes can contain URL-unsafe characters: build links with buildProductDetailLink.
+  ProductDetail: defineRoute('products/:productCode'),
   ChecklistList: defineRoute('checklists'),
   ChecklistDetail: defineRoute('checklists/:checklistId'),
   InterventionsNearby: defineRoute('interventions/nearby'),
