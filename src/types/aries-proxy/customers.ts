@@ -102,6 +102,11 @@ export interface CustomerUpdateRequest {
   recipientCode?: string;
 }
 
+export interface CustomerSaveRequest extends CustomerUpdateRequest {
+  /** Apply the changes to a new copy of the customer and set this one to VARIATO (Delphi "segna come variato"). */
+  markAsVaried?: boolean;
+}
+
 export interface CustomerCreateRequest extends CustomerUpdateRequest {
   companyName: string;
   mainContact: Omit<CustomerContactCreateRequest, 'figureId'> & { figureId?: number };
