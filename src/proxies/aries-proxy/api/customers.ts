@@ -14,7 +14,7 @@ import {
   CustomerSearchRequest,
   CustomerStatusList,
   CustomerTypeList,
-  CustomerUpdateRequest,
+  CustomerSaveRequest,
 } from '~/types/aries-proxy/customers';
 
 export const getCustomers = () => {
@@ -41,7 +41,7 @@ export const createCustomer = (model: CustomerCreateRequest) => {
   return ariesServicesClient.post<CustomerList>('customer', model);
 };
 
-export const updateCustomer = (id: number, model: CustomerUpdateRequest) => {
+export const updateCustomer = (id: number, model: CustomerSaveRequest) => {
   return ariesServicesClient.patch<CustomerList>(`customer/${id}`, model);
 };
 

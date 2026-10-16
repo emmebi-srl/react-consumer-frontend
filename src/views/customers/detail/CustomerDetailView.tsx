@@ -14,8 +14,10 @@ import {
   Typography,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
 import PageContainer from '~/components/Layout/PageContainer';
+import ConfirmationModal from '~/components/Modals/ConfirmationModal';
+import useSnackbar from '~/hooks/useSnackbar';
 import { useModal } from '~/modals/Modal';
 import {
   useCustomerById,
@@ -45,6 +47,8 @@ const CustomerDetailView = () => {
   const updateMainContactMutation = useUpdateCustomerMainContact();
   const updateMainDestinationMutation = useUpdateCustomerMainDestination();
   const modal = useModal();
+  const snackbar = useSnackbar();
+  const navigate = useNavigate();
 
   const mainDestination = customer ? getMainDestination(customer) : undefined;
   const mainContact = customer ? getMainContact(customer) : undefined;
@@ -68,10 +72,47 @@ const CustomerDetailView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer?.id]);
 
+  // Same questions the Delphi client asks (UFCustomers.BtnEditClick) when billing data change:
+  // "yes" moves the changes to a new customer and sets this one to VARIATO, "no" edits this one.
+  // Returns undefined when the user cancels the save.
+  const askMarkAsVaried = async (): Promise<boolean | undefined> => {
+    const variedAnswer = await modal.showModal({
+      component: ConfirmationModal,
+      props: {
+        title: 'Dati di fatturazione variati',
+        text: 'Dati di fatturazione variati, creare un nuovo cliente e segnare come variato questo?',
+      },
+    });
+    if (variedAnswer.action === 'CLOSE') return undefined;
+    if (variedAnswer.action === 'NO') return false;
+
+    const confirmAnswer = await modal.showModal({
+      component: ConfirmationModal,
+      props: {
+        title: 'Nuovo cliente',
+        text: 'Le modifiche verranno apportate nel nuovo cliente, continuare?',
+      },
+    });
+    return confirmAnswer.action === 'YES' ? true : undefined;
+  };
+
   const onSubmit = async (values: CustomerFormValues) => {
     if (!customer) return;
 
-    const tasks: Promise<unknown>[] = [];
+    const billingDirty = dirtyFields.companyName || dirtyFields.companyName2 || dirtyFields.vat || dirtyFields.taxCode;
+
+    let markAsVaried = false;
+    if (billingDirty) {
+      const answer = await askMarkAsVaried();
+      if (answer === undefined) {
+        snackbar.info('Modifica annullata');
+        return;
+      }
+      markAsVaried = answer;
+    }
+
+    // With "mark as varied" the backend returns the new customer: contact and destination changes go there too.
+    let targetCustomerId = customer.id;
 
     const customerDirty =
       dirtyFields.companyName ||
@@ -87,25 +128,27 @@ const CustomerDetailView = () => {
       dirtyFields.recipientCode;
 
     if (customerDirty) {
-      tasks.push(
-        updateCustomerMutation.mutateAsync({
-          id: customer.id,
-          data: {
-            companyName: values.companyName,
-            companyName2: values.companyName2,
-            vat: values.vat,
-            taxCode: values.taxCode,
-            attentionTo: values.attentionTo,
-            status: values.status,
-            customerTypeId: toOptionalNumber(values.customerTypeId),
-            website: values.website,
-            isInsolvent: values.isInsolvent,
-            uniqueCode: values.uniqueCode,
-            recipientCode: values.recipientCode,
-          },
-        }),
-      );
+      const result = await updateCustomerMutation.mutateAsync({
+        id: customer.id,
+        data: {
+          companyName: values.companyName,
+          companyName2: values.companyName2,
+          vat: values.vat,
+          taxCode: values.taxCode,
+          attentionTo: values.attentionTo,
+          status: values.status,
+          customerTypeId: toOptionalNumber(values.customerTypeId),
+          website: values.website,
+          isInsolvent: values.isInsolvent,
+          uniqueCode: values.uniqueCode,
+          recipientCode: values.recipientCode,
+          markAsVaried,
+        },
+      });
+      targetCustomerId = result.customers.at(0)?.id ?? customer.id;
     }
+
+    const tasks: Promise<unknown>[] = [];
 
     const contactDirty =
       mainContact &&
@@ -118,7 +161,7 @@ const CustomerDetailView = () => {
     if (contactDirty) {
       tasks.push(
         updateMainContactMutation.mutateAsync({
-          customerId: customer.id,
+          customerId: targetCustomerId,
           data: {
             title: values.contactTitle,
             name: values.contactName,
@@ -142,7 +185,7 @@ const CustomerDetailView = () => {
     if (destinationDirty) {
       tasks.push(
         updateMainDestinationMutation.mutateAsync({
-          customerId: customer.id,
+          customerId: targetCustomerId,
           data: {
             street: values.destinationStreet,
             houseNumber: toOptionalNumber(values.destinationHouseNumber),
@@ -156,6 +199,13 @@ const CustomerDetailView = () => {
     }
 
     await Promise.all(tasks);
+
+    if (targetCustomerId !== customer.id) {
+      snackbar.success(
+        `Creato il nuovo cliente #${targetCustomerId}, il cliente #${customer.id} è stato segnato come variato`,
+      );
+      navigate(RouteConfig.CustomerDetail.buildLink({ customerId: String(targetCustomerId) }));
+    }
   };
 
   const isSaving =

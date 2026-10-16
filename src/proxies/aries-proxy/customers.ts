@@ -26,7 +26,7 @@ import {
   CustomerDestinationCreateRequest,
   CustomerDestinationUpdateRequest,
   CustomerSearchRequest,
-  CustomerUpdateRequest,
+  CustomerSaveRequest,
 } from '~/types/aries-proxy/customers';
 
 const CustomerSearchPageSize = 50;
@@ -122,7 +122,7 @@ export const useUpdateCustomer = () => {
   const exceptionLogger = useExceptionLogger();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: CustomerUpdateRequest }) =>
+    mutationFn: async ({ id, data }: { id: number; data: CustomerSaveRequest }) =>
       (await updateCustomer(id, data)).data,
     onError: (err, data) => exceptionLogger.captureException(err, { extra: data }),
     onSuccess: (_data, variables) =>
