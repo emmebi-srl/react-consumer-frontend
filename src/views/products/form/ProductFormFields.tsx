@@ -31,7 +31,7 @@ import { ProductFormValues } from './productFormValues';
 
 const DIRTY_FIELD_SX = { '& .MuiInputBase-root': { backgroundColor: '#fff9c4' } };
 
-type FieldName = Exclude<keyof ProductFormValues, 'supplierName'>;
+type FieldName = Exclude<keyof ProductFormValues, 'supplierName' | 'isKit'>;
 
 interface FormTextFieldProps {
   control: Control<ProductFormValues>;
@@ -225,7 +225,7 @@ const ProductFormFields: React.FC<Props> = ({ product, control, dirtyFields, set
             </MenuItem>
           ))}
         </FormTextField>
-        {product && (
+        {product ? (
           <>
             <ReadOnlyField label="Data inserimento" value={formatDate(product.insertionDate)} width={140} />
             <ReadOnlyField label="Data modifica" value={formatDate(product.modificationDate)} width={140} />
@@ -236,6 +236,18 @@ const ProductFormFields: React.FC<Props> = ({ product, control, dirtyFields, set
               sx={{ flex: '0 0 auto' }}
             />
           </>
+        ) : (
+          <Controller
+            name="isKit"
+            control={control}
+            render={({ field }) => (
+              <FormControlLabel
+                control={<Checkbox checked={field.value} onChange={(e) => field.onChange(e.target.checked)} />}
+                label="Articolo composto (kit)"
+                sx={{ flex: '0 0 auto' }}
+              />
+            )}
+          />
         )}
       </Section>
 

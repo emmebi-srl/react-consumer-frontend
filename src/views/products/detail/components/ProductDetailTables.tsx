@@ -5,8 +5,10 @@ import {
   Card,
   CardContent,
   CardHeader,
+  IconButton,
   Menu,
   MenuItem,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -17,6 +19,7 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import { useModal } from '~/modals/Modal';
 import {
   useDeleteProductCode,
@@ -33,6 +36,7 @@ import ProductDetailRowActions from './ProductDetailRowActions';
 import ProductLinkedProductModal from './ProductLinkedProductModal';
 import ProductNoteModal from './ProductNoteModal';
 import ProductOperationModal from './ProductOperationModal';
+import ProductPriceModal from './ProductPriceModal';
 import ProductRegulationAddModal from './ProductRegulationAddModal';
 
 const formatAmount = (value?: number | null) =>
@@ -85,7 +89,7 @@ interface Props {
   product: Product;
 }
 
-// Detail grids of the Delphi product form (UFProducts). Prices stay read-only.
+// Detail grids of the Delphi product form (UFProducts).
 const ProductDetailTables: React.FC<Props> = ({ product }) => {
   const productCode = product.productCode;
   const modal = useModal();
@@ -125,15 +129,26 @@ const ProductDetailTables: React.FC<Props> = ({ product }) => {
           empty={priceListEntries.length === 0}
           emptyText="Nessun prezzo registrato"
           action={
-            <ToggleButtonGroup
-              size="small"
-              exclusive
-              value={marginMode}
-              onChange={(_event, value: MarginMode | null) => value && setMarginMode(value)}
-            >
-              <ToggleButton value="markup">Ricarico</ToggleButton>
-              <ToggleButton value="discount">Sconto</ToggleButton>
-            </ToggleButtonGroup>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={marginMode}
+                onChange={(_event, value: MarginMode | null) => value && setMarginMode(value)}
+              >
+                <ToggleButton value="markup">Ricarico</ToggleButton>
+                <ToggleButton value="discount">Sconto</ToggleButton>
+              </ToggleButtonGroup>
+              <AddButton
+                label="Aggiungi listino"
+                onClick={() =>
+                  modal.showModal({
+                    component: ProductPriceModal,
+                    props: { productCode, existingEntries: priceListEntries },
+                  })
+                }
+              />
+            </Stack>
           }
         >
           <Table size="small">
@@ -145,6 +160,7 @@ const ProductDetailTables: React.FC<Props> = ({ product }) => {
                 <TableCell align="right">%</TableCell>
                 <TableCell align="right">Costo</TableCell>
                 <TableCell align="right">Ultimo</TableCell>
+                <TableCell align="right" />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -156,6 +172,19 @@ const ProductDetailTables: React.FC<Props> = ({ product }) => {
                   <TableCell align="right">{formatAmount(getPriceListEntryMargin(entry, marginMode))}</TableCell>
                   <TableCell align="right">{formatAmount(entry.cost)}</TableCell>
                   <TableCell align="right">{formatAmount(entry.lastPrice)}</TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        modal.showModal({
+                          component: ProductPriceModal,
+                          props: { productCode, entry, existingEntries: priceListEntries },
+                        })
+                      }
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

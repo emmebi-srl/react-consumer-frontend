@@ -39,6 +39,7 @@ const ProductNewView = () => {
       const result = await createMutation.mutateAsync({
         ...toProductSaveRequest(values, values.extendedDescription.trim() !== ''),
         productCode: values.productCode.trim() || undefined,
+        isKit: values.isKit,
       });
       const created = result.products.at(0);
       snackbar.success(created ? `Articolo ${created.productCode} creato` : 'Articolo creato');

@@ -1,6 +1,7 @@
 import { Button, Stack } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/DriveFileRenameOutline';
 import LabelIcon from '@mui/icons-material/LocalOffer';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
@@ -10,6 +11,7 @@ import { fetchProductLabel, useCloneProduct, useDeleteProduct } from '~/proxies/
 import { RouteConfig } from '~/routes/routeConfig';
 import { getApiErrorMessage } from '~/utils/api-error-utils';
 import { buildProductDetailLink } from '../../productHelpers';
+import ProductRenameModal from './ProductRenameModal';
 
 interface Props {
   productCode: string;
@@ -80,10 +82,21 @@ const ProductDetailActions: React.FC<Props> = ({ productCode, hasUnsavedChanges 
     }
   };
 
+  const rename = async () => {
+    const result = await modal.showModal({
+      component: ProductRenameModal,
+      props: { productCode, hasUnsavedChanges },
+    });
+    if (result.action === 'RENAMED') navigate(buildProductDetailLink(result.newCode), { replace: true });
+  };
+
   return (
     <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
       <Button size="small" variant="outlined" startIcon={<LabelIcon />} onClick={openLabel}>
         Etichetta
+      </Button>
+      <Button size="small" variant="outlined" startIcon={<EditIcon />} disabled={busy} onClick={rename}>
+        Cambia codice
       </Button>
       <Button size="small" variant="outlined" startIcon={<ContentCopyIcon />} disabled={busy} onClick={duplicate}>
         Duplica

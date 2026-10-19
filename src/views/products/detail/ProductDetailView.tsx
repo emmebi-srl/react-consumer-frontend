@@ -19,6 +19,7 @@ import {
 import useConfirmDuplicateCodes from '../form/useConfirmDuplicateCodes';
 import ProductDetailActions from './components/ProductDetailActions';
 import ProductDetailTables from './components/ProductDetailTables';
+import ProductKitCard from './components/ProductKitCard';
 import ProductPictureCard from './components/ProductPictureCard';
 
 const ProductDetailView = () => {
@@ -106,6 +107,7 @@ const ProductDetailView = () => {
             <Box sx={{ maxWidth: { lg: 420 } }}>
               <ProductPictureCard productCode={product.productCode} />
             </Box>
+            {product.isKit && <ProductKitCard product={product} />}
             <ProductDetailTables product={product} />
           </Stack>
         )}

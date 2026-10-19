@@ -46,6 +46,7 @@ export const RouteConfig = {
   SystemList: defineRoute('systems'),
   ProductList: defineRoute('products'),
   ProductNew: defineRoute('products/new'),
+  ProductPriceCharge: defineRoute('products/price-charge'),
   // Product codes can contain URL-unsafe characters: build links with buildProductDetailLink.
   ProductDetail: defineRoute('products/:productCode'),
   ChecklistList: defineRoute('checklists'),

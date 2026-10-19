@@ -100,6 +100,8 @@ export interface Product {
   extendedDescription?: string;
   regulations?: Regulation[];
   priceListEntries?: ProductPriceListEntry[];
+  // Only for kits (isKit).
+  kitComponents?: ProductKitComponent[];
 }
 
 export interface ProductSubcategoryLevel2 {
@@ -200,6 +202,7 @@ export interface ProductSubcategoryLevel2List {
 
 // POST product: empty/omitted productCode = automatic code.
 export interface ProductCreateRequest extends ProductSaveRequest {
+  isKit?: boolean;
   productCode?: string;
 }
 
@@ -285,4 +288,71 @@ export interface MeasurementUnitList {
 
 export interface ProductionCostTypeList {
   productionCostTypes: ProductionCostType[];
+}
+
+export interface ProductKitComponent {
+  code: string;
+  quantity: number;
+  price: number;
+  cost: number;
+  // Installation time per unit.
+  installationTime: number;
+  position: number;
+  description?: string | null;
+  supplierProductCode?: string | null;
+  measurementUnits?: string | null;
+}
+
+export interface ProductKitComponentSaveRequest {
+  code: string;
+  quantity: number;
+  price: number;
+  cost: number;
+  installationTime: number;
+}
+
+export interface ProductKitComponentsSaveRequest {
+  components: ProductKitComponentSaveRequest[];
+  replaceExtendedDescription: boolean;
+}
+
+// Null values are left untouched. priceListId: supplier price list id / brand listino id, ignored for internal.
+export interface ProductPricesSaveRequest {
+  type: ProductPriceListEntryType;
+  priceListId: number | null;
+  price: number | null;
+  cost: number | null;
+  lastPrice: number | null;
+}
+
+export interface ProductPriceListLookupList {
+  priceLists: ProductPriceListEntry[];
+}
+
+export interface ProductPriceChargeBand {
+  fromCost: number;
+  toCost: number;
+  percentage: number;
+}
+
+export interface ProductPriceChargeRequest {
+  bands: ProductPriceChargeBand[];
+  onlyActive: boolean;
+  skipZeroCost: boolean;
+}
+
+export interface ProductPriceChargeResult {
+  updatedPrices: number;
+}
+
+export interface ProductPriceAnomaly {
+  productCode: string;
+  supplierProductCode?: string | null;
+  description?: string | null;
+  cost: number;
+  price: number;
+}
+
+export interface ProductPriceAnomalyList {
+  anomalies: ProductPriceAnomaly[];
 }

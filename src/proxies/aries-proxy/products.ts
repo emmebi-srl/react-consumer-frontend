@@ -3,6 +3,13 @@ import { isAxiosError } from 'axios';
 import useExceptionLogger from '~/hooks/useExceptionLogger';
 import {
   addProductCode,
+  chargePrices,
+  getPriceChargeAnomalies,
+  getPriceListPdf,
+  renameProduct,
+  saveProductKitComponents,
+  saveProductPrices,
+  searchPriceLists,
   addProductLinkedProduct,
   addProductNote,
   addProductOperation,
@@ -39,6 +46,9 @@ import {
 } from './api/products';
 import {
   ProductCodeSaveRequest,
+  ProductKitComponentsSaveRequest,
+  ProductPriceChargeRequest,
+  ProductPricesSaveRequest,
   ProductCreateRequest,
   ProductLinkedProductKind,
   ProductLinkedProductSaveRequest,
@@ -71,6 +81,9 @@ export const ProductsQueryKeys = {
   regulations: ['Regulations'] as const,
   operationTypes: ['ProductOperationTypes'] as const,
   autocomplete: (search: string) => ['Products', 'autocomplete', search] as const,
+  priceLists: (search: string) => ['ProductPriceLists', search] as const,
+  // Under 'Products': a price charge (or any product mutation) refreshes it.
+  priceChargeAnomalies: (onlyActive: boolean) => ['Products', 'priceChargeAnomalies', onlyActive] as const,
 };
 
 export const useProductsSearch = (params: ProductSearchRequest) => {
@@ -372,5 +385,48 @@ export const useProductsAutocomplete = (searchText: string) => {
     queryKey: ProductsQueryKeys.autocomplete(search),
     queryFn: async () => (await searchProducts({ search, pageIndex: 1, pageSize: 20 })).data.products,
     enabled: search.length >= 2,
+  });
+};
+
+export const useRenameProduct = () =>
+  useProductMutation(
+    async ({ productCode, newCode }: { productCode: string; newCode: string }) =>
+      (await renameProduct(productCode, newCode)).data,
+  );
+
+export const useSaveProductKitComponents = () =>
+  useProductMutation(
+    async ({ productCode, data }: { productCode: string; data: ProductKitComponentsSaveRequest }) =>
+      (await saveProductKitComponents(productCode, data)).data,
+  );
+
+export const useSaveProductPrices = () =>
+  useProductMutation(
+    async ({ productCode, data }: { productCode: string; data: ProductPricesSaveRequest }) =>
+      (await saveProductPrices(productCode, data)).data,
+  );
+
+export const usePriceListsSearch = (searchText: string) => {
+  const search = searchText.trim();
+  return useQuery({
+    queryKey: ProductsQueryKeys.priceLists(search),
+    queryFn: async () => (await searchPriceLists(search)).data.priceLists,
+  });
+};
+
+// Printed price list of every product (PDF blob, opened in a new tab).
+export const fetchPriceListPdf = async (excludeObsolete: boolean) => {
+  const res = await getPriceListPdf(excludeObsolete);
+  return new Blob([res.data], { type: 'application/pdf' });
+};
+
+export const useChargePrices = () =>
+  useProductMutation(async (data: ProductPriceChargeRequest) => (await chargePrices(data)).data);
+
+export const usePriceChargeAnomalies = (onlyActive: boolean, enabled: boolean) => {
+  return useQuery({
+    queryKey: ProductsQueryKeys.priceChargeAnomalies(onlyActive),
+    queryFn: async () => (await getPriceChargeAnomalies(onlyActive)).data.anomalies,
+    enabled,
   });
 };
