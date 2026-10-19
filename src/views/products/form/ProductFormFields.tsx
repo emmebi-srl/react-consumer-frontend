@@ -156,7 +156,8 @@ const SupplierField: React.FC<SupplierFieldProps> = ({ control, setValue, highli
 };
 
 interface Props {
-  product: Product;
+  // Undefined when creating a new product.
+  product?: Product;
   control: Control<ProductFormValues>;
   dirtyFields: Partial<Readonly<FieldNamesMarkedBoolean<ProductFormValues>>>;
   setValue: UseFormSetValue<ProductFormValues>;
@@ -184,7 +185,11 @@ const ProductFormFields: React.FC<Props> = ({ product, control, dirtyFields, set
   return (
     <Stack spacing={2}>
       <Section title="Articolo">
-        <ReadOnlyField label="Codice prodotto" value={product.productCode} width={160} />
+        {product ? (
+          <ReadOnlyField label="Codice prodotto" value={product.productCode} width={160} />
+        ) : (
+          <FormTextField {...common} name="productCode" label="Codice (vuoto = automatico)" width={200} />
+        )}
         <FormTextField {...common} name="description" label="Descrizione" width={360} requiredMessage="Obbligatoria" />
         <FormTextField {...common} name="barcode" label="Barcode" width={200} />
         <FormTextField {...common} name="supplierProductCode" label="Codice fornitore" width={180} />
@@ -220,14 +225,18 @@ const ProductFormFields: React.FC<Props> = ({ product, control, dirtyFields, set
             </MenuItem>
           ))}
         </FormTextField>
-        <ReadOnlyField label="Data inserimento" value={formatDate(product.insertionDate)} width={140} />
-        <ReadOnlyField label="Data modifica" value={formatDate(product.modificationDate)} width={140} />
-        <FormControlLabel
-          disabled
-          control={<Checkbox checked={!!product.isKit} />}
-          label="Articolo composto"
-          sx={{ flex: '0 0 auto' }}
-        />
+        {product && (
+          <>
+            <ReadOnlyField label="Data inserimento" value={formatDate(product.insertionDate)} width={140} />
+            <ReadOnlyField label="Data modifica" value={formatDate(product.modificationDate)} width={140} />
+            <FormControlLabel
+              disabled
+              control={<Checkbox checked={!!product.isKit} />}
+              label="Articolo composto"
+              sx={{ flex: '0 0 auto' }}
+            />
+          </>
+        )}
       </Section>
 
       <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', lg: 'repeat(2, 1fr)' } }}>
@@ -322,7 +331,7 @@ const ProductFormFields: React.FC<Props> = ({ product, control, dirtyFields, set
             label="T. installazione"
             width={120}
             numeric
-            disabled={!!product.isKit}
+            disabled={!!product?.isKit}
           />
           <FormTextField {...common} name="maintenanceMinutes" label="T. manutenzione" width={120} numeric />
           <FormTextField {...common} name="measurementUnits" label="U.M." width={110} select>

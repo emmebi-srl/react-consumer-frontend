@@ -19,7 +19,8 @@ ariesServicesClient.interceptors.request.use(
     if (tokenData) {
       req.headers.Authorization = `Bearer ${tokenData.access_token}`;
     }
-    if (_isObject(req.data)) {
+    // FormData (file uploads) must be sent as is: the camelCase -> snake_case mapping would empty it.
+    if (_isObject(req.data) && !(req.data instanceof FormData)) {
       req.data = jsonObjToApiObj(req.data, ['nameValuePairs']);
     }
     return req;

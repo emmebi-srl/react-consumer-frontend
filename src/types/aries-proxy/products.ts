@@ -198,6 +198,55 @@ export interface ProductSubcategoryLevel2List {
   subcategories: ProductSubcategoryLevel2[];
 }
 
+// POST product: empty/omitted productCode = automatic code.
+export interface ProductCreateRequest extends ProductSaveRequest {
+  productCode?: string;
+}
+
+export interface ProductCodeSaveRequest {
+  code: string;
+  supplierId: number | null;
+}
+
+export interface ProductNoteSaveRequest {
+  description: string;
+  // Raw RTF (encodeRtfText).
+  note: string;
+}
+
+export interface ProductRegulationCreateRequest {
+  regulationId: number;
+}
+
+// Spare part / equipment. `code` (the linked product) is only used on create.
+export interface ProductLinkedProductSaveRequest {
+  code: string;
+  quantity: number;
+  description: string;
+}
+
+// `operationId` is only used on create.
+export interface ProductOperationSaveRequest {
+  operationId: number;
+  description: string;
+}
+
+export interface RegulationList {
+  regulations: Regulation[];
+}
+
+export interface ProductOperationType {
+  id: number;
+  name: string;
+  description?: string | null;
+}
+
+export interface ProductOperationTypeList {
+  operationTypes: ProductOperationType[];
+}
+
+export type ProductLinkedProductKind = 'spare-parts' | 'equipment';
+
 export interface ProductList {
   products: Product[];
 }

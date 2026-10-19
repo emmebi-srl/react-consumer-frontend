@@ -2,6 +2,8 @@ import { Product, ProductSaveRequest } from '~/types/aries-proxy/products';
 import { decodeRtf, encodeRtfText } from '~/utils/rtf-utils';
 
 export interface ProductFormValues {
+  // Only editable when creating (empty = automatic code).
+  productCode: string;
   description: string;
   barcode: string;
   supplierProductCode: string;
@@ -60,6 +62,7 @@ export const PRODUCT_DETAIL_INCLUDES = [
 ].join(',');
 
 export const getProductFormValues = (product?: Product): ProductFormValues => ({
+  productCode: product?.productCode ?? '',
   description: product?.description ?? '',
   barcode: product?.barcode ?? '',
   supplierProductCode: product?.supplierProductCode ?? '',
