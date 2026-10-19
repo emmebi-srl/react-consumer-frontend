@@ -14,6 +14,7 @@ import { useFilterState } from './state';
 import ProductTableRowContent from './components/ProductTableRowContent';
 import ProductTableHeading from './components/ProductTableHeading';
 import ProductBar from './components/ProductBar';
+import ProductTabs from './components/ProductTabs';
 
 const ProductsTableComponents: TableComponents<Product> = {
   Table: DataTable,
@@ -52,6 +53,7 @@ const ProductListView = () => {
           flexGrow: 1,
         }}
       >
+        <ProductTabs />
         <ScrollToTopButton
           onClick={() => {
             virtuoso.current?.scrollToIndex({
