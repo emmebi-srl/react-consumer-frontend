@@ -5,6 +5,12 @@ import {
   MeasurementUnitList,
   ProductCategoryList,
   ProductCodeSaveRequest,
+  ProductKitComponentsSaveRequest,
+  ProductPriceAnomalyList,
+  ProductPriceChargeRequest,
+  ProductPriceChargeResult,
+  ProductPriceListLookupList,
+  ProductPricesSaveRequest,
   ProductCreateRequest,
   ProductLinkedProductKind,
   ProductLinkedProductSaveRequest,
@@ -183,4 +189,35 @@ export const getRegulations = () => {
 
 export const getProductOperationTypes = () => {
   return ariesServicesClient.get<ProductOperationTypeList>('product/operation-type');
+};
+
+export const renameProduct = (productCode: string, newCode: string) => {
+  return ariesServicesClient.post<ProductList>(`${productPath(productCode)}/rename`, { newCode });
+};
+
+export const saveProductKitComponents = (productCode: string, model: ProductKitComponentsSaveRequest) => {
+  return ariesServicesClient.put<ProductList>(`${productPath(productCode)}/kit-components`, model);
+};
+
+export const saveProductPrices = (productCode: string, model: ProductPricesSaveRequest) => {
+  return ariesServicesClient.put<ProductList>(`${productPath(productCode)}/prices`, model);
+};
+
+export const searchPriceLists = (search: string) => {
+  return ariesServicesClient.get<ProductPriceListLookupList>('product/price-list', { params: { search } });
+};
+
+export const getPriceListPdf = (excludeObsolete: boolean) => {
+  return ariesServicesClient.get<ArrayBuffer>('product/price-list/print', {
+    params: { excludeObsolete },
+    responseType: 'arraybuffer',
+  });
+};
+
+export const chargePrices = (model: ProductPriceChargeRequest) => {
+  return ariesServicesClient.post<ProductPriceChargeResult>('product/price-charge', model);
+};
+
+export const getPriceChargeAnomalies = (onlyActive: boolean) => {
+  return ariesServicesClient.get<ProductPriceAnomalyList>('product/price-charge/anomalies', { params: { onlyActive } });
 };

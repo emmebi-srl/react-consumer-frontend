@@ -39,6 +39,7 @@ const SystemList = asyncComponent(() => import('../views/systems/list/SystemList
 const ProductList = asyncComponent(() => import('../views/products/list/ProductListView'));
 const ProductDetail = asyncComponent(() => import('../views/products/detail/ProductDetailView'));
 const ProductNew = asyncComponent(() => import('../views/products/new/ProductNewView'));
+const ProductPriceCharge = asyncComponent(() => import('../views/products/price-charge/ProductPriceChargeView'));
 const ChecklistListView = asyncComponent(() => import('../views/checklists/list/ChecklistListView'));
 const ChecklistDetailView = asyncComponent(() => import('../views/checklists/detail/ChecklistDetailView'));
 const CampaignListView = asyncComponent(() => import('../views/campaigns/list/CampaignListView'));
@@ -145,6 +146,10 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.ProductNew.template,
             element: <ProductNew />,
+          },
+          {
+            path: RouteConfig.ProductPriceCharge.template,
+            element: <ProductPriceCharge />,
           },
           {
             path: RouteConfig.ProductDetail.template,

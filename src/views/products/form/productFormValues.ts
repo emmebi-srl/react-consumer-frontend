@@ -4,6 +4,8 @@ import { decodeRtf, encodeRtfText } from '~/utils/rtf-utils';
 export interface ProductFormValues {
   // Only editable when creating (empty = automatic code).
   productCode: string;
+  // Only settable when creating (like the Delphi client): the composition is edited on the detail page.
+  isKit: boolean;
   description: string;
   barcode: string;
   supplierProductCode: string;
@@ -59,10 +61,12 @@ export const PRODUCT_DETAIL_INCLUDES = [
   'extended_description',
   'regulations',
   'price_list_entries',
+  'kit_components',
 ].join(',');
 
 export const getProductFormValues = (product?: Product): ProductFormValues => ({
   productCode: product?.productCode ?? '',
+  isKit: product?.isKit ?? false,
   description: product?.description ?? '',
   barcode: product?.barcode ?? '',
   supplierProductCode: product?.supplierProductCode ?? '',
