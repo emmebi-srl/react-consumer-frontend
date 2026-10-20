@@ -24,7 +24,7 @@ export interface SubscriptionProposal {
   systemAddress: string;
   maintenanceCount: number;
   singleMaintenancePrice: number;
-  callRightPrice: number;
+  phoneAvailabilityPrice: number;
   subscriberInterventionPrice: number;
   nonSubscriberInterventionPrice: number;
   isInFinalState: boolean;
@@ -46,7 +46,7 @@ export interface AcceptSubscriptionProposalRequest {
   selectedMonthIndexes: number[];
   termsAndConditionsAcceptanceDate: number;
   subscriptionTermsAcceptanceDate: number;
-  immediateCallRightInvoicingAcceptanceDate: number;
+  immediatePhoneAvailabilityInvoicingAcceptanceDate: number;
   note?: string | null;
 }
 

@@ -52,10 +52,10 @@ export interface SystemSubscriptionProposalAcceptance {
   systemId: number;
   maintenanceCount: number;
   singleMaintenancePrice: number;
-  callRightPrice: number;
+  phoneAvailabilityPrice: number;
   termsAndConditionsAcceptanceDate: number;
   subscriptionTermsAcceptanceDate: number;
-  immediateCallRightInvoicingAcceptanceDate: number;
+  immediatePhoneAvailabilityInvoicingAcceptanceDate: number;
   insertionDate: number;
   months?: SystemSubscriptionProposalAcceptanceMonth[] | null;
 }
@@ -85,10 +85,10 @@ export interface CreateSystemSubscriptionRequest {
   subscriptionAmount: number;
   maintenanceAmount: number;
   firstHourAmount: number;
-  callRightAmount: number;
+  phoneAvailabilityAmount: number;
   months: number[];
   createForEntireDuration: boolean;
-  createCallRightPreinvoice: boolean;
+  createPhoneAvailabilityPreinvoice: boolean;
 }
 
 export interface SystemSubscriptionOperationResult {
