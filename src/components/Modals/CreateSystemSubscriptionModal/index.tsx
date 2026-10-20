@@ -67,11 +67,11 @@ const FormSchema = z.object({
   year: z.number().int().min(2000, 'Anno non valido').max(2100, 'Anno non valido'),
   subscriptionAmount: z.number().min(0, 'Inserisci un importo valido'),
   maintenanceAmount: z.number().min(0, 'Inserisci un importo valido'),
-  callRightAmount: z.number().min(0, 'Inserisci un importo valido'),
+  phoneAvailabilityAmount: z.number().min(0, 'Inserisci un importo valido'),
   firstHourAmount: z.number().min(0, 'Inserisci un importo valido'),
   months: z.array(z.number().int().min(1).max(12)).min(1, 'Seleziona almeno un mese'),
   createForEntireDuration: z.boolean(),
-  createCallRightPreinvoice: z.boolean(),
+  createPhoneAvailabilityPreinvoice: z.boolean(),
 });
 
 type FormValues = z.infer<typeof FormSchema>;
@@ -115,7 +115,6 @@ const getTemplateFromSystemSubscription = (
     year,
     subscriptionAmount: subscription.exit?.subscriptionAmount ?? fallbackSubscriptionAmount,
     maintenanceAmount: subscription.exit?.maintenanceAmount ?? 0,
-    callRightAmount: Number(subscription.exit?.callRightAmount ?? 0),
     firstHourAmount: Number(subscription.exit?.firstHourAmount ?? 0),
     months: sortMonthIndexes((subscription.months ?? []).map((month) => month.month)),
   };
@@ -137,10 +136,10 @@ const getTemplateFromProposalAcceptance = (
     year,
     subscriptionAmount: fallbackSubscriptionAmount,
     maintenanceAmount: proposalAcceptance.singleMaintenancePrice,
-    callRightAmount: Number(proposalAcceptance.callRightPrice),
+    phoneAvailabilityAmount: Number(proposalAcceptance.phoneAvailabilityPrice),
     firstHourAmount: fallbackFirstHourAmount,
     months: sortMonthIndexes((proposalAcceptance.months ?? []).map((month) => month.monthIndex)),
-    createCallRightPreinvoice: true,
+    createPhoneAvailabilityPreinvoice: true,
   };
 };
 
@@ -173,11 +172,11 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
       year: currentYear,
       subscriptionAmount: 0,
       maintenanceAmount: 0,
-      callRightAmount: 0,
+      phoneAvailabilityAmount: 0,
       firstHourAmount: 0,
       months: [],
       createForEntireDuration: false,
-      createCallRightPreinvoice: false,
+      createPhoneAvailabilityPreinvoice: false,
     },
   });
 
@@ -216,13 +215,11 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
       subscriptionAmount:
         latestSystemSubscription?.exit?.subscriptionAmount ?? defaultFormSubscription?.subscriptionAmount ?? 0,
       maintenanceAmount: latestSystemSubscription?.exit?.maintenanceAmount ?? 0,
-      callRightAmount: Number(
-        latestSystemSubscription?.exit?.callRightAmount ?? defaultFormSubscription?.callRightAmount ?? 0,
-      ),
+      phoneAvailabilityAmount: Number(defaultFormSubscription?.phoneAvailabilityAmount ?? 0),
       firstHourAmount: Number(latestSystemSubscription?.exit?.firstHourAmount ?? 0),
       months: sortMonthIndexes((latestSystemSubscription?.months ?? []).map((month) => month.month)),
       createForEntireDuration: false,
-      createCallRightPreinvoice: false,
+      createPhoneAvailabilityPreinvoice: false,
     }),
     [defaultFormSubscription, latestSystemSubscription, suggestedYear],
   );
@@ -265,11 +262,7 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
         systemSubscriptionTemplate?.maintenanceAmount ??
         baseTemplate.maintenanceAmount ??
         0,
-      callRightAmount:
-        proposalTemplate?.callRightAmount ??
-        systemSubscriptionTemplate?.callRightAmount ??
-        baseTemplate.callRightAmount ??
-        0,
+      phoneAvailabilityAmount: proposalTemplate?.phoneAvailabilityAmount ?? baseTemplate.phoneAvailabilityAmount ?? 0,
       firstHourAmount:
         proposalTemplate?.firstHourAmount ??
         systemSubscriptionTemplate?.firstHourAmount ??
@@ -277,8 +270,8 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
         0,
       months: proposalTemplate?.months ?? systemSubscriptionTemplate?.months ?? baseTemplate.months ?? [],
       createForEntireDuration: baseTemplate.createForEntireDuration ?? false,
-      createCallRightPreinvoice:
-        proposalTemplate?.createCallRightPreinvoice ?? baseTemplate.createCallRightPreinvoice ?? false,
+      createPhoneAvailabilityPreinvoice:
+        proposalTemplate?.createPhoneAvailabilityPreinvoice ?? baseTemplate.createPhoneAvailabilityPreinvoice ?? false,
     });
 
     initializationRef.current = true;
@@ -312,11 +305,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
       year: template.year ?? form.getValues('year'),
       subscriptionAmount: template.subscriptionAmount ?? form.getValues('subscriptionAmount'),
       maintenanceAmount: template.maintenanceAmount ?? form.getValues('maintenanceAmount'),
-      callRightAmount: template.callRightAmount ?? form.getValues('callRightAmount'),
+      phoneAvailabilityAmount: template.phoneAvailabilityAmount ?? form.getValues('phoneAvailabilityAmount'),
       firstHourAmount: template.firstHourAmount ?? form.getValues('firstHourAmount'),
       months: template.months ?? form.getValues('months'),
       createForEntireDuration: template.createForEntireDuration ?? form.getValues('createForEntireDuration'),
-      createCallRightPreinvoice: template.createCallRightPreinvoice ?? form.getValues('createCallRightPreinvoice'),
+      createPhoneAvailabilityPreinvoice:
+        template.createPhoneAvailabilityPreinvoice ?? form.getValues('createPhoneAvailabilityPreinvoice'),
     });
   };
 
@@ -332,16 +326,16 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
         year: values.year,
         subscriptionAmount: values.subscriptionAmount,
         maintenanceAmount: values.maintenanceAmount,
-        callRightAmount: values.callRightAmount,
+        phoneAvailabilityAmount: values.phoneAvailabilityAmount,
         firstHourAmount: values.firstHourAmount,
         months: sortMonthIndexes(values.months),
         createForEntireDuration: values.createForEntireDuration,
-        createCallRightPreinvoice: values.createCallRightPreinvoice,
+        createPhoneAvailabilityPreinvoice: values.createPhoneAvailabilityPreinvoice,
       });
 
       snackbar.success(
         result.preinvoice
-          ? 'Abbonamento creato correttamente con prefattura per il diritto di chiamata.'
+          ? 'Abbonamento creato correttamente con prefattura per la reperibilità telefonica.'
           : 'Abbonamento creato correttamente.',
       );
       props.closeModal({
@@ -675,10 +669,10 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                                 color: 'text.secondary',
                               }}
                             >
-                              Prezzo diritto di chiamata
+                              Prezzo reperibilità telefonica
                             </Typography>
                             <Typography variant="body1">
-                              {formatMoney(newMoney(campaignProposalAcceptance.callRightPrice))}
+                              {formatMoney(newMoney(campaignProposalAcceptance.phoneAvailabilityPrice))}
                             </Typography>
                           </Grid>
                           <Grid size={{ xs: 12, sm: 4 }}>
@@ -825,10 +819,10 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
                             color: 'text.secondary',
                           }}
                         >
-                          Diritto di chiamata
+                          Reperibilità telefonica
                         </Typography>
                         <Typography variant="body1">
-                          {formatMoney(newMoney(Number(latestSystemSubscription.exit?.callRightAmount ?? 0)))}
+                          {(latestSystemSubscription.exit?.callAvailability ?? 0) > 0 ? 'Inclusa' : 'Non inclusa'}
                         </Typography>
                       </Grid>
                       <Grid size={{ xs: 12, sm: 4, md: 2 }}>
@@ -961,12 +955,12 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <Controller
                   control={form.control}
-                  name="callRightAmount"
+                  name="phoneAvailabilityAmount"
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
                       fullWidth
-                      label="Prezzo diritto di chiamata"
+                      label="Prezzo reperibilità telefonica"
                       type="number"
                       slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
                       onChange={(event) => field.onChange(Number(event.target.value))}
@@ -1046,11 +1040,11 @@ const CreateSystemSubscriptionModal = (props: CreateSystemSubscriptionModalProps
 
             <Controller
               control={form.control}
-              name="createCallRightPreinvoice"
+              name="createPhoneAvailabilityPreinvoice"
               render={({ field }) => (
                 <FormControlLabel
                   control={<Checkbox checked={field.value} onChange={(_event, checked) => field.onChange(checked)} />}
-                  label="Genera prefattura per diritto di chiamata"
+                  label="Genera prefattura per reperibilità telefonica"
                 />
               )}
             />

@@ -242,7 +242,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
       model: {
         termsAndConditionsAcceptanceDate: acceptanceDate,
         subscriptionTermsAcceptanceDate: acceptanceDate,
-        immediateCallRightInvoicingAcceptanceDate: acceptanceDate,
+        immediatePhoneAvailabilityInvoicingAcceptanceDate: acceptanceDate,
         note: values.notes || null,
         selectedMonthIndexes:
           values.maintenanceCount === 2 && values.preferredMonth2
@@ -600,7 +600,7 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                         }}
                       >
                         {[
-                          ['Reperibilità telefonica h24', `${formatCurrency(proposal.callRightPrice)} / anno`],
+                          ['Reperibilità telefonica h24', `${formatCurrency(proposal.phoneAvailabilityPrice)} / anno`],
                           [
                             'Costo per interventi',
                             `${formatCurrency(proposal.subscriberInterventionPrice)} anzichè ${formatCurrency(proposal.nonSubscriberInterventionPrice)}`,
@@ -678,9 +678,9 @@ const AcceptSubscriptionProposalContent: React.FC = () => {
                         </Typography>
                         <Typography sx={{ lineHeight: 1.7 }}>
                           Con l&apos;adesione all&apos;abbonamento verra attivato il servizio di reperibilità telefonica
-                          H24 al costo di <strong>{formatCurrency(proposal.callRightPrice)}</strong> con fatturazione
-                          immediata. In caso di accettazione successiva al mese di gennaio, l&apos;importo verra ridotto
-                          proporzionalmente.
+                          H24 al costo di <strong>{formatCurrency(proposal.phoneAvailabilityPrice)}</strong> con
+                          fatturazione immediata. In caso di accettazione successiva al mese di gennaio, l&apos;importo
+                          verra ridotto proporzionalmente.
                         </Typography>
                       </Alert>
 

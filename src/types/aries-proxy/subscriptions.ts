@@ -8,6 +8,7 @@ export interface Subscription {
   subscriptionAmount: number;
   callRightAmount: number;
   extraordinaryCallRightAmount: number;
+  phoneAvailabilityAmount: number;
   callAvailability: number;
   includedHours: number;
   includedExtraordinaryHours: number;
