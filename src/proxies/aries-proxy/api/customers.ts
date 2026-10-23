@@ -15,6 +15,10 @@ import {
   CustomerStatusList,
   CustomerTypeList,
   CustomerSaveRequest,
+  CustomerRelationshipTypeList,
+  CustomerActivityTypeList,
+  CustomerPaymentConditionList,
+  CustomerAgentList,
 } from '~/types/aries-proxy/customers';
 
 export const getCustomers = () => {
@@ -87,6 +91,22 @@ export const getCustomerTypes = () => {
 
 export const getCustomerStatuses = () => {
   return ariesServicesClient.get<CustomerStatusList>('customer/status');
+};
+
+export const getCustomerRelationshipTypes = () => {
+  return ariesServicesClient.get<CustomerRelationshipTypeList>('customer/relationship-type');
+};
+
+export const getCustomerActivityTypes = () => {
+  return ariesServicesClient.get<CustomerActivityTypeList>('customer/activity-type');
+};
+
+export const getCustomerPaymentConditions = () => {
+  return ariesServicesClient.get<CustomerPaymentConditionList>('customer/payment-condition');
+};
+
+export const getCustomerAgents = () => {
+  return ariesServicesClient.get<CustomerAgentList>('customer/agent');
 };
 
 export const getCustomerContactFigures = () => {

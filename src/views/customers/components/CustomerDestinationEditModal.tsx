@@ -1,9 +1,21 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, TextField } from '@mui/material';
-import { Controller, useForm } from 'react-hook-form';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  MenuItem,
+  Stack,
+  TextField,
+} from '@mui/material';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import useSnackbar from '~/hooks/useSnackbar';
 import { ModalProps } from '~/modals/Modal';
 import { useUpdateCustomerDestination } from '~/proxies/aries-proxy/customers';
+import { useFrazioniByComune } from '~/proxies/aries-proxy/geo';
 import { CustomerDestination } from '~/types/aries-proxy/customers';
+import ComuneAutocomplete from './ComuneAutocomplete';
 
 interface CustomerDestinationEditModalProps extends Omit<ModalProps, 'closeModal'> {
   customerId: number;
@@ -18,6 +30,8 @@ interface FormValues {
   province: string;
   km: number;
   minutes: number;
+  comuneId: number | '';
+  frazioneId: number | '';
 }
 
 const CustomerDestinationEditModal = (props: CustomerDestinationEditModalProps) => {
@@ -25,7 +39,12 @@ const CustomerDestinationEditModal = (props: CustomerDestinationEditModalProps) 
   const snackbar = useSnackbar();
   const updateMutation = useUpdateCustomerDestination();
 
-  const { control, handleSubmit } = useForm<FormValues>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { dirtyFields },
+  } = useForm<FormValues>({
     defaultValues: {
       street: destination.street,
       houseNumber: destination.houseNumber,
@@ -33,14 +52,32 @@ const CustomerDestinationEditModal = (props: CustomerDestinationEditModalProps) 
       province: destination.province ?? '',
       km: destination.km,
       minutes: destination.minutes,
+      comuneId: destination.comuneId ?? '',
+      frazioneId: destination.frazioneId ?? '',
     },
   });
 
+  const comuneId = useWatch({ control, name: 'comuneId' });
+  const frazioniQuery = useFrazioniByComune(comuneId === '' ? null : comuneId);
+  const frazioni = frazioniQuery.data?.frazioni ?? [];
+  const initialComune = destination.comuneId
+    ? { id: destination.comuneId, name: destination.municipality, province: destination.province }
+    : null;
+
   const close = () => props.closeModal({ action: 'CLOSE' });
 
-  const submit = handleSubmit(async (values) => {
+  const submit = handleSubmit(async ({ comuneId: selectedComuneId, frazioneId, ...values }) => {
+    const locationDirty = dirtyFields.comuneId || dirtyFields.frazioneId;
     try {
-      await updateMutation.mutateAsync({ customerId, destinationId: destination.destinationId, data: values });
+      await updateMutation.mutateAsync({
+        customerId,
+        destinationId: destination.destinationId,
+        data: {
+          ...values,
+          comuneId: dirtyFields.comuneId && selectedComuneId !== '' ? selectedComuneId : undefined,
+          frazioneId: locationDirty ? (frazioneId === '' ? 0 : frazioneId) : undefined,
+        },
+      });
       snackbar.success('Destinazione aggiornata');
       props.closeModal({ action: 'SAVED' });
     } catch {
@@ -125,8 +162,50 @@ const CustomerDestinationEditModal = (props: CustomerDestinationEditModalProps) 
               />
             </Grid>
           </Grid>
-          <TextField label="Comune" value={destination.municipality || 'N/D'} disabled fullWidth />
-          <TextField label="Frazione" value={destination.fraction || 'N/D'} disabled fullWidth />
+          <Controller
+            name="comuneId"
+            control={control}
+            render={({ field }) => (
+              <ComuneAutocomplete
+                value={field.value}
+                initialComune={initialComune}
+                onChange={(comune) => {
+                  field.onChange(comune?.id ?? '');
+                  setValue('frazioneId', '', { shouldDirty: true });
+                  if (comune?.province) setValue('province', comune.province, { shouldDirty: true });
+                }}
+                size="medium"
+                fullWidth
+                helperText={
+                  !initialComune && destination.municipality && field.value === ''
+                    ? `Attuale: ${destination.municipality}`
+                    : undefined
+                }
+              />
+            )}
+          />
+          {frazioni.length > 0 && (
+            <Controller
+              name="frazioneId"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  fullWidth
+                  label="Frazione"
+                  onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                >
+                  <MenuItem value="">Nessuna</MenuItem>
+                  {frazioni.map((frazione) => (
+                    <MenuItem key={frazione.id} value={frazione.id}>
+                      {frazione.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>

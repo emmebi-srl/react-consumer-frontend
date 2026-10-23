@@ -6,8 +6,12 @@ import {
   createCustomerDestination,
   deleteCustomerContact,
   deleteCustomerDestination,
+  getCustomerActivityTypes,
+  getCustomerAgents,
   getCustomerById,
   getCustomerContactFigures,
+  getCustomerPaymentConditions,
+  getCustomerRelationshipTypes,
   getCustomerStatuses,
   getCustomerTypes,
   getCustomers,
@@ -39,6 +43,10 @@ export const CustomersQueryKeys = {
   types: ['CustomerTypes'] as const,
   statuses: ['CustomerStatuses'] as const,
   contactFigures: ['CustomerContactFigures'] as const,
+  relationshipTypes: ['CustomerRelationshipTypes'] as const,
+  activityTypes: ['CustomerActivityTypes'] as const,
+  paymentConditions: ['CustomerPaymentConditions'] as const,
+  agents: ['CustomerAgents'] as const,
 };
 
 export const useCustomers = () => {
@@ -105,6 +113,34 @@ export const useCustomerStatuses = () => {
   return useQuery({
     queryKey: CustomersQueryKeys.statuses,
     queryFn: async () => (await getCustomerStatuses()).data,
+  });
+};
+
+export const useCustomerRelationshipTypes = () => {
+  return useQuery({
+    queryKey: CustomersQueryKeys.relationshipTypes,
+    queryFn: async () => (await getCustomerRelationshipTypes()).data,
+  });
+};
+
+export const useCustomerActivityTypes = () => {
+  return useQuery({
+    queryKey: CustomersQueryKeys.activityTypes,
+    queryFn: async () => (await getCustomerActivityTypes()).data,
+  });
+};
+
+export const useCustomerPaymentConditions = () => {
+  return useQuery({
+    queryKey: CustomersQueryKeys.paymentConditions,
+    queryFn: async () => (await getCustomerPaymentConditions()).data,
+  });
+};
+
+export const useCustomerAgents = () => {
+  return useQuery({
+    queryKey: CustomersQueryKeys.agents,
+    queryFn: async () => (await getCustomerAgents()).data,
   });
 };
 

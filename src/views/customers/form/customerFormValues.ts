@@ -12,6 +12,10 @@ export interface CustomerFormValues {
   isInsolvent: boolean;
   uniqueCode: string;
   recipientCode: string;
+  relationshipTypeId: number | '';
+  activityId: number | '';
+  paymentConditionId: number | '';
+  agentId: number | '';
   contactTitle: string;
   contactName: string;
   contactPhone: string;
@@ -43,13 +47,17 @@ export const getCustomerFormValues = (
   isInsolvent: customer?.isInsolvent ?? false,
   uniqueCode: customer?.uniqueCode ?? '',
   recipientCode: customer?.recipientCode ?? '',
+  relationshipTypeId: customer?.relationshipTypeId ?? '',
+  activityId: customer?.activityId ?? '',
+  paymentConditionId: customer?.paymentConditionId ?? '',
+  agentId: customer?.agentId ?? '',
   contactTitle: mainContact?.title ?? '',
   contactName: mainContact?.name ?? '',
   contactPhone: mainContact?.phone ?? '',
   contactMobilePhone: mainContact?.mobilePhone ?? '',
   contactEmail: mainContact?.email ?? '',
-  destinationComuneId: '',
-  destinationFrazioneId: '',
+  destinationComuneId: mainDestination?.comuneId ?? '',
+  destinationFrazioneId: mainDestination?.frazioneId ?? '',
   destinationStreet: mainDestination?.street ?? '',
   destinationHouseNumber: mainDestination?.houseNumber ?? '',
   destinationOther: mainDestination?.other ?? '',
@@ -59,3 +67,9 @@ export const getCustomerFormValues = (
 });
 
 export const toOptionalNumber = (value: number | '') => (value === '' ? undefined : value);
+
+/**
+ * An emptied field is sent as 0: the backend clears nullable lookups (activity, agent, frazione)
+ * and recalculates blank km/travel time from Google, like the Delphi client.
+ */
+export const toClearableId = (value: number | '') => (value === '' ? 0 : value);

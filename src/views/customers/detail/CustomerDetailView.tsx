@@ -14,7 +14,8 @@ import {
   Typography,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useParams, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import BackButton from '~/components/Layout/BackButton';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import useSnackbar from '~/hooks/useSnackbar';
@@ -34,7 +35,7 @@ import CustomerStatusChip from '../components/CustomerStatusChip';
 import { getMainContact, getMainDestination } from '../customerHelpers';
 import CustomerFormFields from '../form/CustomerFormFields';
 import FormSaveBar from '~/components/Layout/FormSaveBar';
-import { CustomerFormValues, getCustomerFormValues, toOptionalNumber } from '../form/customerFormValues';
+import { CustomerFormValues, getCustomerFormValues, toClearableId, toOptionalNumber } from '../form/customerFormValues';
 
 const CustomerDetailView = () => {
   const params = useParams<{ customerId?: string }>();
@@ -125,7 +126,11 @@ const CustomerDetailView = () => {
       dirtyFields.website ||
       dirtyFields.isInsolvent ||
       dirtyFields.uniqueCode ||
-      dirtyFields.recipientCode;
+      dirtyFields.recipientCode ||
+      dirtyFields.relationshipTypeId ||
+      dirtyFields.activityId ||
+      dirtyFields.paymentConditionId ||
+      dirtyFields.agentId;
 
     if (customerDirty) {
       const result = await updateCustomerMutation.mutateAsync({
@@ -142,6 +147,10 @@ const CustomerDetailView = () => {
           isInsolvent: values.isInsolvent,
           uniqueCode: values.uniqueCode,
           recipientCode: values.recipientCode,
+          relationshipTypeId: toOptionalNumber(values.relationshipTypeId),
+          paymentConditionId: toOptionalNumber(values.paymentConditionId),
+          activityId: toClearableId(values.activityId),
+          agentId: toClearableId(values.agentId),
           markAsVaried,
         },
       });
@@ -175,7 +184,9 @@ const CustomerDetailView = () => {
 
     const destinationDirty =
       mainDestination &&
-      (dirtyFields.destinationStreet ||
+      (dirtyFields.destinationComuneId ||
+        dirtyFields.destinationFrazioneId ||
+        dirtyFields.destinationStreet ||
         dirtyFields.destinationHouseNumber ||
         dirtyFields.destinationOther ||
         dirtyFields.destinationProvince ||
@@ -191,8 +202,13 @@ const CustomerDetailView = () => {
             houseNumber: toOptionalNumber(values.destinationHouseNumber),
             other: values.destinationOther,
             province: values.destinationProvince,
-            km: toOptionalNumber(values.destinationKm),
-            minutes: toOptionalNumber(values.destinationMinutes),
+            km: toClearableId(values.destinationKm),
+            minutes: toClearableId(values.destinationMinutes),
+            comuneId: dirtyFields.destinationComuneId ? toOptionalNumber(values.destinationComuneId) : undefined,
+            frazioneId:
+              dirtyFields.destinationComuneId || dirtyFields.destinationFrazioneId
+                ? toClearableId(values.destinationFrazioneId)
+                : undefined,
           },
         }),
       );
@@ -217,20 +233,11 @@ const CustomerDetailView = () => {
   return (
     <PageContainer>
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: isDirty ? 10 : 0 }}>
-        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <Typography variant="h4">{customer ? customer.companyName : `Cliente #${customerId}`}</Typography>
-            {customer && <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />}
-            {customer?.isInsolvent && <Chip size="small" color="error" label="Insolvente" />}
-          </Stack>
-          <Typography
-            component={RouterLink}
-            to={RouteConfig.CustomerList.buildLink()}
-            color="primary"
-            sx={{ textDecoration: 'none', fontWeight: 600 }}
-          >
-            {'←'} Torna alla lista
-          </Typography>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+          <BackButton to={RouteConfig.CustomerList.buildLink()} />
+          <Typography variant="h4">{customer ? customer.companyName : `Cliente #${customerId}`}</Typography>
+          {customer && <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />}
+          {customer?.isInsolvent && <Chip size="small" color="error" label="Insolvente" />}
         </Stack>
 
         {customer && (
@@ -240,7 +247,6 @@ const CustomerDetailView = () => {
               control={control}
               dirtyFields={dirtyFields}
               setValue={setValue}
-              customer={customer}
               hasMainContact={!!mainContact}
               mainDestination={mainDestination}
             />

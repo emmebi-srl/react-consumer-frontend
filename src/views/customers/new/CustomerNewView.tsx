@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { Stack, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import BackButton from '~/components/Layout/BackButton';
 import PageContainer from '~/components/Layout/PageContainer';
 import useSnackbar from '~/hooks/useSnackbar';
 import { useCreateCustomer, useCustomerStatuses, useCustomerTypes } from '~/proxies/aries-proxy/customers';
@@ -55,6 +56,10 @@ const CustomerNewView = () => {
         isInsolvent: values.isInsolvent,
         uniqueCode: values.uniqueCode,
         recipientCode: values.recipientCode,
+        relationshipTypeId: toOptionalNumber(values.relationshipTypeId),
+        paymentConditionId: toOptionalNumber(values.paymentConditionId),
+        activityId: toOptionalNumber(values.activityId),
+        agentId: toOptionalNumber(values.agentId),
         mainContact: {
           title: values.contactTitle,
           name: values.contactName,
@@ -90,16 +95,9 @@ const CustomerNewView = () => {
   return (
     <PageContainer>
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: 10 }}>
-        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+          <BackButton to={RouteConfig.CustomerList.buildLink()} />
           <Typography variant="h4">Nuovo cliente</Typography>
-          <Typography
-            component={RouterLink}
-            to={RouteConfig.CustomerList.buildLink()}
-            color="primary"
-            sx={{ textDecoration: 'none', fontWeight: 600 }}
-          >
-            {'←'} Torna alla lista
-          </Typography>
         </Stack>
 
         <CustomerFormFields

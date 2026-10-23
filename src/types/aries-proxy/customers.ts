@@ -1,9 +1,13 @@
+import { ActivityType, PaymentCondition } from './supplier-invoices';
+
 export interface CustomerDestination {
   destinationId: number;
   customerId: number;
   province: string | null;
   municipality: string;
   fraction: string;
+  comuneId?: number | null;
+  frazioneId?: number | null;
   street: string;
   houseNumber: number;
   other: string;
@@ -100,6 +104,39 @@ export interface CustomerUpdateRequest {
   isInsolvent?: boolean;
   uniqueCode?: string;
   recipientCode?: string;
+  relationshipTypeId?: number;
+  paymentConditionId?: number;
+  /** 0 clears the activity. */
+  activityId?: number;
+  /** 0 clears the agent. */
+  agentId?: number;
+}
+
+export interface CustomerRelationshipType {
+  id: number;
+  name: string;
+  description?: string | null;
+}
+
+export interface CustomerRelationshipTypeList {
+  types: CustomerRelationshipType[];
+}
+
+export interface CustomerActivityTypeList {
+  activities: ActivityType[];
+}
+
+export interface CustomerPaymentConditionList {
+  paymentConditions: PaymentCondition[];
+}
+
+export interface CustomerAgent {
+  id: number;
+  name: string;
+}
+
+export interface CustomerAgentList {
+  agents: CustomerAgent[];
 }
 
 export interface CustomerSaveRequest extends CustomerUpdateRequest {
@@ -128,6 +165,10 @@ export interface CustomerDestinationUpdateRequest {
   province?: string;
   km?: number;
   minutes?: number;
+  /** Changing the comune also resets the frazione to `frazioneId`. */
+  comuneId?: number;
+  /** 0 clears the frazione. */
+  frazioneId?: number;
 }
 
 export interface CustomerContactFigure {

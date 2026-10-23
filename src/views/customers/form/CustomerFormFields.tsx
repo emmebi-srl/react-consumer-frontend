@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import {
   Autocomplete,
   Card,
@@ -11,11 +11,18 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { Control, Controller, FieldNamesMarkedBoolean, UseFormSetValue } from 'react-hook-form';
-import { useCustomerStatuses, useCustomerTypes } from '~/proxies/aries-proxy/customers';
-import { useComuneSearch, useFrazioniByComune } from '~/proxies/aries-proxy/geo';
-import { Customer, CustomerDestination } from '~/types/aries-proxy/customers';
-import { Comune } from '~/types/aries-proxy/geo';
+import { Control, Controller, FieldNamesMarkedBoolean, UseFormSetValue, useWatch } from 'react-hook-form';
+import {
+  useCustomerActivityTypes,
+  useCustomerAgents,
+  useCustomerPaymentConditions,
+  useCustomerRelationshipTypes,
+  useCustomerStatuses,
+  useCustomerTypes,
+} from '~/proxies/aries-proxy/customers';
+import { useFrazioniByComune } from '~/proxies/aries-proxy/geo';
+import { CustomerDestination } from '~/types/aries-proxy/customers';
+import ComuneAutocomplete from '../components/ComuneAutocomplete';
 import { CustomerFormValues } from './customerFormValues';
 
 const DIRTY_FIELD_SX = { '& .MuiInputBase-root': { backgroundColor: '#fff9c4' } };
@@ -70,52 +77,103 @@ const FormTextField: React.FC<FormTextFieldProps> = ({
   />
 );
 
+type LookupFieldName = 'activityId' | 'paymentConditionId' | 'agentId';
+
+interface LookupOption {
+  id: number;
+  name?: string | null;
+}
+
+interface FormLookupFieldProps {
+  control: Control<CustomerFormValues>;
+  name: LookupFieldName;
+  label: string;
+  width: number;
+  highlighted: boolean;
+  options: LookupOption[];
+  loading: boolean;
+  disableClearable?: boolean;
+}
+
+const FormLookupField: React.FC<FormLookupFieldProps> = ({
+  control,
+  name,
+  label,
+  width,
+  highlighted,
+  options,
+  loading,
+  disableClearable,
+}) => (
+  <Controller
+    name={name}
+    control={control}
+    render={({ field }) => {
+      // A saved id missing from the list (e.g. an agent no longer active) is still shown instead of looking empty.
+      const selected =
+        field.value === ''
+          ? null
+          : (options.find((option) => option.id === field.value) ??
+            (loading ? null : { id: field.value, name: `#${field.value}` }));
+
+      return (
+        <Autocomplete
+          options={options}
+          value={selected}
+          loading={loading}
+          disableClearable={disableClearable && selected !== null}
+          getOptionLabel={(option) => option.name || `#${option.id}`}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(_event, value) => field.onChange(value?.id ?? '')}
+          onBlur={field.onBlur}
+          sx={{ minWidth: width, flex: `1 1 ${width}px`, ...(highlighted ? DIRTY_FIELD_SX : {}) }}
+          renderInput={(params) => <TextField {...params} size="small" label={label} />}
+        />
+      );
+    }}
+  />
+);
+
 interface ComuneFieldsProps {
   control: Control<CustomerFormValues>;
   setValue: UseFormSetValue<CustomerFormValues>;
+  isCreate: boolean;
+  mainDestination?: CustomerDestination;
+  isHighlighted: (name: keyof CustomerFormValues) => boolean;
 }
 
-const ComuneFields: React.FC<ComuneFieldsProps> = ({ control, setValue }) => {
-  const [searchText, setSearchText] = useState('');
-  const [selectedComune, setSelectedComune] = useState<Comune | null>(null);
-  const comuneQuery = useComuneSearch(searchText);
-  const frazioniQuery = useFrazioniByComune(selectedComune?.id ?? null);
+const ComuneFields: React.FC<ComuneFieldsProps> = ({ control, setValue, isCreate, mainDestination, isHighlighted }) => {
+  const comuneId = useWatch({ control, name: 'destinationComuneId' });
+  const frazioniQuery = useFrazioniByComune(comuneId === '' ? null : comuneId);
   const frazioni = frazioniQuery.data?.frazioni ?? [];
+  const initialComune = mainDestination?.comuneId
+    ? { id: mainDestination.comuneId, name: mainDestination.municipality, province: mainDestination.province }
+    : null;
 
   return (
     <>
       <Controller
         name="destinationComuneId"
         control={control}
-        rules={{ validate: (value) => value !== '' || 'Il comune è obbligatorio' }}
+        rules={isCreate ? { validate: (value) => value !== '' || 'Il comune è obbligatorio' } : undefined}
         render={({ field, fieldState }) => (
-          <Autocomplete
-            options={comuneQuery.data?.comuni ?? []}
-            value={selectedComune}
-            loading={comuneQuery.isLoading}
-            filterOptions={(options) => options}
-            getOptionLabel={(option) => `${option.name}${option.province ? ` (${option.province})` : ''}`}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            onChange={(_event, value) => {
-              setSelectedComune(value);
-              field.onChange(value?.id ?? '');
-              setValue('destinationFrazioneId', '');
-              if (value?.province) setValue('destinationProvince', value.province);
+          <ComuneAutocomplete
+            value={field.value}
+            initialComune={initialComune}
+            onChange={(comune) => {
+              field.onChange(comune?.id ?? '');
+              setValue('destinationFrazioneId', '', { shouldDirty: true });
+              if (comune?.province) setValue('destinationProvince', comune.province, { shouldDirty: true });
             }}
-            onInputChange={(_event, value, reason) => {
-              if (reason !== 'reset') setSearchText(value);
-            }}
-            sx={{ minWidth: 220, flex: '1 1 220px' }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                required
-                size="small"
-                label="Comune"
-                error={!!fieldState.error}
-                helperText={fieldState.error?.message ?? 'Digita almeno 2 lettere'}
-              />
-            )}
+            required={isCreate}
+            error={!!fieldState.error}
+            helperText={
+              fieldState.error?.message ??
+              (!initialComune && mainDestination?.municipality && field.value === ''
+                ? `Attuale: ${mainDestination.municipality}`
+                : undefined)
+            }
+            sx={{ minWidth: 220, flex: '1 1 220px', ...(isHighlighted('destinationComuneId') ? DIRTY_FIELD_SX : {}) }}
           />
         )}
       />
@@ -125,7 +183,7 @@ const ComuneFields: React.FC<ComuneFieldsProps> = ({ control, setValue }) => {
           name="destinationFrazioneId"
           label="Frazione"
           width={150}
-          highlighted={false}
+          highlighted={isHighlighted('destinationFrazioneId')}
           numeric
           select
         >
@@ -146,7 +204,6 @@ interface Props {
   control: Control<CustomerFormValues>;
   dirtyFields: Partial<Readonly<FieldNamesMarkedBoolean<CustomerFormValues>>>;
   setValue: UseFormSetValue<CustomerFormValues>;
-  customer?: Customer;
   hasMainContact: boolean;
   mainDestination?: CustomerDestination;
 }
@@ -156,12 +213,15 @@ const CustomerFormFields: React.FC<Props> = ({
   control,
   dirtyFields,
   setValue,
-  customer,
   hasMainContact,
   mainDestination,
 }) => {
   const { data: typesData } = useCustomerTypes();
   const { data: statusesData } = useCustomerStatuses();
+  const { data: relationshipTypesData } = useCustomerRelationshipTypes();
+  const activityTypesQuery = useCustomerActivityTypes();
+  const paymentConditionsQuery = useCustomerPaymentConditions();
+  const agentsQuery = useCustomerAgents();
   const isCreate = mode === 'create';
   // Every field is "changed" on a new customer, so the highlight only makes sense when editing.
   const isHighlighted = (name: keyof CustomerFormValues) => !isCreate && !!dirtyFields[name];
@@ -237,38 +297,49 @@ const CustomerFormFields: React.FC<Props> = ({
               ],
             })}
             {textField('website', 'Sito web', 220)}
-            {customer && (
-              <>
-                <TextField
-                  label="Tipo rapporto"
-                  size="small"
-                  value={customer.relationshipTypeId ?? 'N/D'}
-                  disabled
-                  sx={{ minWidth: 150, flex: '1 1 150px' }}
-                />
-                <TextField
-                  label="Attività"
-                  size="small"
-                  value={customer.activityId ?? 'N/D'}
-                  disabled
-                  sx={{ minWidth: 150, flex: '1 1 150px' }}
-                />
-                <TextField
-                  label="Condizione pagamento"
-                  size="small"
-                  value={customer.paymentConditionId ?? 'N/D'}
-                  disabled
-                  sx={{ minWidth: 150, flex: '1 1 150px' }}
-                />
-                <TextField
-                  label="Agente"
-                  size="small"
-                  value={customer.agentId ?? 'N/D'}
-                  disabled
-                  sx={{ minWidth: 150, flex: '1 1 150px' }}
-                />
-              </>
-            )}
+            {textField('relationshipTypeId', 'Tipo rapporto', 180, {
+              select: true,
+              numeric: true,
+              children: [
+                // On a new customer the backend falls back to the Delphi default.
+                <MenuItem key="" value="" disabled={!isCreate}>
+                  {isCreate ? 'Predefinito' : 'N/D'}
+                </MenuItem>,
+                ...(relationshipTypesData?.types ?? []).map((type) => (
+                  <MenuItem key={type.id} value={type.id}>
+                    {type.name}
+                  </MenuItem>
+                )),
+              ],
+            })}
+            <FormLookupField
+              control={control}
+              name="activityId"
+              label="Attività"
+              width={180}
+              highlighted={isHighlighted('activityId')}
+              options={activityTypesQuery.data?.activities ?? []}
+              loading={activityTypesQuery.isLoading}
+            />
+            <FormLookupField
+              control={control}
+              name="paymentConditionId"
+              label="Condizione pagamento"
+              width={220}
+              highlighted={isHighlighted('paymentConditionId')}
+              options={paymentConditionsQuery.data?.paymentConditions ?? []}
+              loading={paymentConditionsQuery.isLoading}
+              disableClearable={!isCreate}
+            />
+            <FormLookupField
+              control={control}
+              name="agentId"
+              label="Agente"
+              width={180}
+              highlighted={isHighlighted('agentId')}
+              options={agentsQuery.data?.agents ?? []}
+              loading={agentsQuery.isLoading}
+            />
           </Stack>
         </CardContent>
       </Card>
@@ -297,29 +368,17 @@ const CustomerFormFields: React.FC<Props> = ({
         <CardContent>
           {isCreate || mainDestination ? (
             <Stack direction="row" useFlexGap sx={{ flexWrap: 'wrap', gap: 2 }}>
-              {isCreate && <ComuneFields control={control} setValue={setValue} />}
+              <ComuneFields
+                control={control}
+                setValue={setValue}
+                isCreate={isCreate}
+                mainDestination={mainDestination}
+                isHighlighted={isHighlighted}
+              />
               {textField('destinationStreet', 'Indirizzo', 220)}
               {textField('destinationHouseNumber', 'Civico', 110, { numeric: true })}
               {textField('destinationOther', 'Altro', 150)}
               {textField('destinationProvince', 'Provincia', 110)}
-              {mainDestination && (
-                <>
-                  <TextField
-                    label="Comune"
-                    size="small"
-                    value={mainDestination.municipality || 'N/D'}
-                    disabled
-                    sx={{ minWidth: 150, flex: '1 1 150px' }}
-                  />
-                  <TextField
-                    label="Frazione"
-                    size="small"
-                    value={mainDestination.fraction || 'N/D'}
-                    disabled
-                    sx={{ minWidth: 150, flex: '1 1 150px' }}
-                  />
-                </>
-              )}
               {textField('destinationKm', 'Km', 110, { numeric: true })}
               {textField('destinationMinutes', 'Tempo viaggio (min)', 150, { numeric: true })}
             </Stack>
