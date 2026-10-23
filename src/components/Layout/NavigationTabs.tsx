@@ -36,8 +36,6 @@ const Container = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   gap: 8,
-  marginTop: 16,
-  marginBottom: 16,
 });
 
 const Label = styled(Box)({

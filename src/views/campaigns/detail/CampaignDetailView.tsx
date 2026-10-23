@@ -1,4 +1,4 @@
-import { Add, ArrowBack, Refresh, Visibility } from '@mui/icons-material';
+import { Add, Refresh, Visibility } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -18,7 +18,8 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
-import { Link as RouterLink, Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
+import BackButton from '~/components/Layout/BackButton';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -494,14 +495,7 @@ const CampaignDetailView = () => {
               alignItems: 'center',
             }}
           >
-            <IconButton
-              component={RouterLink}
-              to={RouteConfig.CampaignList.buildLink()}
-              color="primary"
-              aria-label="Torna alle campagne"
-            >
-              <ArrowBack />
-            </IconButton>
+            <BackButton to={RouteConfig.CampaignList.buildLink()} ariaLabel="Torna alle campagne" />
             <Typography variant="h4">Dettaglio campagna</Typography>
           </Stack>
           <Button

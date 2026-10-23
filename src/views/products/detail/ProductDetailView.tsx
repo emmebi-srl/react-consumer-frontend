@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
 import FormSaveBar from '~/components/Layout/FormSaveBar';
+import BackButton from '~/components/Layout/BackButton';
 import PageContainer from '~/components/Layout/PageContainer';
 import useSnackbar from '~/hooks/useSnackbar';
 import { useProductByCode, useSaveProduct } from '~/proxies/aries-proxy/products';
@@ -76,6 +77,7 @@ const ProductDetailView = () => {
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: isDirty ? 10 : 0 }}>
         <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center', minWidth: 0 }}>
+            <BackButton to={RouteConfig.ProductList.buildLink()} />
             <Typography variant="h4" noWrap>
               {product ? `${product.productCode} · ${product.description ?? ''}` : productCode}
             </Typography>
@@ -84,17 +86,7 @@ const ProductDetailView = () => {
             )}
             {product?.isKit && <Chip size="small" color="info" label="Composto" />}
           </Stack>
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            {product && <ProductDetailActions productCode={product.productCode} hasUnsavedChanges={isDirty} />}
-            <Typography
-              component={RouterLink}
-              to={RouteConfig.ProductList.buildLink()}
-              color="primary"
-              sx={{ textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}
-            >
-              {'←'} Torna alla lista
-            </Typography>
-          </Stack>
+          {product && <ProductDetailActions productCode={product.productCode} hasUnsavedChanges={isDirty} />}
         </Stack>
 
         {productQuery.isSuccess && !product && (

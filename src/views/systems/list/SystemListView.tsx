@@ -1,8 +1,9 @@
 import { Stack, TableCell } from '@mui/material';
-import { useMemo, useRef, useState } from 'react';
-import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
+import { useMemo, useState } from 'react';
+import { TableComponents, TableVirtuoso } from 'react-virtuoso';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
+import useVirtuosoStateRestoration from '~/hooks/useVirtuosoStateRestoration';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -126,7 +127,6 @@ const SystemTableRowContent: React.FC<{ system: System }> = ({ system }) => {
 const SystemListView = () => {
   const [topReached, setTopReached] = useState(true);
   const [search, setSearch] = useState('');
-  const virtuoso = useRef<TableVirtuosoHandle>(null);
 
   const queryParams = useMemo(
     () => ({
@@ -145,6 +145,11 @@ const SystemListView = () => {
   );
   const totalCount = systemsMetadataQuery.data?.metadata.totalCount ?? 0;
   const filteredCount = systemsMetadataQuery.data?.metadata.filteredCount ?? 0;
+  const {
+    ref: virtuoso,
+    restoreStateFrom,
+    isScrolling,
+  } = useVirtuosoStateRestoration(`systems:${JSON.stringify(queryParams)}`, systems.length > 0);
 
   return (
     <PageContainer>
@@ -153,6 +158,8 @@ const SystemListView = () => {
         direction="column"
         sx={{
           flexGrow: 1,
+          // Without this the flex item grows to the full list height and the page scrolls instead of the table.
+          minHeight: 0,
         }}
       >
         <ScrollToTopButton
@@ -165,9 +172,11 @@ const SystemListView = () => {
           }}
           visible={!topReached}
         />
-        <DataTableContainer>
+        <DataTableContainer sx={{ minHeight: 0 }}>
           <TableVirtuoso<System>
             ref={virtuoso}
+            restoreStateFrom={restoreStateFrom}
+            isScrolling={isScrolling}
             atTopStateChange={setTopReached}
             atTopThreshold={100}
             overscan={{

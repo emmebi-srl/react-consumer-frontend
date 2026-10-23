@@ -21,6 +21,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Link as RouterLink } from 'react-router-dom';
+import BackButton from '~/components/Layout/BackButton';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import useSnackbar from '~/hooks/useSnackbar';
@@ -111,16 +112,9 @@ const ProductPriceChargeView = () => {
   return (
     <PageContainer>
       <Stack spacing={3}>
-        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+          <BackButton to={RouteConfig.ProductList.buildLink()} />
           <Typography variant="h4">Ricarico prezzi</Typography>
-          <Typography
-            component={RouterLink}
-            to={RouteConfig.ProductList.buildLink()}
-            color="primary"
-            sx={{ textDecoration: 'none', fontWeight: 600 }}
-          >
-            {'←'} Torna alla lista
-          </Typography>
         </Stack>
 
         <Alert severity="info">

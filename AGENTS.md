@@ -101,6 +101,23 @@ When a backend resource exposes both a legacy endpoint and a newer `/new` endpoi
 - Reuse existing modal patterns from `src/components/Modals`.
 - Keep route views focused on composition; extract repeatable sections into local `components` folders when they grow.
 
+### Page Header And Back Navigation
+
+Detail/create/edit pages reached from a list use the same header: a back arrow on the left, immediately followed by the `h4` title (and any chips), with page actions on the right.
+
+- Use `BackButton` from `src/components/Layout/BackButton` (an `ArrowBack` `IconButton` linking to the list via `RouteConfig.<List>.buildLink()`).
+- Do not add a textual "← Torna alla lista" link, and do not put the back navigation on the right side of the header.
+
+```tsx
+<Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+  <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+    <BackButton to={RouteConfig.CustomerList.buildLink()} />
+    <Typography variant="h4">Titolo</Typography>
+  </Stack>
+  {/* optional page actions */}
+</Stack>
+```
+
 ### Delphi Colors
 
 Some data carries colors written by the Delphi desktop app, in Delphi `TColor` format: named constants (`clRed`, `clMoneyGreen`, ...), `$00BBGGRR` hex (BGR, not RGB) or a decimal integer. The backend returns them **raw**; the conversion happens **only here**:

@@ -1,6 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary, Chip, Divider, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import BackButton from '~/components/Layout/BackButton';
 import PageContainer from '~/components/Layout/PageContainer';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
@@ -23,23 +24,10 @@ const QuoteDetailView = () => {
       <SplitMain>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack
-              direction="row"
-              sx={{
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
+            <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+              <BackButton to={RouteConfig.QuoteList.buildLink()} />
               <Typography variant="h4">
                 Preventivo #{quoteId} / {year}
-              </Typography>
-              <Typography
-                component={RouterLink}
-                to={RouteConfig.QuoteList.buildLink()}
-                color="primary"
-                sx={{ textDecoration: 'none', fontWeight: 600 }}
-              >
-                {'←'} Torna alla lista
               </Typography>
             </Stack>
 

@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Stack } from '@mui/system';
 import _isEmpty from 'lodash/isEmpty';
+import useVirtuosoStateRestoration from '~/hooks/useVirtuosoStateRestoration';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTableContainer from '~/components/Table/DataTableContainer';
-import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
+import { TableComponents, TableVirtuoso } from 'react-virtuoso';
 import { Checklist } from '~/types/aries-proxy/checklists';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import DataTableHead from '~/components/Table/DataTableHead';
@@ -28,7 +29,6 @@ const ChecklistsListView = () => {
   const filters = useFilterState();
 
   const checklistsQuery = useChecklistsSearch(filters.search);
-  const virtuoso = useRef<TableVirtuosoHandle>(null);
 
   const checklists = useMemo(() => {
     const startingList = checklistsQuery.data?.list ?? [];
@@ -49,6 +49,11 @@ const ChecklistsListView = () => {
 
     return filteredList;
   }, [checklistsQuery.data, filters.search]);
+  const {
+    ref: virtuoso,
+    restoreStateFrom,
+    isScrolling,
+  } = useVirtuosoStateRestoration(`checklists:${filters.search}`, checklists.length > 0);
 
   return (
     <PageContainer>
@@ -57,6 +62,8 @@ const ChecklistsListView = () => {
         direction="column"
         sx={{
           flexGrow: 1,
+          // Without this the flex item grows to the full list height and the page scrolls instead of the table.
+          minHeight: 0,
         }}
       >
         <ScrollToTopButton
@@ -69,9 +76,11 @@ const ChecklistsListView = () => {
           }}
           visible={!topReached}
         />
-        <DataTableContainer>
+        <DataTableContainer sx={{ minHeight: 0 }}>
           <TableVirtuoso<Checklist>
             ref={virtuoso}
+            restoreStateFrom={restoreStateFrom}
+            isScrolling={isScrolling}
             atTopStateChange={setTopReached}
             atTopThreshold={100}
             overscan={{
