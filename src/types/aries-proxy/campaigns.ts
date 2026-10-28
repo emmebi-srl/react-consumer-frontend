@@ -13,6 +13,8 @@ export interface CampaignList {
 // ==============================
 export interface Campaign {
   replyToAddress?: string | null;
+  whatsappReplyNotificationAddresses?: string | null;
+  whatsappTemplateId?: number | null;
   id: number;
   campaignTypeId: number;
   name: string;
@@ -27,6 +29,8 @@ export interface Campaign {
 
 export interface CampaignCreate {
   replyToAddress?: string | null;
+  whatsappReplyNotificationAddresses?: string | null;
+  whatsappTemplateId?: number | null;
   campaignTypeId: number;
   name: string;
   description: string;
@@ -39,6 +43,8 @@ export interface CampaignCreate {
 
 export interface CampaignUpdate {
   replyToAddress?: string | null;
+  whatsappReplyNotificationAddresses?: string | null;
+  whatsappTemplateId?: number | null;
   campaignTypeId?: number | null;
   name?: string | null;
   description?: string | null;

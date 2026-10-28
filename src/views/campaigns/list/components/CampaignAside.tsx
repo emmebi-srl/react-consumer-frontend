@@ -30,6 +30,8 @@ import { Delete, ToggleOff, ToggleOn } from '@mui/icons-material';
 import { resolveError } from '~/hooks/useExceptionLogger';
 import { Link as RouterLink } from 'react-router-dom';
 import { RouteConfig } from '~/routes/routeConfig';
+import { emailAddressListSchema } from '../../emailAddressListSchema';
+import WhatsappTemplateSelect from '../../WhatsappTemplateSelect';
 
 const EditCampaignFormSchema = z.object({
   replyToAddress: z
@@ -37,6 +39,8 @@ const EditCampaignFormSchema = z.object({
     .trim()
     .max(254)
     .pipe(z.email('Indirizzo email non valido').or(z.literal(''))),
+  whatsappReplyNotificationAddresses: emailAddressListSchema,
+  whatsappTemplateId: z.number().int().positive().nullable(),
   name: z.string().min(1, { message: 'Nome è obbligatorio' }),
   description: z.string().min(1, { message: 'Descrizione è obbligatoria' }),
   mailSubject: z.string().min(1, { message: 'Oggetto email è obbligatorio' }),
@@ -65,6 +69,8 @@ const CampaignAsideForm: React.FC<{
       description: campaign.description,
       mailSubject: campaign.mailSubject,
       replyToAddress: campaign.replyToAddress ?? '',
+      whatsappReplyNotificationAddresses: campaign.whatsappReplyNotificationAddresses ?? '',
+      whatsappTemplateId: campaign.whatsappTemplateId ?? null,
     },
     resetOptions: { keepDirtyValues: true },
   });
@@ -79,6 +85,9 @@ const CampaignAsideForm: React.FC<{
           description: data.description,
           mailSubject: data.mailSubject,
           replyToAddress: data.replyToAddress,
+          whatsappReplyNotificationAddresses: data.whatsappReplyNotificationAddresses,
+          // 0 removes the template: the campaign becomes email only.
+          whatsappTemplateId: data.whatsappTemplateId ?? 0,
         },
       },
       {
@@ -172,6 +181,28 @@ const CampaignAsideForm: React.FC<{
               "Facoltativo. Se vuoto, usa l'indirizzo di risposta dell'account email."
             }
           />
+          <TextField
+            {...form.register('whatsappReplyNotificationAddresses')}
+            label="Notifica risposte WhatsApp a"
+            fullWidth
+            error={!!form.formState.errors.whatsappReplyNotificationAddresses}
+            helperText={
+              form.formState.errors.whatsappReplyNotificationAddresses?.message ??
+              'Facoltativo. Indirizzi separati da ";". Se vuoto, usa "Rispondi a".'
+            }
+          />
+          <Controller
+            control={form.control}
+            name="whatsappTemplateId"
+            render={({ field }) => (
+              <WhatsappTemplateSelect
+                value={field.value}
+                onChange={field.onChange}
+                error={!!form.formState.errors.whatsappTemplateId}
+                helperText={form.formState.errors.whatsappTemplateId?.message}
+              />
+            )}
+          />
           <Box
             sx={{
               maxHeight: '400px',
@@ -220,6 +251,8 @@ const CampaignAsideForm: React.FC<{
                 description: campaign.description,
                 mailSubject: campaign.mailSubject,
                 replyToAddress: campaign.replyToAddress ?? '',
+                whatsappReplyNotificationAddresses: campaign.whatsappReplyNotificationAddresses ?? '',
+                whatsappTemplateId: campaign.whatsappTemplateId ?? null,
                 campaignTypeId: campaign.campaignTypeId,
               })
             }
