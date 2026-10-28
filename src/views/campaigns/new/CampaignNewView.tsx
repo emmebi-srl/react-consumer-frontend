@@ -28,6 +28,8 @@ import { CampaignCreate } from '~/types/aries-proxy/campaigns';
 import CampaignTemplateDropZone from './components/CampaignTemplateDropZone';
 import { Grid } from '@mui/system';
 import { sanitize } from 'lettersanitizer';
+import { emailAddressListSchema } from '../emailAddressListSchema';
+import WhatsappTemplateSelect from '../WhatsappTemplateSelect';
 
 const CampaignFormSchema = z.object({
   replyToAddress: z
@@ -35,6 +37,8 @@ const CampaignFormSchema = z.object({
     .trim()
     .max(254)
     .pipe(z.email('Indirizzo email non valido').or(z.literal(''))),
+  whatsappReplyNotificationAddresses: emailAddressListSchema,
+  whatsappTemplateId: z.number().int().positive().nullable(),
   campaignTypeId: z
     .number({
       message: 'Tipo campagna obbligatorio',
@@ -64,6 +68,8 @@ const CampaignNewView = () => {
       mailTemplate: '',
       mailSubject: '',
       replyToAddress: '',
+      whatsappReplyNotificationAddresses: '',
+      whatsappTemplateId: null,
       active: false,
     },
   });
@@ -80,6 +86,8 @@ const CampaignNewView = () => {
       active: values.active,
       mailSubject: values.mailSubject,
       replyToAddress: values.replyToAddress,
+      whatsappReplyNotificationAddresses: values.whatsappReplyNotificationAddresses,
+      whatsappTemplateId: values.whatsappTemplateId,
     };
 
     await createCampaign(payload);
@@ -173,6 +181,31 @@ const CampaignNewView = () => {
                   "Facoltativo. Se vuoto, usa l'indirizzo di risposta dell'account email."
                 }
               />
+              <TextField
+                {...form.register('whatsappReplyNotificationAddresses')}
+                label="Notifica risposte WhatsApp a"
+                fullWidth
+                sx={{ mb: 2 }}
+                error={!!form.formState.errors.whatsappReplyNotificationAddresses}
+                helperText={
+                  form.formState.errors.whatsappReplyNotificationAddresses?.message ??
+                  'Facoltativo. Indirizzi separati da ";". Se vuoto, usa "Rispondi a".'
+                }
+              />
+              <Stack sx={{ mb: 2 }}>
+                <Controller
+                  control={form.control}
+                  name="whatsappTemplateId"
+                  render={({ field }) => (
+                    <WhatsappTemplateSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!form.formState.errors.whatsappTemplateId}
+                      helperText={form.formState.errors.whatsappTemplateId?.message}
+                    />
+                  )}
+                />
+              </Stack>
               {templateHtml ? (
                 <Card>
                   <CardHeader title="Anteprima template" />
