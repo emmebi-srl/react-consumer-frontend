@@ -43,7 +43,12 @@ import {
   useCampaignMailsMetadata,
 } from '~/proxies/aries-proxy/campaigns';
 import { RouteConfig } from '~/routes/routeConfig';
-import { CampaignMail, CampaignMailSearchRequest, CampaignMailStatusReference } from '~/types/aries-proxy/campaigns';
+import {
+  CampaignChannelStatus,
+  CampaignMail,
+  CampaignMailSearchRequest,
+  CampaignMailStatusReference,
+} from '~/types/aries-proxy/campaigns';
 import { getReadableTextColor, normalizeToHexColor } from '~/utils/color-utils';
 import { getStringDateTimeByUnixtimestamp } from '~/utils/datetime-utils';
 
@@ -140,7 +145,7 @@ const CampaignMailFiltersBar: React.FC<{
             name="search"
             value={filters.search}
             onChange={onUpdate}
-            customLabel="Cerca cliente o impianto"
+            customLabel="Cerca cliente, impianto, email o telefono"
             sx={{ maxWidth: 480 }}
           />
           <TextField
@@ -178,7 +183,8 @@ const CampaignMailTableHeading: React.FC<{ children: React.ReactNode }> = ({ chi
         { id: 'isUnsubscribed', label: 'Disisc.', align: 'center' },
         { id: 'customer', label: 'Cliente', align: 'left' },
         { id: 'system', label: 'Impianto', align: 'left' },
-        { id: 'send', label: 'Invio', align: 'left' },
+        { id: 'email', label: 'Email', align: 'left' },
+        { id: 'whatsapp', label: 'WhatsApp', align: 'left' },
         { id: 'note', label: 'Note', align: 'left' },
         { id: 'actions', label: 'Azioni', align: 'center' },
       ]}
@@ -189,6 +195,48 @@ const CampaignMailTableHeading: React.FC<{ children: React.ReactNode }> = ({ chi
     >
       {children}
     </DataTableHeading>
+  );
+};
+
+/** Recipient, delivery status and date of one channel (email or WhatsApp) of the dispatch. */
+const CampaignChannelCell: React.FC<{
+  recipient?: string | null;
+  status?: CampaignChannelStatus | null;
+  date?: number | null;
+  error?: string | null;
+  notSentLabel: string;
+}> = ({ recipient, status, date, error, notSentLabel }) => {
+  if (!recipient) {
+    return (
+      <TableCell sx={{ maxWidth: 0, minWidth: 160 }}>
+        <SecondaryLabel>{notSentLabel}</SecondaryLabel>
+      </TableCell>
+    );
+  }
+
+  const statusColor = normalizeToHexColor(status?.color);
+
+  return (
+    <TableCell sx={{ maxWidth: 0, minWidth: 160 }}>
+      <MainLabel title={recipient}>{recipient}</MainLabel>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
+        {status ? (
+          <Tooltip title={error ?? ''}>
+            <Chip
+              size="small"
+              label={status.name}
+              sx={{
+                height: 20,
+                fontSize: 11,
+                flexShrink: 0,
+                ...(statusColor ? { bgcolor: statusColor, color: getReadableTextColor(statusColor) } : {}),
+              }}
+            />
+          </Tooltip>
+        ) : null}
+        <SecondaryLabel>{getStringDateTimeByUnixtimestamp(date)}</SecondaryLabel>
+      </Stack>
+    </TableCell>
   );
 };
 
@@ -203,7 +251,7 @@ const CampaignMailTableRowContent: React.FC<{
   const systemType = mail.system?.typeDescription ?? '';
   const statusLabel = getCampaignMailStatusLabel(mail);
   const statusColor = normalizeToHexColor(mail.status?.color);
-  const displayedSendDate = mail.sendDate ?? mail.plannedSendDate;
+  const isUnsubscribed = mail.isUnsubscribed || !!mail.whatsapp?.isUnsubscribed;
 
   return (
     <>
@@ -229,7 +277,7 @@ const CampaignMailTableRowContent: React.FC<{
       </TableCell>
       <TableCell align="center" width={60}>
         <Checkbox
-          checked={mail.isUnsubscribed}
+          checked={isUnsubscribed}
           disableRipple
           sx={{ p: 0, pointerEvents: 'none' }}
           slotProps={{
@@ -247,10 +295,20 @@ const CampaignMailTableRowContent: React.FC<{
           {mail.systemId ? `Impianto #${mail.systemId}${systemType ? ` - ${systemType}` : ''}` : 'Nessun impianto'}
         </SecondaryLabel>
       </TableCell>
-      <TableCell sx={{ maxWidth: 0, minWidth: 120 }}>
-        <MainLabel>{mail.email}</MainLabel>
-        <SecondaryLabel>{getStringDateTimeByUnixtimestamp(displayedSendDate)}</SecondaryLabel>
-      </TableCell>
+      <CampaignChannelCell
+        recipient={mail.email}
+        status={mail.emailStatus}
+        date={mail.sendDate ?? mail.plannedSendDate}
+        error={mail.processingError}
+        notSentLabel="Nessuna email"
+      />
+      <CampaignChannelCell
+        recipient={mail.whatsapp?.phone}
+        status={mail.whatsapp?.status}
+        date={mail.whatsapp?.sendDate ?? mail.plannedSendDate}
+        error={mail.whatsapp?.processingError}
+        notSentLabel="Non inviata su WhatsApp"
+      />
       <TableCell sx={{ width: 280 }}>
         <Typography
           variant="body2"

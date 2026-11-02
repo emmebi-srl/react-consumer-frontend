@@ -142,6 +142,35 @@ export interface CampaignMail {
   customer?: Customer;
   system?: System;
   status?: CampaignMailStatus;
+  /** Delivery status of the email channel, while `status` is the one of the dispatch. */
+  emailStatus?: CampaignChannelStatus | null;
+  /** Null when the dispatch is not sent on WhatsApp. */
+  whatsapp?: CampaignWhatsapp | null;
+}
+
+export interface CampaignChannelStatus {
+  id: number;
+  name: string;
+  applicationReference?: string | null;
+  color?: string | null;
+  isFinal: boolean;
+}
+
+export interface CampaignWhatsapp {
+  id: number;
+  phone: string;
+  templateName?: string | null;
+  templateLanguage?: string | null;
+  statusId?: number | null;
+  isProcessed: boolean;
+  sendDate?: number | null;
+  deliveryDate?: number | null;
+  readDate?: number | null;
+  isRead: boolean;
+  isUnsubscribed: boolean;
+  errorCode?: string | null;
+  processingError?: string | null;
+  status?: CampaignChannelStatus | null;
 }
 
 export const CampaignMailStatusReference = {
