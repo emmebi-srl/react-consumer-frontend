@@ -1,6 +1,22 @@
 import ariesServicesClient from '~/clients/aries-services-client';
 
-import { WhatsappTemplateCreate, WhatsappTemplateList, WhatsappTemplateSyncResult } from '~/types/aries-proxy/whatsapp';
+import { SearchMetadata } from '~/types/aries-proxy/shared';
+import {
+  WhatsappReceivedMessageList,
+  WhatsappReceivedMessageSearchRequest,
+  WhatsappTemplateCreate,
+  WhatsappTemplateList,
+  WhatsappTemplateSyncResult,
+} from '~/types/aries-proxy/whatsapp';
+
+/** Messages written by the customers, newest first. */
+export const getWhatsappReceivedMessages = (req?: WhatsappReceivedMessageSearchRequest) => {
+  return ariesServicesClient.get<WhatsappReceivedMessageList>('whatsapp/received-messages', { params: req });
+};
+
+export const getWhatsappReceivedMessagesMetadata = (req?: WhatsappReceivedMessageSearchRequest) => {
+  return ariesServicesClient.get<SearchMetadata>('whatsapp/received-messages/metadata', { params: req });
+};
 
 export const getWhatsappTemplates = () => {
   return ariesServicesClient.get<WhatsappTemplateList>('whatsapp/templates');

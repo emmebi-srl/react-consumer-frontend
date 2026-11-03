@@ -45,6 +45,7 @@ const ChecklistDetailView = asyncComponent(() => import('../views/checklists/det
 const CampaignListView = asyncComponent(() => import('../views/campaigns/list/CampaignListView'));
 const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/CampaignNewView'));
 const CampaignDetailView = asyncComponent(() => import('../views/campaigns/detail/CampaignDetailView'));
+const WhatsappMessageListView = asyncComponent(() => import('../views/whatsapp/WhatsappMessageListView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
 const QuoteRevisionEditView = asyncComponent(() => import('../views/quotes/revision-edit/QuoteRevisionEditView'));
@@ -178,6 +179,10 @@ const routes: RouteObject[] = [
           {
             path: RouteConfig.CampaignDetail.template,
             element: <CampaignDetailView />,
+          },
+          {
+            path: RouteConfig.WhatsappMessageList.template,
+            element: <WhatsappMessageListView />,
           },
           {
             path: RouteConfig.QuoteList.template,

@@ -55,6 +55,7 @@ export const RouteConfig = {
   CampaignList: defineRoute('campaigns'),
   CampaignNew: defineRoute('campaigns/new'),
   CampaignDetail: defineRoute('campaigns/:campaignId'),
+  WhatsappMessageList: defineRoute('whatsapp/messages'),
   QuoteList: defineRoute('quotes'),
   QuoteDetail: defineRoute('quotes/:year/:quoteId'),
   QuoteRevisionEdit: defineRoute('quotes/:year/:quoteId/revisions/:revisionId/edit'),

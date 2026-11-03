@@ -28,6 +28,7 @@ import RequestQuoteOutlined from '@mui/icons-material/RequestQuoteOutlined';
 import AssignmentOutlined from '@mui/icons-material/AssignmentOutlined';
 import ReceiptLongOutlined from '@mui/icons-material/ReceiptLongOutlined';
 import MailOutlined from '@mui/icons-material/MailOutlined';
+import WhatsApp from '@mui/icons-material/WhatsApp';
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import ChecklistOutlined from '@mui/icons-material/ChecklistOutlined';
 import { Link } from 'react-router-dom';
@@ -80,7 +81,10 @@ const sections: SidebarSection[] = [
   },
   {
     title: 'Comunicazioni',
-    items: [{ label: 'Campagne Mail', path: RouteConfig.CampaignList.buildLink(), icon: <MailOutlined /> }],
+    items: [
+      { label: 'Campagne Mail', path: RouteConfig.CampaignList.buildLink(), icon: <MailOutlined /> },
+      { label: 'WhatsApp', path: RouteConfig.WhatsappMessageList.buildLink(), icon: <WhatsApp /> },
+    ],
   },
   {
     title: 'Operatività',
