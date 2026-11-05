@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import AppRoot from './AppRoot';
 import { RouteConfig } from './routeConfig';
+import { ModuleGuard } from './ModuleGuard';
+import { AriesModule } from '~/types/aries-proxy/users';
 import asyncComponent from '~/components/AsyncComponent';
 import { PublicGuard } from './PublicGuard';
 import { AuthGuard } from './AuthGuard';
@@ -45,6 +47,8 @@ const ChecklistDetailView = asyncComponent(() => import('../views/checklists/det
 const CampaignListView = asyncComponent(() => import('../views/campaigns/list/CampaignListView'));
 const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/CampaignNewView'));
 const CampaignDetailView = asyncComponent(() => import('../views/campaigns/detail/CampaignDetailView'));
+const EmailListView = asyncComponent(() => import('../views/emails/EmailListView'));
+const DdtListView = asyncComponent(() => import('../views/ddts/list/DdtListView'));
 const WhatsappMessageListView = asyncComponent(() => import('../views/whatsapp/WhatsappMessageListView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
@@ -122,43 +126,83 @@ const routes: RouteObject[] = [
           },
           {
             path: RouteConfig.CompanySettings.template,
-            element: <CompanySettingsView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Settings}>
+                <CompanySettingsView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.CustomerList.template,
-            element: <CustomerList />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Customers}>
+                <CustomerList />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.CustomerNew.template,
-            element: <CustomerNew />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Customers}>
+                <CustomerNew />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.CustomerDetail.template,
-            element: <CustomerDetail />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Customers}>
+                <CustomerDetail />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.SystemList.template,
-            element: <SystemList />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Systems}>
+                <SystemList />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ProductList.template,
-            element: <ProductList />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Products}>
+                <ProductList />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ProductNew.template,
-            element: <ProductNew />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Products}>
+                <ProductNew />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ProductPriceCharge.template,
-            element: <ProductPriceCharge />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Products}>
+                <ProductPriceCharge />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ProductDetail.template,
-            element: <ProductDetail />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Products}>
+                <ProductDetail />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.InterventionsNearby.template,
-            element: <InterventionsNearby />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Systems}>
+                <InterventionsNearby />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ChecklistList.template,
@@ -181,52 +225,112 @@ const routes: RouteObject[] = [
             element: <CampaignDetailView />,
           },
           {
+            path: RouteConfig.EmailList.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Emails}>
+                <EmailListView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.DdtList.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Ddts}>
+                <DdtListView />
+              </ModuleGuard>
+            ),
+          },
+          {
             path: RouteConfig.WhatsappMessageList.template,
             element: <WhatsappMessageListView />,
           },
           {
             path: RouteConfig.QuoteList.template,
-            element: <QuoteListView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Quotes}>
+                <QuoteListView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.QuoteDetail.template,
-            element: <QuoteDetailView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Quotes}>
+                <QuoteDetailView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.QuoteRevisionEdit.template,
-            element: <QuoteRevisionEditView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Quotes}>
+                <QuoteRevisionEditView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.QuoteLotNew.template,
-            element: <QuoteLotEditView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Quotes}>
+                <QuoteLotEditView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.QuoteLotEdit.template,
-            element: <QuoteLotEditView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Quotes}>
+                <QuoteLotEditView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ReportList.template,
-            element: <ReportListView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Reports}>
+                <ReportListView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ReportNew.template,
-            element: <ReportEditView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Reports}>
+                <ReportEditView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ReportFromMobile.template,
-            element: <ReportEditView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Reports}>
+                <ReportEditView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.ReportEdit.template,
-            element: <ReportEditView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Reports}>
+                <ReportEditView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.SupplierInvoiceList.template,
-            element: <SupplierInvoiceListView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.SupplierInvoices}>
+                <SupplierInvoiceListView />
+              </ModuleGuard>
+            ),
           },
           {
             path: RouteConfig.SupplierInvoicePeriodicConfigurationList.template,
-            element: <SupplierInvoicePeriodicConfigurationListView />,
+            element: (
+              <ModuleGuard moduleId={AriesModule.SupplierInvoices}>
+                <SupplierInvoicePeriodicConfigurationListView />
+              </ModuleGuard>
+            ),
           },
           {
             path: '*',

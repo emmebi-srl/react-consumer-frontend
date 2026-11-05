@@ -26,7 +26,9 @@ import HomeWorkOutlined from '@mui/icons-material/HomeWorkOutlined';
 import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
 import RequestQuoteOutlined from '@mui/icons-material/RequestQuoteOutlined';
 import AssignmentOutlined from '@mui/icons-material/AssignmentOutlined';
+import LocalShippingOutlined from '@mui/icons-material/LocalShippingOutlined';
 import ReceiptLongOutlined from '@mui/icons-material/ReceiptLongOutlined';
+import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
 import MailOutlined from '@mui/icons-material/MailOutlined';
 import WhatsApp from '@mui/icons-material/WhatsApp';
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
@@ -35,7 +37,8 @@ import { Link } from 'react-router-dom';
 import Logo from '~/components/Layout/Logo';
 import { RouteConfig } from '~/routes/routeConfig';
 import useRouteMatch from '~/hooks/useRouteMatch';
-import { useUserMe } from '~/proxies/aries-proxy/users';
+import { useModulePermission, useUserMe, useUserModulePermissions } from '~/proxies/aries-proxy/users';
+import { AriesModule } from '~/types/aries-proxy/users';
 
 export const SIDEBAR_WIDTH = 248;
 
@@ -48,6 +51,8 @@ interface SidebarItem {
   label: string;
   path: string;
   icon: ReactNode;
+  /** Hidden when the user can't open this module. */
+  moduleId?: number;
 }
 
 interface SidebarSection {
@@ -62,26 +67,64 @@ const sections: SidebarSection[] = [
   {
     title: 'Anagrafiche',
     items: [
-      { label: 'Clienti', path: RouteConfig.CustomerList.buildLink(), icon: <PeopleOutlined /> },
-      { label: 'Impianti', path: RouteConfig.SystemList.buildLink(), icon: <HomeWorkOutlined /> },
-      { label: 'Articoli', path: RouteConfig.ProductList.buildLink(), icon: <Inventory2Outlined /> },
+      {
+        label: 'Clienti',
+        path: RouteConfig.CustomerList.buildLink(),
+        icon: <PeopleOutlined />,
+        moduleId: AriesModule.Customers,
+      },
+      {
+        label: 'Impianti',
+        path: RouteConfig.SystemList.buildLink(),
+        icon: <HomeWorkOutlined />,
+        moduleId: AriesModule.Systems,
+      },
+      {
+        label: 'Articoli',
+        path: RouteConfig.ProductList.buildLink(),
+        icon: <Inventory2Outlined />,
+        moduleId: AriesModule.Products,
+      },
     ],
   },
   {
     title: 'Documenti',
     items: [
-      { label: 'Preventivi', path: RouteConfig.QuoteList.buildLink(), icon: <RequestQuoteOutlined /> },
-      { label: 'Rapporti', path: RouteConfig.ReportList.buildLink(), icon: <AssignmentOutlined /> },
+      {
+        label: 'Preventivi',
+        path: RouteConfig.QuoteList.buildLink(),
+        icon: <RequestQuoteOutlined />,
+        moduleId: AriesModule.Quotes,
+      },
+      {
+        label: 'Rapporti',
+        path: RouteConfig.ReportList.buildLink(),
+        icon: <AssignmentOutlined />,
+        moduleId: AriesModule.Reports,
+      },
+      {
+        label: 'DDT',
+        path: RouteConfig.DdtList.buildLink(),
+        icon: <LocalShippingOutlined />,
+        moduleId: AriesModule.Ddts,
+      },
       {
         label: 'Fatture Fornitori',
         path: RouteConfig.SupplierInvoiceList.buildLink(),
         icon: <ReceiptLongOutlined />,
+        moduleId: AriesModule.SupplierInvoices,
       },
     ],
   },
   {
     title: 'Comunicazioni',
     items: [
+      {
+        label: 'Email',
+        path: RouteConfig.EmailList.buildLink(),
+        icon: <AlternateEmailOutlined />,
+        moduleId: AriesModule.Emails,
+      },
       { label: 'Campagne Mail', path: RouteConfig.CampaignList.buildLink(), icon: <MailOutlined /> },
       { label: 'WhatsApp', path: RouteConfig.WhatsappMessageList.buildLink(), icon: <WhatsApp /> },
     ],
@@ -89,7 +132,12 @@ const sections: SidebarSection[] = [
   {
     title: 'Operatività',
     items: [
-      { label: 'Interventi', path: RouteConfig.InterventionsNearby.buildLink(), icon: <BuildOutlined /> },
+      {
+        label: 'Interventi',
+        path: RouteConfig.InterventionsNearby.buildLink(),
+        icon: <BuildOutlined />,
+        moduleId: AriesModule.Systems,
+      },
       { label: 'Checklist', path: RouteConfig.ChecklistList.buildLink(), icon: <ChecklistOutlined /> },
     ],
   },
@@ -101,6 +149,7 @@ const UserMenu = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<HTMLElement | null>(null);
   const { data: userData } = useUserMe();
   const user = userData?.users.at(0);
+  const { permission: settingsPermission } = useModulePermission(AriesModule.Settings);
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
@@ -143,9 +192,11 @@ const UserMenu = () => {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
-        <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.CompanySettings.buildLink()}>
-          Gestione azienda
-        </MenuItem>
+        {settingsPermission?.isEnabled ? (
+          <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.CompanySettings.buildLink()}>
+            Gestione azienda
+          </MenuItem>
+        ) : null}
         <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.Logout.buildLink()}>
           Logout
         </MenuItem>
@@ -156,6 +207,9 @@ const UserMenu = () => {
 
 const SidebarContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => {
   const activePath = useRouteMatch(allPaths);
+  const { data: modulePermissions } = useUserModulePermissions();
+  const isVisible = (item: SidebarItem) =>
+    !item.moduleId || !!modulePermissions?.permissions.find((module) => module.moduleId === item.moduleId)?.isEnabled;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -209,7 +263,7 @@ const SidebarContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) =
               )
             }
           >
-            {section.items.map((item) => (
+            {section.items.filter(isVisible).map((item) => (
               <ListItemButton
                 key={item.path}
                 component={Link}

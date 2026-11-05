@@ -16,8 +16,9 @@ import { sanitize } from 'lettersanitizer';
 import type { Attachment } from 'postal-mime';
 import { ModalProps } from '~/modals/Modal';
 import { useEmailById, useEmailEml } from '~/proxies/aries-proxy/emails';
+import { decodeRtf } from '~/utils/rtf-utils';
 
-interface CampaignMailPreviewModalProps extends ModalProps {
+interface EmailPreviewModalProps extends ModalProps {
   mailId: number;
   recipient?: string;
 }
@@ -78,7 +79,7 @@ const buildHtml = (rawHtml: string, attachments: Attachment[] = []) => {
   });
 };
 
-const CampaignMailPreviewModal = ({ closeModal, mailId, recipient }: CampaignMailPreviewModalProps) => {
+const EmailPreviewModal = ({ closeModal, mailId, recipient }: EmailPreviewModalProps) => {
   const emlQuery = useEmailEml(mailId);
   const parsedEml = emlQuery.data;
   const emlHasContent = !!(parsedEml?.html || parsedEml?.text);
@@ -98,7 +99,9 @@ const CampaignMailPreviewModal = ({ closeModal, mailId, recipient }: CampaignMai
       };
     }
     if (useFallback && email) {
-      const html = buildHtml(email.body);
+      // Delphi stores the body as RTF, the campaign sender as HTML.
+      const isRtf = email.body.trimStart().startsWith('{\\rtf');
+      const html = buildHtml(isRtf ? escapeHtml(decodeRtf(email.body)) : email.body);
       return { subject: email.subject, sender: email.senderAddress ?? undefined, html, attachments: [] };
     }
     return null;
@@ -207,4 +210,4 @@ const CampaignMailPreviewModal = ({ closeModal, mailId, recipient }: CampaignMai
   );
 };
 
-export default CampaignMailPreviewModal;
+export default EmailPreviewModal;

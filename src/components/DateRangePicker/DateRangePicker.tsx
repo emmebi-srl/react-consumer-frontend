@@ -181,7 +181,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
                   color: 'text.secondary',
                 }}
               >
-                Seleziona il periodo da applicare alla dashboard.
+                Seleziona il periodo da applicare.
               </Typography>
             </Box>
 
