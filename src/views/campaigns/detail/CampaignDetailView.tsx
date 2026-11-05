@@ -32,7 +32,7 @@ import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
-import CampaignMailPreviewModal from '~/components/Modals/CampaignMailPreviewModal';
+import EmailPreviewModal from '~/components/Modals/EmailPreviewModal';
 import CreateSystemSubscriptionModal from '~/components/Modals/CreateSystemSubscriptionModal';
 import { useModal } from '~/modals/Modal';
 import {
@@ -460,7 +460,7 @@ const CampaignDetailView = () => {
       }
 
       modal.showModal({
-        component: CampaignMailPreviewModal,
+        component: EmailPreviewModal,
         props: { mailId: mail.mailId, recipient: mail.email },
       });
     },

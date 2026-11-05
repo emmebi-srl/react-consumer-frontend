@@ -223,6 +223,33 @@ When extending system subscription flows:
 - if the modal offers "initialize from previous data", keep the initialization logic in small helpers and validate that the chosen year still represents a new record
 - if the page supports deep links that auto-open the modal, drive them from query string parameters, resolve the target mail explicitly, and clear the trigger params immediately after opening
 
+## Notes For Email List Work
+
+- `RouteConfig.EmailList` (`emails`, `src/views/emails/EmailListView.tsx`) is the read-only list of the Delphi `UFEmails` screen: server-side search on `GET email` / `email/metadata` (includes `status,group,sender`), visibility decided by the backend. The search results have an empty `body`.
+- The preview is `src/components/Modals/EmailPreviewModal`, shared with the campaign detail. It prefers the `.eml`; when it is missing it falls back to the stored body, which is RTF for Delphi emails and HTML for campaign emails. It strips the tracking pixel, so previewing does not mark the email as read.
+- `sentAt` is 0 for drafts (Delphi stores 1899-12-30, the API clamps dates before 1970 to 0): don't render it as a date.
+
+## Notes For DDT List Work
+
+- `RouteConfig.DdtList` (`ddts`, `src/views/ddts/list`) is the read-only list of the Delphi `UFDDTs` screen, with the same `View + state + Bar + TableHeading` structure as the supplier invoices: server-side search on `GET ddt` / `ddt/metadata`, infinite scroll. Received DDTs (`ddt_ricevuti`, Delphi `UFReceivedDDTs`) are not included.
+- A DDT goes to a customer or to a supplier: use `supplierName` / `supplierDestination` when `supplierId` is set, `customerName` / `destination` otherwise. The key is `year` + `id`.
+- `causalId` is a short text code, not a number. The status color is a raw Delphi color: use `DelphiColorChip`.
+- `DdtTotalsCards` shows the totals of the current filters and is rendered only with `canTotals`; the server answers 403 otherwise.
+
+## Module Permissions
+
+**Always do this**: every new page that belongs to an Aries module must be protected, in the same change that adds it. If the module has no `AriesModule` id yet, add it. If a page has no Delphi module, say so explicitly when you hand over the work instead of skipping silently.
+
+- Add the module id to `AriesModule` (`src/types/aries-proxy/users.ts`, same ids as the Delphi `ARIES_MODULE_*`).
+- Wrap **every** route of the module with `ModuleGuard` in `src/routes/routes.tsx`, not only the list.
+- Set `moduleId` on its `Sidebar` item.
+- Protect the backend too (see its `AGENTS.md`): the frontend only adapts the UI and must never be the only check.
+- For single actions use `useModulePermission(moduleId)`, e.g. `permission?.canTotals`.
+
+Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
+
+Only opening the module is applied everywhere. Insert/edit/delete buttons are not gated by permissions yet; the only action in use is `canTotals` on the DDT list.
+
 ## Notes For Product Search/Detail Work
 
 - Product endpoints: list/count use `product/new` and `product/new/metadata` (because `GET product` is still the full-list sync of old Android versions); the detail uses `GET product/{code}?includes=...` and saves with `PUT product/{code}` (the Android app shares the GET without includes and keeps its own `PATCH`). Do not call the legacy `product/search` from the web.
