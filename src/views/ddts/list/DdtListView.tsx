@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
-import { Alert, Button, Stack, TableCell, Tooltip, Typography } from '@mui/material';
-import { CheckCircleOutlined, Refresh } from '@mui/icons-material';
+import { Alert, Box, Button, Stack, TableCell, Tooltip, Typography } from '@mui/material';
+import { Add, CheckCircleOutlined, Refresh, Settings } from '@mui/icons-material';
+import { Link as RouterLink } from 'react-router-dom';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
 import PageContainer from '~/components/Layout/PageContainer';
@@ -10,7 +11,6 @@ import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
 import DataTableContainer from '~/components/Table/DataTableContainer';
 import DataTableHead from '~/components/Table/DataTableHead';
-import DataTableRow from '~/components/Table/DataTableRow';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
 import { useDdtsSearch } from '~/proxies/aries-proxy/ddts';
@@ -21,13 +21,15 @@ import { getStringDateByUnixtimestamp } from '~/utils/datetime-utils';
 import DdtBar from './components/DdtBar';
 import DdtTableHeading from './components/DdtTableHeading';
 import DdtTotalsCards from './components/DdtTotalsCards';
+import DdtTableRow from './components/DdtTableRow';
+import { RouteConfig } from '~/routes/routeConfig';
 import { useFilterState } from './state';
 
 const DdtTableComponents: TableComponents<Ddt> = {
   Table: DataTable,
   TableHead: DataTableHead,
   TableBody: DataTableBody,
-  TableRow: DataTableRow,
+  TableRow: ({ item, ...props }) => <DdtTableRow item={item} {...props} />,
 };
 
 const DdtTableRowContent: React.FC<{ ddt: Ddt }> = ({ ddt }) => {
@@ -107,6 +109,22 @@ const DdtListView = () => {
               >
                 Aggiorna
               </Button>
+              <Box sx={{ flexGrow: 1 }} />
+              {permission?.canEdit ? (
+                <Button component={RouterLink} to={RouteConfig.DdtSettings.buildLink()} startIcon={<Settings />}>
+                  Tabelle DDT
+                </Button>
+              ) : null}
+              {permission?.canInsert ? (
+                <Button
+                  component={RouterLink}
+                  to={RouteConfig.DdtNew.buildLink()}
+                  variant="contained"
+                  startIcon={<Add />}
+                >
+                  Nuovo DDT
+                </Button>
+              ) : null}
             </Stack>
 
             {permission?.canTotals ? <DdtTotalsCards /> : null}

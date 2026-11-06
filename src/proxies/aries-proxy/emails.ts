@@ -1,7 +1,16 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import PostalMime from 'postal-mime';
-import { EmailSearchRequest } from '~/types/aries-proxy/emails';
-import { getEmailById, getEmailEml, getEmailsMetadata, getEmailStatuses, searchEmails } from './api/emails';
+import { EmailSearchRequest, EmailSendRequest } from '~/types/aries-proxy/emails';
+import {
+  getEmailById,
+  getEmailEml,
+  getEmailSenders,
+  getEmailsMetadata,
+  getEmailStatuses,
+  resendEmail,
+  searchEmails,
+  sendEmail,
+} from './api/emails';
 
 const EmailSearchPageSize = 50;
 
@@ -9,6 +18,7 @@ export const EmailsQueryKeys = {
   search: (params?: EmailSearchRequest) => ['Email', 'search', params ?? {}] as const,
   metadata: (params?: EmailSearchRequest) => ['Email', 'metadata', params ?? {}] as const,
   statuses: ['Email', 'statuses'] as const,
+  senders: ['Email', 'senders'] as const,
 };
 
 export const useEmailsSearch = (params?: EmailSearchRequest) => {
@@ -52,5 +62,33 @@ export const useEmailEml = (id?: number | null) => {
     queryFn: async () => PostalMime.parse((await getEmailEml(id as number)).data),
     enabled: !!id,
     retry: false,
+  });
+};
+
+export const useEmailSenders = () => {
+  return useQuery({
+    queryKey: EmailsQueryKeys.senders,
+    queryFn: async () => (await getEmailSenders()).data,
+  });
+};
+
+/** Every email query is refreshed after a send, the list included. */
+export const useSendEmail = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ request, files }: { request: EmailSendRequest; files: File[] }) =>
+      (await sendEmail(request, files)).data,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['Email'] }),
+  });
+};
+
+export const useResendEmail = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => (await resendEmail(id)).data,
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['Email'] });
+      queryClient.invalidateQueries({ queryKey: ['EmailEml'] });
+    },
   });
 };

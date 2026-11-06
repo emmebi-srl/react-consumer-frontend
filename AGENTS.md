@@ -228,6 +228,8 @@ When extending system subscription flows:
 - `RouteConfig.EmailList` (`emails`, `src/views/emails/EmailListView.tsx`) is the read-only list of the Delphi `UFEmails` screen: server-side search on `GET email` / `email/metadata` (includes `status,group,sender`), visibility decided by the backend. The search results have an empty `body`.
 - The preview is `src/components/Modals/EmailPreviewModal`, shared with the campaign detail. It prefers the `.eml`; when it is missing it falls back to the stored body, which is RTF for Delphi emails and HTML for campaign emails. It strips the tracking pixel, so previewing does not mark the email as read.
 - `sentAt` is 0 for drafts (Delphi stores 1899-12-30, the API clamps dates before 1970 to 0): don't render it as a date.
+- New email, forward and resend live in `src/components/Modals/EmailComposeModal` and in the preview actions (`allowActions`, the close action is `RESEND` or `FORWARD`). The body is plain text: the server stores it as RTF for Delphi and sends text + HTML. Attachments go as multipart (`email/send`), and the JSON `payload` is written in snake_case by hand because FormData is not mapped by the client. The sender list (`email/senders`) only has users with an SMTP server marked `canSend`; their signature is plain text and is swapped when the sender changes.
+- A send refused by the mail server is not an HTTP error: the response is the saved email with status Failed (`EmailStatusId.Failed`) and `errorMessage`. Check it.
 
 ## Notes For DDT List Work
 
@@ -235,6 +237,9 @@ When extending system subscription flows:
 - A DDT goes to a customer or to a supplier: use `supplierName` / `supplierDestination` when `supplierId` is set, `customerName` / `destination` otherwise. The key is `year` + `id`.
 - `causalId` is a short text code, not a number. The status color is a raw Delphi color: use `DelphiColorChip`.
 - `DdtTotalsCards` shows the totals of the current filters and is rendered only with `canTotals`; the server answers 403 otherwise.
+- Editor: `RouteConfig.DdtNew` / `RouteConfig.DdtDetail` (`ddts/:year/:ddtId`) render `src/views/ddts/editor/DdtEditorView.tsx`, one React Hook Form with `FormProvider`; the conversions are in `ddtFormValues.ts` (tested). Changing the number, or a date in another year, renumbers the DDT after a confirmation and the page moves to the new URL. Note rows written by Delphi can be RTF: the original value is sent back when the text didn't change. The rows are always sent: the server rewrites them and recomputes the job link. Product rows with a depot move the stock through the database triggers on save. Prices need `canPrices`, totals `canTotals`, PDF `canPrint`, delete `canDelete`.
+- Editor cards: `DdtJobCard` (job lot of the customer; the rows card then shows the economy column and the remaining quantity of `ddt/job-remaining`, with "Eccedenza in economia"), `DdtRowsCard` (kit components with their serial numbers, price from `product-defaults` with the customer), `DdtDocumentsCard` (report links, pick lists, "Importa materiale" from `ddt/documents`: imported rows are added with `setValue('rows', ...)` so the rows field array stays in sync; on a new DDT the first imported report with signatures becomes `signatureReport`), `DdtSignaturesCard` (saved DDTs only: driver/recipient signature from a linked report or an employee).
+- Support tables (causals, porto resa, trasporto a cura, carriers): `RouteConfig.DdtSettings` (`ddts/settings`), they need `canEdit` to change. The "aspetto" checkboxes only show the bits returned by `ddt/aspect` (codes present in the `aspetto` table).
 
 ## Module Permissions
 
