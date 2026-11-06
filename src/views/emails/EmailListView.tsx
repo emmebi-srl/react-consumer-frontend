@@ -1,4 +1,4 @@
-import { DoneAll, Refresh, Visibility } from '@mui/icons-material';
+import { Add, DoneAll, Refresh, Visibility } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -20,6 +20,8 @@ import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/Da
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
 import PageContainer from '~/components/Layout/PageContainer';
+import ConfirmationModal from '~/components/Modals/ConfirmationModal';
+import EmailComposeModal from '~/components/Modals/EmailComposeModal';
 import EmailPreviewModal from '~/components/Modals/EmailPreviewModal';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -30,8 +32,12 @@ import DataTableRow from '~/components/Table/DataTableRow';
 import Metadata from '~/components/Table/Metadata';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
+import useSnackbar from '~/hooks/useSnackbar';
 import { useModal } from '~/modals/Modal';
-import { useEmailsMetadata, useEmailsSearch, useEmailStatuses } from '~/proxies/aries-proxy/emails';
+import { useEmailsMetadata, useEmailsSearch, useEmailStatuses, useResendEmail } from '~/proxies/aries-proxy/emails';
+import { useModulePermission } from '~/proxies/aries-proxy/users';
+import { AriesModule } from '~/types/aries-proxy/users';
+import { getApiErrorMessage } from '~/utils/api-error-utils';
 import { Email, EmailSearchRequest, EmailStatus, EmailStatusId } from '~/types/aries-proxy/emails';
 import { getStringDateTimeByUnixtimestamp } from '~/utils/datetime-utils';
 
@@ -214,9 +220,13 @@ const EmailTableRowContent: React.FC<{ email: Email; onPreview: (email: Email) =
   );
 };
 
-/** Every email sent by the users, like the Delphi "Email" screen: read-only list with a quick preview. */
+/** Every email sent by the users, like the Delphi "Email" screen: list, preview, new email, resend and forward. */
 const EmailListView = () => {
   const modal = useModal();
+  const snackbar = useSnackbar();
+  const resendMutation = useResendEmail();
+  const { permission } = useModulePermission(AriesModule.Emails);
+  const canSend = !!permission?.canInsert;
   const [topReached, setTopReached] = useState(true);
   const [filters, setFilters] = useState<EmailFilters>(defaultFilters);
   const virtuoso = useRef<TableVirtuosoHandle>(null);
@@ -237,11 +247,44 @@ const EmailListView = () => {
 
   const emails = useMemo(() => emailsQuery.data?.pages.flatMap((page) => page.emails) ?? [], [emailsQuery.data?.pages]);
 
-  const showPreview = (email: Email) => {
-    modal.showModal({
-      component: EmailPreviewModal,
-      props: { mailId: email.id, recipient: getRecipients(email).join(', ') || undefined },
+  const openCompose = (forwardEmailId?: number) => {
+    modal.showModal({ component: EmailComposeModal, props: { forwardEmailId } });
+  };
+
+  const resend = async (email: Email) => {
+    const answer = await modal.showModal({
+      component: ConfirmationModal,
+      props: {
+        title: 'Reinvia email',
+        text: `Reinviare "${email.subject || 'senza oggetto'}" agli stessi destinatari?`,
+      },
     });
+    if (answer.action !== 'YES') return;
+
+    try {
+      const sent = (await resendMutation.mutateAsync(email.id)).emails[0];
+      if (sent?.statusId === EmailStatusId.Failed) {
+        snackbar.error(sent.errorMessage || "Il server di posta ha rifiutato l'invio.");
+      } else {
+        snackbar.success('Email reinviata');
+      }
+    } catch (error) {
+      snackbar.error(getApiErrorMessage(error, "Non è stato possibile reinviare l'email."));
+    }
+  };
+
+  const showPreview = async (email: Email) => {
+    const result = await modal.showModal({
+      component: EmailPreviewModal,
+      props: {
+        mailId: email.id,
+        recipient: getRecipients(email).join(', ') || undefined,
+        allowActions: canSend,
+        canResend: email.statusId !== EmailStatusId.Draft,
+      },
+    });
+    if (result.action === 'RESEND') await resend(email);
+    if (result.action === 'FORWARD') openCompose(email.id);
   };
 
   return (
@@ -253,17 +296,24 @@ const EmailListView = () => {
           sx={{ justifyContent: 'space-between', alignItems: 'center' }}
         >
           <Typography variant="h4">Email</Typography>
-          <Button
-            variant="outlined"
-            startIcon={<Refresh />}
-            onClick={() => {
-              emailsQuery.refetch();
-              metadataQuery.refetch();
-            }}
-            disabled={emailsQuery.isFetching || metadataQuery.isFetching}
-          >
-            Aggiorna
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={() => {
+                emailsQuery.refetch();
+                metadataQuery.refetch();
+              }}
+              disabled={emailsQuery.isFetching || metadataQuery.isFetching}
+            >
+              Aggiorna
+            </Button>
+            {canSend ? (
+              <Button variant="contained" startIcon={<Add />} onClick={() => openCompose()}>
+                Nuova email
+              </Button>
+            ) : null}
+          </Stack>
         </Stack>
 
         {emailsQuery.isError ? <Alert severity="error">Non sono riuscito a caricare le email.</Alert> : null}

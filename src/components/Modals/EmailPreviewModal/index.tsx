@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
-import { AttachFile, Close } from '@mui/icons-material';
+import { AttachFile, Close, Forward, Replay } from '@mui/icons-material';
 import {
   Alert,
   Box,
+  Button,
   Chip,
   CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
@@ -18,9 +20,14 @@ import { ModalProps } from '~/modals/Modal';
 import { useEmailById, useEmailEml } from '~/proxies/aries-proxy/emails';
 import { decodeRtf } from '~/utils/rtf-utils';
 
-interface EmailPreviewModalProps extends ModalProps {
+interface EmailPreviewModalProps extends Omit<ModalProps, 'closeModal'> {
   mailId: number;
   recipient?: string;
+  /** Shows the "Reinvia" and "Inoltra" buttons: the choice is returned as the close action. */
+  allowActions?: boolean;
+  /** Drafts can't be sent again. */
+  canResend?: boolean;
+  closeModal: (props?: { action: 'CLOSE' } | { action: 'RESEND' } | { action: 'FORWARD' }) => void;
 }
 
 interface PreviewContent {
@@ -79,7 +86,13 @@ const buildHtml = (rawHtml: string, attachments: Attachment[] = []) => {
   });
 };
 
-const EmailPreviewModal = ({ closeModal, mailId, recipient }: EmailPreviewModalProps) => {
+const EmailPreviewModal = ({
+  closeModal,
+  mailId,
+  recipient,
+  allowActions,
+  canResend = true,
+}: EmailPreviewModalProps) => {
   const emlQuery = useEmailEml(mailId);
   const parsedEml = emlQuery.data;
   const emlHasContent = !!(parsedEml?.html || parsedEml?.text);
@@ -206,6 +219,18 @@ const EmailPreviewModal = ({ closeModal, mailId, recipient }: EmailPreviewModalP
           </>
         ) : null}
       </DialogContent>
+      {allowActions ? (
+        <DialogActions>
+          {canResend ? (
+            <Button startIcon={<Replay />} onClick={() => closeModal({ action: 'RESEND' })}>
+              Reinvia
+            </Button>
+          ) : null}
+          <Button variant="contained" startIcon={<Forward />} onClick={() => closeModal({ action: 'FORWARD' })}>
+            Inoltra
+          </Button>
+        </DialogActions>
+      ) : null}
     </Dialog>
   );
 };

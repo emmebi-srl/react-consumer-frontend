@@ -49,6 +49,8 @@ const CampaignNewView = asyncComponent(() => import('../views/campaigns/new/Camp
 const CampaignDetailView = asyncComponent(() => import('../views/campaigns/detail/CampaignDetailView'));
 const EmailListView = asyncComponent(() => import('../views/emails/EmailListView'));
 const DdtListView = asyncComponent(() => import('../views/ddts/list/DdtListView'));
+const DdtEditorView = asyncComponent(() => import('../views/ddts/editor/DdtEditorView'));
+const DdtSettingsView = asyncComponent(() => import('../views/ddts/settings/DdtSettingsView'));
 const WhatsappMessageListView = asyncComponent(() => import('../views/whatsapp/WhatsappMessageListView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
@@ -237,6 +239,30 @@ const routes: RouteObject[] = [
             element: (
               <ModuleGuard moduleId={AriesModule.Ddts}>
                 <DdtListView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.DdtNew.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Ddts}>
+                <DdtEditorView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.DdtSettings.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Ddts}>
+                <DdtSettingsView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.DdtDetail.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Ddts}>
+                <DdtEditorView />
               </ModuleGuard>
             ),
           },

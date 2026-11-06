@@ -50,6 +50,7 @@ export interface Email {
   sentAt?: number | null;
   /** Set by the open-tracking pixel, or manually from Delphi. */
   isRead?: boolean;
+  readConfirmation?: boolean;
   errorMessage?: string | null;
 }
 
@@ -61,4 +62,35 @@ export interface EmailSearchRequest {
   includes?: string;
   pageIndex?: number;
   pageSize?: number;
+}
+
+/** A user the current user can send as (utente_mail, like the Delphi editor). */
+export interface EmailSender {
+  id: number;
+  username: string;
+  email?: string | null;
+  /** Plain text, added at the bottom of the body. */
+  signature?: string | null;
+  readConfirmation: boolean;
+  /** The user has an SMTP server and an address. */
+  canSend: boolean;
+}
+
+export interface EmailSenderList {
+  senders: EmailSender[];
+  pecAvailable: boolean;
+}
+
+export interface EmailSendRequest {
+  senderId: number;
+  /** Separated by ";". */
+  to: string;
+  bcc?: string;
+  subject: string;
+  /** Plain text. */
+  body: string;
+  pec: boolean;
+  readConfirmation: boolean;
+  /** Forward: its attachments are added by the server. */
+  forwardedEmailId?: number;
 }
