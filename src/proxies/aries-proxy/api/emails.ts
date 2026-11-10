@@ -52,6 +52,9 @@ export const sendEmail = (request: EmailSendRequest, files: File[]) => {
       pec: request.pec,
       read_confirmation: request.readConfirmation,
       forwarded_email_id: request.forwardedEmailId ?? null,
+      document_type: request.document?.type ?? null,
+      document_id: request.document?.id ?? null,
+      document_year: request.document?.year ?? null,
     }),
   );
   files.forEach((file) => formData.append('files', file, file.name));

@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import {
   alpha,
+  AppBar,
   Avatar,
   Box,
   Drawer,
@@ -14,6 +15,7 @@ import {
   MenuItem,
   SxProps,
   Theme,
+  Toolbar,
   Typography,
   useMediaQuery,
   useTheme,
@@ -324,6 +326,43 @@ const paperSx: SxProps<Theme> = {
   color: 'common.white',
 };
 
+export const MOBILE_HEADER_HEIGHT = 56;
+
+const extraTitles = [{ label: 'Gestione azienda', path: RouteConfig.CompanySettings.buildLink() }];
+const titledItems = [...sections.flatMap((section) => section.items), ...extraTitles];
+const titledPaths = titledItems.map((item) => item.path);
+
+/** Mobile only: top bar with the menu button and the current section (e.g. CLIENTI, DDT). */
+const MobileHeader: React.FC<{ onOpenMenu: () => void }> = ({ onOpenMenu }) => {
+  const activePath = useRouteMatch(titledPaths);
+  const title = titledItems.find((item) => item.path === activePath)?.label ?? 'Aries';
+
+  return (
+    <AppBar
+      position="sticky"
+      elevation={2}
+      sx={{
+        top: 0,
+        flexShrink: 0,
+        background: `linear-gradient(90deg, ${SIDEBAR_BG_TOP} 0%, ${SIDEBAR_BG_BOTTOM} 100%)`,
+      }}
+    >
+      <Toolbar disableGutters sx={{ minHeight: MOBILE_HEADER_HEIGHT, height: MOBILE_HEADER_HEIGHT, px: 1, gap: 1 }}>
+        <IconButton aria-label="Apri il menu" onClick={onOpenMenu} sx={{ color: 'common.white' }}>
+          <MenuIcon />
+        </IconButton>
+        <Typography
+          component="h1"
+          noWrap
+          sx={{ fontSize: 16, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}
+        >
+          {title}
+        </Typography>
+      </Toolbar>
+    </AppBar>
+  );
+};
+
 const Sidebar = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
@@ -346,21 +385,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <IconButton
-        onClick={() => setMobileOpen(true)}
-        sx={{
-          position: 'fixed',
-          top: 8,
-          left: 8,
-          zIndex: theme.zIndex.appBar,
-          bgcolor: SIDEBAR_BG_TOP,
-          color: 'common.white',
-          boxShadow: 2,
-          '&:hover': { bgcolor: SIDEBAR_BG_BOTTOM },
-        }}
-      >
-        <MenuIcon />
-      </IconButton>
+      <MobileHeader onOpenMenu={() => setMobileOpen(true)} />
       <Drawer
         variant="temporary"
         open={mobileOpen}

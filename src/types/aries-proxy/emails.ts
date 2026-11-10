@@ -93,4 +93,18 @@ export interface EmailSendRequest {
   readConfirmation: boolean;
   /** Forward: its attachments are added by the server. */
   forwardedEmailId?: number;
+  /** Document sent by the email (mail.Tipo_documento / Id_documento), see `EmailDocument`. */
+  document?: EmailDocument;
+}
+
+/** Only these document types are accepted by `email/send`. */
+export enum EmailDocumentType {
+  /** Customer invoices statement: id = customer id. Recorded like the Delphi send after a successful send. */
+  CustomerInvoicesStatement = 'cliente_estratto_conto',
+}
+
+export interface EmailDocument {
+  type: EmailDocumentType;
+  id: string;
+  year?: string;
 }

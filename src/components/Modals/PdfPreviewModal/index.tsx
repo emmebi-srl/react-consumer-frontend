@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Close, OpenInNew } from '@mui/icons-material';
-import { Box, Dialog, DialogContent, DialogTitle, IconButton, Stack, Tooltip } from '@mui/material';
+import { Close, Email, OpenInNew } from '@mui/icons-material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Stack, Tooltip } from '@mui/material';
 import { ModalProps } from '~/modals/Modal';
 
-interface PdfPreviewModalProps extends ModalProps {
+interface PdfPreviewModalProps extends Omit<ModalProps, 'closeModal'> {
   title: string;
   pdf: Blob;
+  /** Shows an "Invia" button: the modal closes with the SEND action and the caller opens the email. */
+  sendLabel?: string;
+  closeModal: (props?: { action: 'CLOSE' } | { action: 'SEND' }) => void;
 }
 
-const PdfPreviewModal = ({ closeModal, pdf, title }: PdfPreviewModalProps) => {
+const PdfPreviewModal = ({ closeModal, pdf, title, sendLabel }: PdfPreviewModalProps) => {
   const [pdfUrl, setPdfUrl] = useState<string>();
   const close = () => closeModal({ action: 'CLOSE' });
 
@@ -31,6 +34,17 @@ const PdfPreviewModal = ({ closeModal, pdf, title }: PdfPreviewModalProps) => {
             alignItems: 'center',
           }}
         >
+          {sendLabel ? (
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={<Email fontSize="small" />}
+              onClick={() => closeModal({ action: 'SEND' })}
+              sx={{ mr: 1 }}
+            >
+              {sendLabel}
+            </Button>
+          ) : null}
           <Tooltip title="Apri in una nuova scheda">
             <span>
               <IconButton disabled={!pdfUrl} onClick={() => window.open(pdfUrl)} size="small">

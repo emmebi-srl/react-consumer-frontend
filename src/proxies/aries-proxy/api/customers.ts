@@ -41,6 +41,13 @@ export const getCustomerById = (id: number, options?: { includes?: string }) => 
   return ariesServicesClient.get<CustomerList>(`customer/${id}`, { params: options });
 };
 
+/** "Estratto conto": unpaid installments of the customer, generated on demand (PDF). */
+export const getCustomerInvoicesStatementPdf = (id: number) => {
+  return ariesServicesClient.get<ArrayBuffer>(`customer/${id}/invoices-statement/pdf`, {
+    responseType: 'arraybuffer',
+  });
+};
+
 export const createCustomer = (model: CustomerCreateRequest) => {
   return ariesServicesClient.post<CustomerList>('customer', model);
 };

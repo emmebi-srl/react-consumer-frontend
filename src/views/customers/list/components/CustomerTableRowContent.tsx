@@ -7,6 +7,7 @@ import { Customer } from '~/types/aries-proxy/customers';
 import { RouteConfig } from '~/routes/routeConfig';
 import { getMainDestination } from '../../customerHelpers';
 import CustomerStatusChip from '../../components/CustomerStatusChip';
+import CustomerTableRowActions from './CustomerTableRowActions';
 
 interface Props {
   customer: Customer;
@@ -56,6 +57,9 @@ const CustomerTableRowContent: React.FC<Props> = ({ customer }) => {
       </TableCell>
       <TableCell align="left">
         <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />
+      </TableCell>
+      <TableCell align="right" sx={{ width: 48, px: 0.5 }}>
+        <CustomerTableRowActions customer={customer} />
       </TableCell>
     </>
   );

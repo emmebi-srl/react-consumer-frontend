@@ -2,16 +2,28 @@ import { Box, styled } from '@mui/system';
 import Sidebar from '../Sidebar/Sidebar';
 import { Outlet } from 'react-router-dom';
 
-const Content = styled('div')({
+const Content = styled('div')(({ theme }) => ({
   padding: '0px',
   flexGrow: 1,
   minWidth: 0,
   height: '100vh',
-});
+  // Mobile: below the header of the Sidebar, in the remaining height.
+  [theme.breakpoints.down('md')]: {
+    height: 'auto',
+    minHeight: 0,
+  },
+}));
 
 const PrivateAreaLayout = () => {
   return (
-    <Box sx={{ display: 'flex', height: '100%', padding: '0px' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        height: { xs: '100dvh', md: '100%' },
+        padding: '0px',
+      }}
+    >
       <Sidebar />
       <Content>
         <Outlet />

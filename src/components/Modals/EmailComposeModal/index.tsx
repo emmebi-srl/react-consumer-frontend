@@ -23,7 +23,7 @@ import useSnackbar from '~/hooks/useSnackbar';
 import { ModalProps } from '~/modals/Modal';
 import { useEmailById, useEmailEml, useEmailSenders, useSendEmail } from '~/proxies/aries-proxy/emails';
 import { useUserMe } from '~/proxies/aries-proxy/users';
-import { EmailSender, EmailStatusId } from '~/types/aries-proxy/emails';
+import { EmailDocument, EmailSender, EmailStatusId } from '~/types/aries-proxy/emails';
 import { getApiErrorMessage } from '~/utils/api-error-utils';
 import { getStringDateTimeByUnixtimestamp } from '~/utils/datetime-utils';
 import { decodeRtf } from '~/utils/rtf-utils';
@@ -34,7 +34,11 @@ interface EmailComposeModalProps extends Omit<ModalProps, 'closeModal'> {
   /** New email prefilled from a document, e.g. a DDT with its PDF. */
   initialTo?: string;
   initialSubject?: string;
+  /** Text before the signature. */
+  initialBody?: string;
   initialFiles?: File[];
+  /** Document the email sends: stored on the email, and the server applies its send effects. */
+  document?: EmailDocument;
   closeModal: (props?: { action: 'CLOSE' } | { action: 'SENT' }) => void;
 }
 
@@ -69,7 +73,9 @@ const EmailComposeModal = ({
   forwardEmailId,
   initialTo = '',
   initialSubject = '',
+  initialBody = '',
   initialFiles,
+  document: emailDocument,
 }: EmailComposeModalProps) => {
   const snackbar = useSnackbar();
   const sendMutation = useSendEmail();
@@ -140,11 +146,11 @@ const EmailComposeModal = ({
       to: initialTo,
       bcc: '',
       subject: forwarded ? `FW: ${forwarded.subject}` : initialSubject,
-      body: withSignature('\n\n', sender.signature) + quoted,
+      body: withSignature(initialBody ? `${initialBody}\n\n` : '\n\n', sender.signature) + quoted,
       pec: false,
       readConfirmation: sender.readConfirmation,
     });
-  }, [senders, forwarded, isForward, reset, currentUserId, initialTo, initialSubject]);
+  }, [senders, forwarded, isForward, reset, currentUserId, initialTo, initialSubject, initialBody]);
 
   // Changing sender swaps the signature and the read confirmation default, like CmbBoxSenderCloseUp.
   useEffect(() => {
@@ -183,6 +189,7 @@ const EmailComposeModal = ({
           pec: values.pec,
           readConfirmation: values.readConfirmation,
           forwardedEmailId: forwardEmailId,
+          document: emailDocument,
         },
         files,
       });
