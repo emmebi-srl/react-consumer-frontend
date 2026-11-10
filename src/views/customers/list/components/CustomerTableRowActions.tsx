@@ -1,5 +1,5 @@
 import { MouseEvent, useState } from 'react';
-import { Email, MoreVert, ReceiptLong } from '@mui/icons-material';
+import { MoreVert, ReceiptLong } from '@mui/icons-material';
 import { CircularProgress, IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { Customer } from '~/types/aries-proxy/customers';
 import useCustomerInvoicesStatement from '../../components/useCustomerInvoicesStatement';
@@ -42,14 +42,6 @@ const CustomerTableRowActions: React.FC<Props> = ({ customer }) => {
           </ListItemIcon>
           <ListItemText>Vedi estratto conto</ListItemText>
         </MenuItem>
-        {statement.canSend ? (
-          <MenuItem onClick={choose(statement.send)}>
-            <ListItemIcon>
-              <Email fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Invia estratto conto</ListItemText>
-          </MenuItem>
-        ) : null}
       </Menu>
     </>
   );
