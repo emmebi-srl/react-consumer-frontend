@@ -48,9 +48,21 @@ const LoginView: React.FC = () => {
   };
 
   return (
-    <PageContainer sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <form onSubmit={form.handleSubmit((data) => execLogin(data.username, data.password))}>
-        <Card elevation={3} sx={{ minWidth: 600, p: 2 }}>
+    <PageContainer
+      sx={{
+        display: 'flex',
+        // Column flex: justifyContent is vertical. On phones the card sits at the top, above the keyboard.
+        justifyContent: { xs: 'flex-start', sm: 'center' },
+        alignItems: 'center',
+        height: 'auto',
+        minHeight: '100dvh',
+      }}
+    >
+      <form
+        style={{ width: '100%', maxWidth: 600 }}
+        onSubmit={form.handleSubmit((data) => execLogin(data.username, data.password))}
+      >
+        <Card elevation={3} sx={{ p: { xs: 0, sm: 2 } }}>
           <CardHeader
             title={
               <Stack

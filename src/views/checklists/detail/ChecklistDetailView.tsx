@@ -50,20 +50,25 @@ const ChecklistDetailView = () => {
       >
         <ChecklistActionsBar checklist={checklist} />
         <Stack
-          direction="row"
+          direction={{ xs: 'column', md: 'row' }}
           spacing={2}
           sx={{
             flexGrow: 1,
             height: '100%',
+            minHeight: 0,
           }}
         >
           <Box
             sx={{
-              height: '100%',
-              overflowY: 'scroll',
-              maxWidth: '400px',
-              minWidth: '350px',
-              borderRight: '1px solid',
+              // On phones the paragraph list goes above the content instead of beside it.
+              height: { xs: 'auto', md: '100%' },
+              maxHeight: { xs: '35%', md: 'none' },
+              flexShrink: 0,
+              overflowY: 'auto',
+              maxWidth: { xs: 'none', md: '400px' },
+              minWidth: { xs: 0, md: '350px' },
+              borderRight: { xs: 'none', md: '1px solid' },
+              borderBottom: { xs: '1px solid', md: 'none' },
               borderColor: (theme) => theme.palette.divider,
               bgcolor: (theme) => theme.palette.grey[100],
             }}
@@ -72,7 +77,8 @@ const ChecklistDetailView = () => {
           </Box>
           <Box
             sx={{
-              height: '100%',
+              height: { xs: 'auto', md: '100%' },
+              minHeight: 0,
               overflowY: 'scroll',
               flexGrow: 1,
               pb: 6,
