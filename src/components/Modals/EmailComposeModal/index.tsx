@@ -31,6 +31,10 @@ import { decodeRtf } from '~/utils/rtf-utils';
 interface EmailComposeModalProps extends Omit<ModalProps, 'closeModal'> {
   /** Forward: the new email starts from this one and also carries its attachments. */
   forwardEmailId?: number;
+  /** New email prefilled from a document, e.g. a DDT with its PDF. */
+  initialTo?: string;
+  initialSubject?: string;
+  initialFiles?: File[];
   closeModal: (props?: { action: 'CLOSE' } | { action: 'SENT' }) => void;
 }
 
@@ -60,7 +64,13 @@ const getWarnings = (values: FormValues, attachmentCount: number) => {
   return warnings;
 };
 
-const EmailComposeModal = ({ closeModal, forwardEmailId }: EmailComposeModalProps) => {
+const EmailComposeModal = ({
+  closeModal,
+  forwardEmailId,
+  initialTo = '',
+  initialSubject = '',
+  initialFiles,
+}: EmailComposeModalProps) => {
   const snackbar = useSnackbar();
   const sendMutation = useSendEmail();
   const sendersQuery = useEmailSenders();
@@ -99,7 +109,7 @@ const EmailComposeModal = ({ closeModal, forwardEmailId }: EmailComposeModalProp
     return null;
   }, [isForward, emlQuery.data, emailQuery.data]);
 
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>(() => initialFiles ?? []);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [sendError, setSendError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -127,14 +137,14 @@ const EmailComposeModal = ({ closeModal, forwardEmailId }: EmailComposeModalProp
       : '';
     reset({
       senderId: sender.id,
-      to: '',
+      to: initialTo,
       bcc: '',
-      subject: forwarded ? `FW: ${forwarded.subject}` : '',
+      subject: forwarded ? `FW: ${forwarded.subject}` : initialSubject,
       body: withSignature('\n\n', sender.signature) + quoted,
       pec: false,
       readConfirmation: sender.readConfirmation,
     });
-  }, [senders, forwarded, isForward, reset, currentUserId]);
+  }, [senders, forwarded, isForward, reset, currentUserId, initialTo, initialSubject]);
 
   // Changing sender swaps the signature and the read confirmation default, like CmbBoxSenderCloseUp.
   useEffect(() => {
