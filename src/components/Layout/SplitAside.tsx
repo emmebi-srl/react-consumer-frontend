@@ -47,7 +47,14 @@ const SplitAside = ({ children, onClose, width, open, zIndex = 1200 }: PropsWith
       direction="left"
       in={open}
       mountOnEnter
-      style={{ position: 'fixed', right: 0, top: 0, width: open ? (width ?? 300) : 0, zIndex }}
+      style={{
+        position: 'fixed',
+        right: 0,
+        top: 0,
+        // On narrow screens leave room for the close tab, which sits 28px left of the panel.
+        width: open ? `min(${width ?? 300}px, calc(100vw - 28px))` : 0,
+        zIndex,
+      }}
       unmountOnExit
     >
       <Container sx={{ maxWidth: width ?? 300 }}>
