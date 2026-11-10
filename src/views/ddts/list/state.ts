@@ -21,9 +21,37 @@ export const defaultValues: DdtFilters = {
   toDate: undefined,
 };
 
-const { useFilterState, useIsDirty, useResetFilters, useUpdateFilter, useDirtyState } = createTableState<
-  DdtFilters,
-  'id'
->(defaultValues, { sort: 'id', direction: 'desc' });
+const {
+  useFilterState,
+  useIsDirty,
+  useResetFilters,
+  useUpdateFilter,
+  useDirtyState,
+  useActiveId,
+  useIsSidebarOpen,
+  useIsActive,
+  useActivate,
+  useResetSelection,
+} = createTableState<DdtFilters, 'id'>(defaultValues, { sort: 'id', direction: 'desc' });
 
-export { useFilterState, useIsDirty, useResetFilters, useUpdateFilter, useDirtyState };
+/** The aside selection is "year:id", the key of a DDT. */
+export const toDdtSelectionId = (ddt: { year: number; id: number }) => `${ddt.year}:${ddt.id}`;
+
+export const parseDdtSelectionId = (selectionId: string | null) => {
+  if (!selectionId) return null;
+  const [year, id] = selectionId.split(':').map(Number);
+  return year && id ? { year, id } : null;
+};
+
+export {
+  useFilterState,
+  useIsDirty,
+  useResetFilters,
+  useUpdateFilter,
+  useDirtyState,
+  useActiveId,
+  useIsSidebarOpen,
+  useIsActive,
+  useActivate,
+  useResetSelection,
+};

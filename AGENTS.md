@@ -234,6 +234,7 @@ When extending system subscription flows:
 ## Notes For DDT List Work
 
 - `RouteConfig.DdtList` (`ddts`, `src/views/ddts/list`) is the read-only list of the Delphi `UFDDTs` screen, with the same `View + state + Bar + TableHeading` structure as the supplier invoices: server-side search on `GET ddt` / `ddt/metadata`, infinite scroll. Received DDTs (`ddt_ricevuti`, Delphi `UFReceivedDDTs`) are not included.
+- A click on a row opens `DdtAside` (read-only summary from `ddt/{year}/{id}` with the detail includes, plus Modifica / PDF / Email / Elimina), a double click opens the editor, Cmd/Ctrl+click and middle-click open the editor in a new tab. The selection id is `year:id` (`toDdtSelectionId` / `parseDdtSelectionId` in `state.ts`). "Email" works like "Invia" of the Delphi list: `EmailComposeModal` with `initialFiles` (the PDF), `initialSubject` "Invio DDT n<id> <year>" and `initialTo` = email of the customer main contact (none for suppliers: there is no web API for supplier contacts). Delphi also proposes the administration contact (figura 19/23): not done, because the `contacts` include returns the figure name, not its id.
 - A DDT goes to a customer or to a supplier: use `supplierName` / `supplierDestination` when `supplierId` is set, `customerName` / `destination` otherwise. The key is `year` + `id`.
 - `causalId` is a short text code, not a number. The status color is a raw Delphi color: use `DelphiColorChip`.
 - `DdtTotalsCards` shows the totals of the current filters and is rendered only with `canTotals`; the server answers 403 otherwise.

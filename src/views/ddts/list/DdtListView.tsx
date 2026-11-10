@@ -23,7 +23,8 @@ import DdtTableHeading from './components/DdtTableHeading';
 import DdtTotalsCards from './components/DdtTotalsCards';
 import DdtTableRow from './components/DdtTableRow';
 import { RouteConfig } from '~/routes/routeConfig';
-import { useFilterState } from './state';
+import DdtAside from './components/DdtAside';
+import { useFilterState, useIsSidebarOpen } from './state';
 
 const DdtTableComponents: TableComponents<Ddt> = {
   Table: DataTable,
@@ -79,9 +80,10 @@ const DdtTableRowContent: React.FC<{ ddt: Ddt }> = ({ ddt }) => {
   );
 };
 
-/** DDTs issued to customers and suppliers, like the Delphi "DDT" screen. Read-only for now. */
+/** DDTs issued to customers and suppliers, like the Delphi "DDT" screen. A click on a row opens the summary aside. */
 const DdtListView = () => {
   const filters = useFilterState();
+  const isSidebarOpen = useIsSidebarOpen();
   const { permission } = useModulePermission(AriesModule.Ddts);
   const virtuoso = useRef<TableVirtuosoHandle>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -96,7 +98,7 @@ const DdtListView = () => {
 
   return (
     <SplitLayout>
-      <SplitMain ref={scrollerRef}>
+      <SplitMain sidebarOpen={isSidebarOpen} ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
             <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
@@ -158,6 +160,7 @@ const DdtListView = () => {
             </DataTableContainer>
           </Stack>
         </PageContainer>
+        <DdtAside />
       </SplitMain>
     </SplitLayout>
   );
