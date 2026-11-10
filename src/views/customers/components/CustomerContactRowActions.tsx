@@ -45,6 +45,7 @@ const CustomerContactRowActions: React.FC<Props> = ({ customerId, contact }) => 
 
   return (
     <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
+      {contact.isBilling && <Chip size="small" label="Fatturazione" color="success" variant="outlined" />}
       {contact.isMain && <Chip size="small" label="Principale" color="primary" />}
       <IconButton
         size="small"

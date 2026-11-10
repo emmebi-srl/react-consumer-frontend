@@ -31,6 +31,7 @@ import CustomerContactCreateModal from '../components/CustomerContactCreateModal
 import CustomerContactRowActions from '../components/CustomerContactRowActions';
 import CustomerDestinationCreateModal from '../components/CustomerDestinationCreateModal';
 import CustomerDestinationRowActions from '../components/CustomerDestinationRowActions';
+import CustomerInvoicesStatementButton from '../components/CustomerInvoicesStatementButton';
 import CustomerStatusChip from '../components/CustomerStatusChip';
 import { getMainContact, getMainDestination } from '../customerHelpers';
 import CustomerFormFields from '../form/CustomerFormFields';
@@ -233,11 +234,18 @@ const CustomerDetailView = () => {
   return (
     <PageContainer>
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: isDirty ? 10 : 0 }}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-          <BackButton to={RouteConfig.CustomerList.buildLink()} />
-          <Typography variant="h4">{customer ? customer.companyName : `Cliente #${customerId}`}</Typography>
-          {customer && <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />}
-          {customer?.isInsolvent && <Chip size="small" color="error" label="Insolvente" />}
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 1 }}
+        >
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+            <BackButton to={RouteConfig.CustomerList.buildLink()} />
+            <Typography variant="h4">{customer ? customer.companyName : `Cliente #${customerId}`}</Typography>
+            {customer && <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />}
+            {customer?.isInsolvent && <Chip size="small" color="error" label="Insolvente" />}
+          </Stack>
+          {customer && <CustomerInvoicesStatementButton customerId={customer.id} companyName={customer.companyName} />}
         </Stack>
 
         {customer && (

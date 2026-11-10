@@ -30,6 +30,8 @@ export interface CustomerContact {
   email?: string | null;
   hasReminderCustomer: boolean;
   isMain: boolean;
+  /** Billing contact (riferimento_clienti.Fatturazione): recipient of the invoices statement. */
+  isBilling: boolean;
 }
 
 export interface Customer {
