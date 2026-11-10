@@ -253,7 +253,7 @@ When extending system subscription flows:
 
 Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
 
-Only opening the module is applied everywhere. Insert/edit/delete buttons are not gated by permissions yet; the only action in use is `canTotals` on the DDT list.
+Only opening the module is applied everywhere. The DDT and email pages read the action permissions (`canInsert`, `canEdit`, `canDelete`, `canPrint`, `canPrices`, `canTotals`), but for now the server always returns them true, like Delphi `TUserTypePermission`. Don't treat a missing `tipo_utente_permessi` row as "no actions".
 
 ## Notes For Product Search/Detail Work
 
