@@ -38,7 +38,7 @@ const getFileName = () => {
 };
 
 /**
- * "Vedi estratto conto" (PDF preview with an "Invia" button) and "Invia estratto conto" (email with the PDF).
+ * "Vedi estratto conto": PDF preview whose "Invia via email" button opens the email with the PDF attached.
  * The email carries the `cliente_estratto_conto` document, so the server records the send like Delphi does
  * (installment communications and follow-up event).
  */
@@ -102,9 +102,7 @@ const useCustomerInvoicesStatement = (customerId: number, companyName: string) =
       if (result.action === 'SEND') await openEmail(pdf);
     });
 
-  const send = () => run(openEmail);
-
-  return { busy, canSend, preview, send };
+  return { busy, preview };
 };
 
 export default useCustomerInvoicesStatement;
