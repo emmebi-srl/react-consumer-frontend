@@ -32,13 +32,18 @@ interface StateNavigationTabsProps {
   onSelect: (tab: StateTabData) => void;
 }
 
-const Container = styled(Box)({
+const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: 8,
-});
+  // Mobile: many tabs scroll sideways inside the bar instead of widening the page.
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: '100%',
+    overflowX: 'auto',
+  },
+}));
 
-const Label = styled(Box)({
+const Label = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: 8,
@@ -49,7 +54,12 @@ const Label = styled(Box)({
   lineHeight: '20px',
   paddingLeft: 24,
   paddingRight: 24,
-});
+  whiteSpace: 'nowrap',
+  [theme.breakpoints.down('sm')]: {
+    paddingLeft: 12,
+    paddingRight: 12,
+  },
+}));
 
 const PathNavigationTabs: React.FC<PathNavigationTabsProps> = (props) => {
   const sortedTabs = _sortBy(props.tabs, (a) => -(a.matchPriority ?? 0));

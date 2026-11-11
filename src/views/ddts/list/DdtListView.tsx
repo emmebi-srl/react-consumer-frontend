@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
-import { Alert, Box, Button, Stack, TableCell, Tooltip, Typography } from '@mui/material';
+import { Alert, Button, Stack, TableCell, Tooltip } from '@mui/material';
 import { Add, CheckCircleOutlined, Refresh, Settings } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
+import ListPageHeader from '~/components/Layout/ListPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
@@ -101,33 +102,40 @@ const DdtListView = () => {
       <SplitMain sidebarOpen={isSidebarOpen} ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-              <Typography variant="h4">DDT</Typography>
-              <Button
-                variant="outlined"
-                startIcon={<Refresh />}
-                onClick={() => ddtsQuery.refetch()}
-                disabled={ddtsQuery.isFetching}
-              >
-                Aggiorna
-              </Button>
-              <Box sx={{ flexGrow: 1 }} />
-              {permission?.canEdit ? (
-                <Button component={RouterLink} to={RouteConfig.DdtSettings.buildLink()} startIcon={<Settings />}>
-                  Tabelle DDT
-                </Button>
-              ) : null}
-              {permission?.canInsert ? (
+            <ListPageHeader
+              title="DDT"
+              actions={
                 <Button
-                  component={RouterLink}
-                  to={RouteConfig.DdtNew.buildLink()}
-                  variant="contained"
-                  startIcon={<Add />}
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={() => ddtsQuery.refetch()}
+                  disabled={ddtsQuery.isFetching}
                 >
-                  Nuovo DDT
+                  Aggiorna
                 </Button>
-              ) : null}
-            </Stack>
+              }
+              endActions={
+                permission?.canEdit || permission?.canInsert ? (
+                  <>
+                    {permission.canEdit ? (
+                      <Button component={RouterLink} to={RouteConfig.DdtSettings.buildLink()} startIcon={<Settings />}>
+                        Tabelle DDT
+                      </Button>
+                    ) : null}
+                    {permission.canInsert ? (
+                      <Button
+                        component={RouterLink}
+                        to={RouteConfig.DdtNew.buildLink()}
+                        variant="contained"
+                        startIcon={<Add />}
+                      >
+                        Nuovo DDT
+                      </Button>
+                    ) : null}
+                  </>
+                ) : null
+              }
+            />
 
             {permission?.canTotals ? <DdtTotalsCards /> : null}
 

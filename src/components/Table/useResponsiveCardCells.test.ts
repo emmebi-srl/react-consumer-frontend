@@ -48,3 +48,18 @@ describe('useResponsiveCardCells', () => {
     expect(cells.map((c) => c.role)).toEqual([undefined, 'title', 'date', undefined, 'actions']);
   });
 });
+
+describe('useResponsiveCardCells (DDT-like row)', () => {
+  it('reads "id + year" as id and never uses a date as title', () => {
+    const cells = buildTable(
+      ['N.', 'Stato', 'Data', 'Destinatario'],
+      [
+        '<p>123</p><p>2026</p>',
+        '<div class="MuiChip-root"><span>Emesso</span></div>',
+        '<p>05/11/2026</p>',
+        '<p>Rossi Srl</p><p>Cliente</p>',
+      ],
+    );
+    expect(cells.map((c) => c.role)).toEqual(['id', undefined, 'date', 'title']);
+  });
+});
