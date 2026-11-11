@@ -19,6 +19,13 @@ const Container = styled('div')(({ theme }) => ({
   flex: '0 0 auto',
   justifyContent: 'space-between',
   alignItems: 'center',
+  flexWrap: 'wrap',
+  gap: theme.spacing(1.5),
+  // Mobile: no side padding, buttons wrap below the tabs.
+  [theme.breakpoints.down('sm')]: {
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
 }));
 
 const Tabs: StateTabData[] = [
@@ -65,7 +72,7 @@ const ProductTabs: React.FC = () => {
     <Container>
       <NavigationTabs tabs={Tabs} selectedTabKey="all" onSelect={() => {}} />
 
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap', rowGap: 1 }}>
         <Button variant="outlined" startIcon={<PrintIcon />} disabled={printing} onClick={printPriceList}>
           {printing ? 'Generazione…' : 'Stampa listino'}
         </Button>

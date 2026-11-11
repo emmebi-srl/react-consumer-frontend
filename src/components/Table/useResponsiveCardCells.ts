@@ -16,7 +16,8 @@ export type CardCellRole = 'select' | 'id' | 'title' | 'date' | 'menu' | 'action
 const DATE_ONLY_REGEX = /^\d{1,2}\/\d{1,2}\/\d{2,4}(\s+\d{1,2}:\d{2}(:\d{2})?)?$/;
 /** Header labels that identify a date column. */
 const DATE_LABEL_REGEX = /^(data|date|scadenza|del)\b/i;
-const ID_TEXT_REGEX = /^#?\d+$/;
+/** A number, optionally followed by a year on its own line (e.g. DDT "123" + "2026"). */
+const ID_TEXT_REGEX = /^#?\d+(\s+\d{4})?$/;
 const ID_LABEL_REGEX = /^(id|#|n\.?|n°|nr\.?|num\.?|numero|cod\.?|codice)$/i;
 const ACTIONS_LABEL_REGEX = /^(azion[ei]|actions?)?$/i;
 const WIDE_TEXT_LENGTH = 24;
@@ -37,6 +38,17 @@ export const getHeaderLabels = (table: HTMLTableElement): string[] => {
   return labels;
 };
 
+/** Text of a cell with its pieces separated by a space (`textContent` glues "123" and "2026" into "1232026"). */
+const getCellText = (cell: HTMLTableCellElement) => {
+  const parts: string[] = [];
+  const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const part = (node.nodeValue ?? '').trim();
+    if (part) parts.push(part);
+  }
+  return parts.join(' ');
+};
+
 const setData = (cell: HTMLTableCellElement, key: string, value: string | undefined) => {
   if (value === undefined) {
     if (key in cell.dataset) delete cell.dataset[key];
@@ -50,8 +62,8 @@ const isInteractive = (cell: HTMLTableCellElement) => !!cell.querySelector('butt
 /** A status chip or a checkbox alone makes a poor card heading. */
 const isTitleCandidate = (cell: HTMLTableCellElement, text: string) => {
   if (!text || cell.querySelector('input[type="checkbox"]')) return false;
-  const chip = cell.querySelector('.MuiChip-root');
-  return chip?.textContent.trim() !== text;
+  const chip = cell.querySelector<HTMLElement>('.MuiChip-root');
+  return chip?.textContent.trim().replace(/\s+/g, ' ') !== text;
 };
 
 export const decorateRow = (row: HTMLTableRowElement, labels: string[]) => {
@@ -61,7 +73,7 @@ export const decorateRow = (row: HTMLTableRowElement, labels: string[]) => {
   Array.from(row.cells).forEach((cell, cellIndex) => {
     const label = labels[columnIndex] ?? '';
     columnIndex += cell.colSpan || 1;
-    const text = cell.textContent.trim();
+    const text = getCellText(cell);
 
     const pickRole = (): CardCellRole | undefined => {
       if (!label && !text && cell.querySelector('input[type="checkbox"]')) return 'select';
@@ -69,10 +81,10 @@ export const decorateRow = (row: HTMLTableRowElement, labels: string[]) => {
       if (!assigned.has('id') && !assigned.has('title') && ID_TEXT_REGEX.test(text)) {
         if (cellIndex === 0 || ID_LABEL_REGEX.test(label)) return 'id';
       }
-      if (!assigned.has('title') && isTitleCandidate(cell, text)) return 'title';
       const isDate =
         DATE_ONLY_REGEX.test(text) || (text.length <= 20 && DATE_LABEL_REGEX.test(label) && /\d/.test(text));
-      if (!assigned.has('date') && isDate) return 'date';
+      if (isDate) return assigned.has('date') ? undefined : 'date';
+      if (!assigned.has('title') && isTitleCandidate(cell, text)) return 'title';
       return undefined;
     };
 

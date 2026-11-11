@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
-import { Button, Chip, Stack, TableCell, Typography } from '@mui/material';
+import { Button, Chip, Stack, TableCell } from '@mui/material';
 import { EventRepeat, Refresh } from '@mui/icons-material';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import { Link as RouterLink } from 'react-router-dom';
+import ListPageHeader from '~/components/Layout/ListPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTableContainer from '~/components/Table/DataTableContainer';
 import DataTable from '~/components/Table/DataTable';
@@ -94,32 +95,29 @@ const SupplierInvoiceListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{
-                alignItems: 'center',
-              }}
-            >
-              <Typography variant="h4">Fatture Fornitore</Typography>
-              <Button
-                variant="outlined"
-                startIcon={<Refresh />}
-                onClick={() => invoicesQuery.refetch()}
-                disabled={invoicesQuery.isFetching}
-              >
-                Aggiorna
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<EventRepeat />}
-                component={RouterLink}
-                to={RouteConfig.SupplierInvoicePeriodicConfigurationList.buildLink()}
-                sx={{ marginLeft: 'auto !important' }}
-              >
-                Gestisci periodicità
-              </Button>
-            </Stack>
+            <ListPageHeader
+              title="Fatture Fornitore"
+              actions={
+                <Button
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={() => invoicesQuery.refetch()}
+                  disabled={invoicesQuery.isFetching}
+                >
+                  Aggiorna
+                </Button>
+              }
+              endActions={
+                <Button
+                  variant="contained"
+                  startIcon={<EventRepeat />}
+                  component={RouterLink}
+                  to={RouteConfig.SupplierInvoicePeriodicConfigurationList.buildLink()}
+                >
+                  Gestisci periodicità
+                </Button>
+              }
+            />
 
             <ScrollToTopButton
               onClick={() =>
