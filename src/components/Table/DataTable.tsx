@@ -53,8 +53,17 @@ const cardSx: SxProps<Theme> = (theme) => ({
 
   '& > tbody': { bgcolor: 'grey.100', borderTop: 'none' },
 
-  // Only real data rows become cards: Virtuoso filler rows and "no data" rows are a single colSpan cell.
-  '& > tbody > tr:not(:has(> td[colspan]:only-child)), & > tbody > tr[data-index]': {
+  // Virtuoso keeps the space of the rows that are not rendered with filler rows: `<tr><td style="height:…"/></tr>`,
+  // an empty cell without colSpan. They must keep their height, or the list can't scroll past the loaded rows
+  // and `endReached` (infinite scroll) never fires.
+  '& > tbody > tr:not([data-index]):has(> td:only-child:empty)': {
+    display: 'block',
+    '& > td': { display: 'block', p: 0, border: 'none' },
+  },
+
+  // Only real data rows become cards: Virtuoso rows (`data-index`), or in plain tables any row that is not
+  // a single full-width cell (fillers, "no data").
+  '& > tbody > tr[data-index], & > tbody > tr:not(:has(> td:only-child:empty)):not(:has(> td[colspan]:only-child))': {
     '--pin-menu': '0px',
     '--pin-date': '0px',
     '--title-date': '0px',
@@ -135,9 +144,13 @@ const cardSx: SxProps<Theme> = (theme) => ({
       gridColumn: '1 / -1',
       pl: 'var(--pin-select)',
       pr: 'calc(var(--pin-menu) + var(--pin-date))',
+      // "#123" and an optional second line (e.g. the year) side by side.
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: '6px',
       '&::before': { display: 'none' },
       '& *': { fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary },
-      '& > *::before': { content: '"#"' },
+      '& > *:first-of-type::before': { content: '"#"' },
     },
     [`&:has(> td[data-card-role="id"]) > td[data-card-role="title"]`]: { mt: -1 },
 

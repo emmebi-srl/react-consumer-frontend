@@ -10,7 +10,6 @@ import {
   TableCell,
   TextField,
   Tooltip,
-  Typography,
   useTheme,
 } from '@mui/material';
 import { useMemo, useRef, useState } from 'react';
@@ -20,6 +19,7 @@ import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/compone
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import CreateSupplierInvoicePeriodicConfigurationModal from '~/components/Modals/CreateSupplierInvoicePeriodicConfigurationModal';
+import ListPageHeader from '~/components/Layout/ListPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
@@ -312,36 +312,31 @@ const SupplierInvoicePeriodicConfigurationListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{
-                alignItems: 'center',
-              }}
-            >
-              <Tooltip title="Torna alle fatture">
-                <IconButton component={RouterLink} to={RouteConfig.SupplierInvoiceList.buildLink()}>
-                  <ArrowBack />
-                </IconButton>
-              </Tooltip>
-              <Typography variant="h4">Periodicità Fornitori</Typography>
-              <Button
-                variant="outlined"
-                startIcon={<Refresh />}
-                onClick={() => configurationsQuery.refetch()}
-                disabled={configurationsQuery.isFetching}
-              >
-                Aggiorna
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={openCreateModal}
-                sx={{ marginLeft: 'auto !important' }}
-              >
-                Nuova periodica
-              </Button>
-            </Stack>
+            <ListPageHeader
+              title="Periodicità Fornitori"
+              leading={
+                <Tooltip title="Torna alle fatture">
+                  <IconButton component={RouterLink} to={RouteConfig.SupplierInvoiceList.buildLink()}>
+                    <ArrowBack />
+                  </IconButton>
+                </Tooltip>
+              }
+              actions={
+                <Button
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={() => configurationsQuery.refetch()}
+                  disabled={configurationsQuery.isFetching}
+                >
+                  Aggiorna
+                </Button>
+              }
+              endActions={
+                <Button variant="contained" startIcon={<Add />} onClick={openCreateModal}>
+                  Nuova periodica
+                </Button>
+              }
+            />
 
             <ScrollToTopButton
               onClick={() =>

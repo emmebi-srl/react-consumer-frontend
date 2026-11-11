@@ -17,8 +17,10 @@ const Metadata: React.FC<PropsWithChildren<Props>> = ({ children, filteredCount,
         mt: 1,
         bgcolor: theme.palette.secondary.light,
         py: 1,
-        px: 3,
-        gap: 16,
+        px: { xs: 1.5, sm: 3 },
+        gap: { xs: 1, sm: 16 },
+        flexWrap: { xs: 'wrap', sm: 'nowrap' },
+        alignItems: 'center',
       }}
     >
       <Typography

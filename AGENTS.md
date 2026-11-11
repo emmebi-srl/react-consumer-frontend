@@ -122,6 +122,33 @@ Detail/create/edit pages reached from a list use the same header: a back arrow o
 
 Below `md` the `Sidebar` is a temporary drawer opened from `MobileHeader`: a sticky top bar (`MOBILE_HEADER_HEIGHT`) with the menu button and the label of the active sidebar item (detail pages show their list, e.g. CLIENTI). `PrivateAreaLayout` stacks header and content in a column of `100dvh`. Pages must not add their own offset for a floating menu button.
 
+### Mobile Lists (Tables As Cards)
+
+**Always do this**: every new list/table must work on a phone in the same change that adds it. Below `sm`, `DataTable` turns each row into a card automatically, so you only have to build the table with the shared pieces and follow the column conventions below. No per-view mobile code.
+
+How a list must be built:
+
+- Use `DataTable`, `DataTableHead`, `DataTableBody`, `DataTableRow` (and `DataTableContainer`) from `src/components/Table`, also as the `TableVirtuoso` `components`. Don't use MUI `<Table>` directly for lists: it won't become cards. Pass `responsive={false}` to `DataTable` only for tables that must stay tables on mobile (e.g. a small numeric grid).
+- Column headers through `DataTableHeading` (`headLabel`): their labels become the field labels of the card, and sortable columns become chips.
+- Page title bar with `ListPageHeader` (`src/components/Layout/ListPageHeader`: `title`, `leading`, `actions`, `endActions`), not a hand-made `Stack direction="row"`: it wraps on small screens. List tabs headers (`CustomerTabs`, ...) wrap the same way; copy their `Container`.
+
+How the card is built (`useResponsiveCardCells` reads header labels and cell text, `DataTable` styles it). Order and label the columns so the roles come out right:
+
+- **ID**: the first column (or one labelled `ID`/`N.`/`Cod.`) with a number, optionally plus a year on a second line → small `#123` above the title.
+- **Title**: the first column with text that is not only a status chip or a checkbox → card heading. Put the most meaningful column (name, customer, subject) right after the ID.
+- **Date**: the first cell that contains only a date (`dd/MM/yyyy`, optional time) or sits in a `Data…`/`Scadenza…` column → pinned top-right. Render the date alone in its cell, with `getStringDateByUnixtimestamp`.
+- **Menu**: a column with an empty or `Azioni` label containing only icon buttons → pinned top-right (e.g. the `MoreVert` row menu). With text buttons → full-width footer.
+- **Select**: an unlabeled checkbox column → top-left.
+- Every other cell is a field (label above value, two per row; text longer than ~24 chars takes the full width). Empty cells are hidden.
+
+Don'ts:
+
+- Don't put `margin` on rows or cells: Virtuoso measures rows with `offsetHeight`, margins break scrolling. The card spacing is inside the row.
+- Don't set `overflow` on the table, and don't hide/collapse Virtuoso's filler rows (`<tr><td style="height">` with an empty cell): they hold the height of the unrendered rows; without them the list stops scrolling and `endReached` (infinite scroll) never fires.
+- Don't rely on fixed widths (`width`, `minWidth`, `maxWidth: 0`) for mobile: they are ignored in card mode, which is fine; desktop keeps them.
+
+Check it in the browser devtools at a phone width (< 600px): scroll to the end of the list (the next page must load), tap a row, open the row menu.
+
 ### Delphi Colors
 
 Some data carries colors written by the Delphi desktop app, in Delphi `TColor` format: named constants (`clRed`, `clMoneyGreen`, ...), `$00BBGGRR` hex (BGR, not RGB) or a decimal integer. The backend returns them **raw**; the conversion happens **only here**:

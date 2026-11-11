@@ -11,7 +11,6 @@ import {
   TableCell,
   TextField,
   Tooltip,
-  Typography,
 } from '@mui/material';
 import { format } from 'date-fns';
 import { useMemo, useRef, useState } from 'react';
@@ -19,6 +18,7 @@ import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtu
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
+import ListPageHeader from '~/components/Layout/ListPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import EmailComposeModal from '~/components/Modals/EmailComposeModal';
@@ -290,31 +290,29 @@ const EmailListView = () => {
   return (
     <PageContainer>
       <Stack spacing={3} direction="column" sx={{ flexGrow: 1, minHeight: 0 }}>
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <Typography variant="h4">Email</Typography>
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="outlined"
-              startIcon={<Refresh />}
-              onClick={() => {
-                emailsQuery.refetch();
-                metadataQuery.refetch();
-              }}
-              disabled={emailsQuery.isFetching || metadataQuery.isFetching}
-            >
-              Aggiorna
-            </Button>
-            {canSend ? (
-              <Button variant="contained" startIcon={<Add />} onClick={() => openCompose()}>
-                Nuova email
+        <ListPageHeader
+          title="Email"
+          endActions={
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<Refresh />}
+                onClick={() => {
+                  emailsQuery.refetch();
+                  metadataQuery.refetch();
+                }}
+                disabled={emailsQuery.isFetching || metadataQuery.isFetching}
+              >
+                Aggiorna
               </Button>
-            ) : null}
-          </Stack>
-        </Stack>
+              {canSend ? (
+                <Button variant="contained" startIcon={<Add />} onClick={() => openCompose()}>
+                  Nuova email
+                </Button>
+              ) : null}
+            </>
+          }
+        />
 
         {emailsQuery.isError ? <Alert severity="error">Non sono riuscito a caricare le email.</Alert> : null}
 

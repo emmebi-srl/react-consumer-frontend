@@ -7,6 +7,7 @@ import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
 import DataTableContainer from '~/components/Table/DataTableContainer';
 import DataTableHead from '~/components/Table/DataTableHead';
+import ListPageHeader from '~/components/Layout/ListPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import SplitLayout from '~/components/Layout/SplitLayout';
@@ -118,35 +119,32 @@ const ReportListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{
-                alignItems: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              <Typography variant="h4">Rapporti</Typography>
-              <Button
-                component={RouterLink}
-                to={RouteConfig.ReportNew.buildLink()}
-                variant="contained"
-                startIcon={<Add />}
-              >
-                Nuovo
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<Refresh />}
-                onClick={() => {
-                  reportsQuery.refetch();
-                  mobileReportsQuery.refetch();
-                }}
-                disabled={reportsQuery.isFetching || mobileReportsQuery.isFetching}
-              >
-                Aggiorna
-              </Button>
-            </Stack>
+            <ListPageHeader
+              title="Rapporti"
+              actions={
+                <>
+                  <Button
+                    component={RouterLink}
+                    to={RouteConfig.ReportNew.buildLink()}
+                    variant="contained"
+                    startIcon={<Add />}
+                  >
+                    Nuovo
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Refresh />}
+                    onClick={() => {
+                      reportsQuery.refetch();
+                      mobileReportsQuery.refetch();
+                    }}
+                    disabled={reportsQuery.isFetching || mobileReportsQuery.isFetching}
+                  >
+                    Aggiorna
+                  </Button>
+                </>
+              }
+            />
 
             <Stack spacing={1.5}>
               <Typography variant="h6">RAPPORTI MOBILE DA GESTIRE</Typography>

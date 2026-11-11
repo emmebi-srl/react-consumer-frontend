@@ -17,6 +17,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
+import ListPageHeader from '~/components/Layout/ListPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -276,24 +277,22 @@ const WhatsappMessageListView = () => {
   return (
     <PageContainer>
       <Stack spacing={3} direction="column" sx={{ flexGrow: 1, minHeight: 0 }}>
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <Typography variant="h4">Messaggi WhatsApp ricevuti</Typography>
-          <Button
-            variant="outlined"
-            startIcon={<Refresh />}
-            onClick={() => {
-              messagesQuery.refetch();
-              metadataQuery.refetch();
-            }}
-            disabled={messagesQuery.isFetching || metadataQuery.isFetching}
-          >
-            Aggiorna
-          </Button>
-        </Stack>
+        <ListPageHeader
+          title="Messaggi WhatsApp ricevuti"
+          endActions={
+            <Button
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={() => {
+                messagesQuery.refetch();
+                metadataQuery.refetch();
+              }}
+              disabled={messagesQuery.isFetching || metadataQuery.isFetching}
+            >
+              Aggiorna
+            </Button>
+          }
+        />
 
         {messagesQuery.isError ? <Alert severity="error">Non sono riuscito a caricare i messaggi.</Alert> : null}
 
