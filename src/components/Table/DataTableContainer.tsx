@@ -8,6 +8,12 @@ const DataTableContainer = forwardRef<HTMLDivElement, TableContainerProps>((prop
       flexGrow: 1,
       overflow: 'initial',
       position: 'relative',
+      // Card layout fits the viewport: no sideways panning, and vertical swipes stay on the list.
+      '& [data-virtuoso-scroller]:has(table[data-cards])': {
+        overflowX: 'hidden',
+        overscrollBehaviorX: 'none',
+        touchAction: 'pan-y',
+      },
       ...props.sx,
     }}
     style={{
