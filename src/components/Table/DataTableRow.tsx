@@ -18,6 +18,7 @@ const DataTableRow = forwardRef<HTMLTableRowElement, DataTableRowProps>(({ hidde
     <TableRow
       hover
       ref={ref}
+      data-active={active ? '' : undefined}
       tabIndex={-1}
       sx={{
         position: 'relative',
