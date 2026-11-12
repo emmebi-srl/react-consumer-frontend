@@ -35,11 +35,13 @@ import MailOutlined from '@mui/icons-material/MailOutlined';
 import WhatsApp from '@mui/icons-material/WhatsApp';
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import ChecklistOutlined from '@mui/icons-material/ChecklistOutlined';
+import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
+import SettingsSuggestOutlined from '@mui/icons-material/SettingsSuggestOutlined';
 import { Link } from 'react-router-dom';
 import Logo from '~/components/Layout/Logo';
 import { RouteConfig } from '~/routes/routeConfig';
 import useRouteMatch from '~/hooks/useRouteMatch';
-import { useModulePermission, useUserMe, useUserModulePermissions } from '~/proxies/aries-proxy/users';
+import { useIsAriesAdmin, useUserMe, useUserModulePermissions } from '~/proxies/aries-proxy/users';
 import { AriesModule } from '~/types/aries-proxy/users';
 
 export const SIDEBAR_WIDTH = 248;
@@ -55,6 +57,8 @@ interface SidebarItem {
   icon: ReactNode;
   /** Hidden when the user can't open this module. */
   moduleId?: number;
+  /** Hidden for the users without the `aries_admin` role (Delphi admin settings). */
+  adminOnly?: boolean;
 }
 
 interface SidebarSection {
@@ -143,6 +147,23 @@ const sections: SidebarSection[] = [
       { label: 'Checklist', path: RouteConfig.ChecklistList.buildLink(), icon: <ChecklistOutlined /> },
     ],
   },
+  {
+    title: 'Impostazioni',
+    items: [
+      {
+        label: 'Azienda',
+        path: RouteConfig.CompanySettings.buildLink(),
+        icon: <BusinessOutlined />,
+        moduleId: AriesModule.Settings,
+      },
+      {
+        label: 'Servizi',
+        path: RouteConfig.ServiceSettings.buildLink(),
+        icon: <SettingsSuggestOutlined />,
+        adminOnly: true,
+      },
+    ],
+  },
 ];
 
 const allPaths = sections.flatMap((section) => section.items.map((item) => item.path));
@@ -151,7 +172,6 @@ const UserMenu = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<HTMLElement | null>(null);
   const { data: userData } = useUserMe();
   const user = userData?.users.at(0);
-  const { permission: settingsPermission } = useModulePermission(AriesModule.Settings);
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
@@ -194,11 +214,6 @@ const UserMenu = () => {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
-        {settingsPermission?.isEnabled ? (
-          <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.CompanySettings.buildLink()}>
-            Gestione azienda
-          </MenuItem>
-        ) : null}
         <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.Logout.buildLink()}>
           Logout
         </MenuItem>
@@ -210,8 +225,10 @@ const UserMenu = () => {
 const SidebarContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => {
   const activePath = useRouteMatch(allPaths);
   const { data: modulePermissions } = useUserModulePermissions();
+  const { isAdmin } = useIsAriesAdmin();
   const isVisible = (item: SidebarItem) =>
-    !item.moduleId || !!modulePermissions?.permissions.find((module) => module.moduleId === item.moduleId)?.isEnabled;
+    (!item.adminOnly || isAdmin) &&
+    (!item.moduleId || !!modulePermissions?.permissions.find((module) => module.moduleId === item.moduleId)?.isEnabled);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -240,51 +257,54 @@ const SidebarContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) =
           scrollbarColor: `${alpha('#ffffff', 0.2)} transparent`,
         }}
       >
-        {sections.map((section) => (
-          <List
-            key={section.title ?? 'main'}
-            disablePadding
-            sx={{ mt: section.title ? 2 : 1 }}
-            subheader={
-              section.title && (
-                <ListSubheader
-                  disableSticky
-                  sx={{
-                    lineHeight: '28px',
-                    px: 3,
-                    bgcolor: 'transparent',
-                    color: alpha('#ffffff', 0.45),
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                  }}
+        {sections
+          .map((section) => ({ ...section, items: section.items.filter(isVisible) }))
+          .filter((section) => section.items.length > 0)
+          .map((section) => (
+            <List
+              key={section.title ?? 'main'}
+              disablePadding
+              sx={{ mt: section.title ? 2 : 1 }}
+              subheader={
+                section.title && (
+                  <ListSubheader
+                    disableSticky
+                    sx={{
+                      lineHeight: '28px',
+                      px: 3,
+                      bgcolor: 'transparent',
+                      color: alpha('#ffffff', 0.45),
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {section.title}
+                  </ListSubheader>
+                )
+              }
+            >
+              {section.items.map((item) => (
+                <ListItemButton
+                  key={item.path}
+                  component={Link}
+                  to={item.path}
+                  onClick={onNavigate}
+                  selected={item.path === activePath}
+                  sx={navItemSx}
                 >
-                  {section.title}
-                </ListSubheader>
-              )
-            }
-          >
-            {section.items.filter(isVisible).map((item) => (
-              <ListItemButton
-                key={item.path}
-                component={Link}
-                to={item.path}
-                onClick={onNavigate}
-                selected={item.path === activePath}
-                sx={navItemSx}
-              >
-                <ListItemIcon sx={{ minWidth: 34, color: 'inherit', '& svg': { fontSize: 20 } }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  slotProps={{ primary: { sx: { fontSize: 14, fontWeight: 'inherit' } } }}
-                />
-              </ListItemButton>
-            ))}
-          </List>
-        ))}
+                  <ListItemIcon sx={{ minWidth: 34, color: 'inherit', '& svg': { fontSize: 20 } }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.label}
+                    slotProps={{ primary: { sx: { fontSize: 14, fontWeight: 'inherit' } } }}
+                  />
+                </ListItemButton>
+              ))}
+            </List>
+          ))}
       </Box>
 
       <Box sx={{ borderTop: `1px solid ${alpha('#ffffff', 0.08)}` }}>
@@ -328,8 +348,7 @@ const paperSx: SxProps<Theme> = {
 
 export const MOBILE_HEADER_HEIGHT = 56;
 
-const extraTitles = [{ label: 'Gestione azienda', path: RouteConfig.CompanySettings.buildLink() }];
-const titledItems = [...sections.flatMap((section) => section.items), ...extraTitles];
+const titledItems = sections.flatMap((section) => section.items);
 const titledPaths = titledItems.map((item) => item.path);
 
 /** Mobile only: top bar with the menu button and the current section (e.g. CLIENTI, DDT). */

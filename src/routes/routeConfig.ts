@@ -30,6 +30,7 @@ export const RouteConfig = {
   AppRoot: defineRoute(''),
   Dashboard: defineRoute('dashboard'),
   CompanySettings: defineRoute('company'),
+  ServiceSettings: defineRoute('settings/services'),
   Login: defineRoute('login'),
   Logout: defineRoute('logout'),
   LandingUnsubscribeCampaign: defineRoute('landing/unsubscribe-campaign'),

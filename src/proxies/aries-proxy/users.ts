@@ -32,6 +32,16 @@ export const useModulePermission = (moduleId: number) => {
   return { isLoading, permission: data?.permissions.find((module) => module.moduleId === moduleId) };
 };
 
+/**
+ * True for the users with the `aries_admin` role, like the Delphi admin settings (`TSessionProvider.IsAdmin`).
+ * The server enforces it too: this only adapts the UI.
+ */
+export const useIsAriesAdmin = () => {
+  const { data, isLoading } = useUserMe();
+  const user = data?.users.at(0);
+  return { isLoading, isAdmin: !!user?.roles.includes('aries_admin') };
+};
+
 export const useUserLogout = () => {
   return useMutation({
     mutationFn: async () => {

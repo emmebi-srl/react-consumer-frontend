@@ -286,7 +286,14 @@ When extending system subscription flows:
 
 Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
 
+Admin-only pages (Delphi "Admin" settings, role `aries_admin`): wrap the route with `AdminGuard`, set `adminOnly` on the `Sidebar` item, read it with `useIsAriesAdmin`; the backend uses `[RequireAriesAdmin]`. Currently: services settings.
+
 Only opening the module is applied everywhere. The DDT and email pages read the action permissions (`canInsert`, `canEdit`, `canDelete`, `canPrint`, `canPrices`, `canTotals`), but for now the server always returns them true, like Delphi `TUserTypePermission`. Don't treat a missing `tipo_utente_permessi` row as "no actions".
+
+## Notes For Settings Work
+
+- The sidebar "Impostazioni" section holds the settings pages: "Azienda" (`RouteConfig.CompanySettings`, module Settings; it used to be in the user menu) and "Servizi" (`RouteConfig.ServiceSettings`, `settings/services`, admin only). Put new settings pages there.
+- Services (`src/views/settings/services`, Delphi `TFSettingsServicesConfig`): tab "Alert interni" (SMTP, services, recipients) and tab "Promemoria cliente" (SMTP + SMS host, reminders, placeholders). Each card saves on its own with an explicit "Salva" (Delphi saved on every field exit). In campaign delivery the schedule is hidden, except for the invoices statement (`CUSTOMER_INVOICES_STATEMENT_REMINDER_ID`, `showsSchedule`), and the email/SMS texts are not used.
 
 ## Notes For Product Search/Detail Work
 
