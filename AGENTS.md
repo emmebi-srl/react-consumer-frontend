@@ -280,6 +280,13 @@ When extending system subscription flows:
 - Editor cards: `DdtJobCard` (job lot of the customer; the rows card then shows the economy column and the remaining quantity of `ddt/job-remaining`, with "Eccedenza in economia"), `DdtRowsCard` (kit components with their serial numbers, price from `product-defaults` with the customer), `DdtDocumentsCard` (report links, pick lists, "Importa materiale" from `ddt/documents`: imported rows are added with `setValue('rows', ...)` so the rows field array stays in sync; on a new DDT the first imported report with signatures becomes `signatureReport`), `DdtSignaturesCard` (saved DDTs only: driver/recipient signature from a linked report or an employee).
 - Support tables (causals, porto resa, trasporto a cura, carriers): `RouteConfig.DdtSettings` (`ddts/settings`), they need `canEdit` to change. The "aspetto" checkboxes only show the bits returned by `ddt/aspect` (codes present in the `aspetto` table).
 
+## Notes For WhatsApp Conversations
+
+- `RouteConfig.WhatsappMessageList` (`whatsapp/messages`) lists the messages written by the customers; a click on a row opens `WhatsappConversationModal` (`src/views/whatsapp/components`) for the sender phone (links to customer/campaign inside the row `stopPropagation`). The phone is digits only, as Meta sends it.
+- The modal reads `GET whatsapp/conversations/{phone}` (`useWhatsappConversation`, refreshed every 15 seconds because new messages arrive through the Meta webhook) and replies with `useSendWhatsappReply`, which writes the returned conversation into the query cache.
+- Free text replies are allowed by Meta only within 24 hours from the last message of the customer: show the reply box only when `canReply`, and the window end (`replyWindowEnd`) under it. The server checks the window too and answers 400 with the reason. A reply refused by Meta is not an HTTP error: it comes back as an outbound message with status `failed` and `error`; check it after sending.
+- Enter sends, Shift+Enter goes to a new line. Message type labels for media without text are in `whatsappMessageLabels.ts`, shared with the list.
+
 ## Module Permissions
 
 **Always do this**: every new page that belongs to an Aries module must be protected, in the same change that adds it. If the module has no `AriesModule` id yet, add it. If a page has no Delphi module, say so explicitly when you hand over the work instead of skipping silently.

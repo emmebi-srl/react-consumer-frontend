@@ -87,3 +87,55 @@ export interface WhatsappReceivedMessageSearchRequest {
   /** "customer", "system", "campaign", comma separated. */
   includes?: string;
 }
+
+export const WhatsappMessageDirection = {
+  /** Written by the customer. */
+  Inbound: 'inbound',
+  /** Free text reply of an operator. */
+  Outbound: 'outbound',
+} as const;
+
+export type WhatsappMessageDirection = (typeof WhatsappMessageDirection)[keyof typeof WhatsappMessageDirection];
+
+export const WhatsappReplyStatus = {
+  Sent: 'sent',
+  Delivered: 'delivered',
+  Read: 'read',
+  Failed: 'failed',
+} as const;
+
+export type WhatsappReplyStatus = (typeof WhatsappReplyStatus)[keyof typeof WhatsappReplyStatus];
+
+export interface WhatsappConversationMessage {
+  /** Unique together with `direction`. */
+  id: number;
+  direction: WhatsappMessageDirection;
+  /** Inbound: "text", "button", "image", ...; outbound: "text". */
+  type: string;
+  text?: string | null;
+  buttonPayload?: string | null;
+  date: number;
+  /** Outbound only. */
+  status?: WhatsappReplyStatus;
+  error?: string | null;
+  userId?: number | null;
+  userName?: string | null;
+}
+
+/** Messages of the customer and replies of the operators with one number, oldest first. */
+export interface WhatsappConversation {
+  /** Digits only, as Meta sends it (e.g. 393331234567). */
+  phone: string;
+  senderName?: string | null;
+  customerId?: number | null;
+  customerName?: string | null;
+  lastReceivedDate?: number | null;
+  /** 24 hours after the last message of the customer: free text replies only until then. */
+  replyWindowEnd?: number | null;
+  canReply: boolean;
+  messages: WhatsappConversationMessage[];
+}
+
+export interface WhatsappConversationReply {
+  text: string;
+}

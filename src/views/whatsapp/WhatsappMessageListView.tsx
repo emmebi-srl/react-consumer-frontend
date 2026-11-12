@@ -36,6 +36,9 @@ import {
   WhatsappReceivedMessageSearchRequest,
 } from '~/types/aries-proxy/whatsapp';
 import { getStringDateTimeByUnixtimestamp } from '~/utils/datetime-utils';
+import { useModal } from '~/modals/Modal';
+import WhatsappConversationModal from './components/WhatsappConversationModal';
+import { getWhatsappMessageText } from './whatsappMessageLabels';
 
 interface MessageFilters {
   search: string;
@@ -53,23 +56,16 @@ const notificationStatusOptions: { value: WhatsappNotificationStatus; label: str
   { value: WhatsappNotificationStatus.Failed, label: 'Fallito' },
 ];
 
-// Media and other non-text messages are stored without text: show what the customer sent.
-const messageTypeLabels: Record<string, string> = {
-  image: 'Immagine',
-  audio: 'Audio',
-  video: 'Video',
-  document: 'Documento',
-  sticker: 'Sticker',
-  location: 'Posizione',
-  contacts: 'Contatto',
-  reaction: 'Reazione',
-};
+interface MessageTableContext {
+  onOpen: (message: WhatsappReceivedMessage) => void;
+}
 
-const MessageTableComponents: TableComponents<WhatsappReceivedMessage> = {
+// A click on a row opens the conversation with the sender (links inside the row keep working).
+const MessageTableComponents: TableComponents<WhatsappReceivedMessage, MessageTableContext> = {
   Table: DataTable,
   TableHead: DataTableHead,
   TableBody: DataTableBody,
-  TableRow: DataTableRow,
+  TableRow: ({ item, context, ...props }) => <DataTableRow {...props} onClick={() => context.onOpen(item)} />,
 };
 
 const MessageFiltersBar: React.FC<{
@@ -179,7 +175,7 @@ const NotificationChip: React.FC<{ message: WhatsappReceivedMessage }> = ({ mess
 
 const MessageTableRowContent: React.FC<{ message: WhatsappReceivedMessage }> = ({ message }) => {
   const isButton = message.type === 'button';
-  const text = message.text || messageTypeLabels[message.type] || `Messaggio di tipo "${message.type}"`;
+  const text = getWhatsappMessageText(message.text, message.type);
 
   return (
     <>
@@ -218,6 +214,7 @@ const MessageTableRowContent: React.FC<{ message: WhatsappReceivedMessage }> = (
                 to={RouteConfig.CustomerDetail.buildLink({ customerId: String(message.customerId) })}
                 underline="hover"
                 color="inherit"
+                onClick={(event) => event.stopPropagation()}
               >
                 {message.customer?.companyName ?? `Cliente ${message.customerId}`}
               </Link>
@@ -238,6 +235,7 @@ const MessageTableRowContent: React.FC<{ message: WhatsappReceivedMessage }> = (
               to={RouteConfig.CampaignDetail.buildLink({ campaignId: String(message.campaignId) })}
               underline="hover"
               color="inherit"
+              onClick={(event) => event.stopPropagation()}
             >
               {message.campaign?.name ?? `Campagna ${message.campaignId}`}
             </Link>
@@ -274,6 +272,19 @@ const WhatsappMessageListView = () => {
     [messagesQuery.data?.pages],
   );
 
+  const modal = useModal();
+  const tableContext = useMemo<MessageTableContext>(
+    () => ({
+      onOpen: (message) => {
+        void modal.showModal({
+          component: WhatsappConversationModal,
+          props: { phone: message.senderPhone, title: message.senderName ?? undefined },
+        });
+      },
+    }),
+    [modal],
+  );
+
   return (
     <PageContainer>
       <Stack spacing={3} direction="column" sx={{ flexGrow: 1, minHeight: 0 }}>
@@ -301,8 +312,9 @@ const WhatsappMessageListView = () => {
           visible={!topReached}
         />
         <DataTableContainer sx={{ minHeight: 480 }}>
-          <TableVirtuoso<WhatsappReceivedMessage>
+          <TableVirtuoso<WhatsappReceivedMessage, MessageTableContext>
             ref={virtuoso}
+            context={tableContext}
             atTopStateChange={setTopReached}
             atTopThreshold={100}
             overscan={{ main: 1000, reverse: 1000 }}
