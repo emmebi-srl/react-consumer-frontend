@@ -1,3 +1,4 @@
+import { QUOTE_OPEN_STATUS_IDS } from '~/types/aries-proxy/quotes';
 import { Box, useTheme } from '@mui/material';
 import Metadata from '~/components/Table/Metadata';
 import { useQuotesMetadata } from '~/proxies/aries-proxy/quotes';
@@ -12,6 +13,7 @@ const QuoteBar: React.FC = () => {
     search: filters.search,
     year: filters.year,
     statusId: filters.statusId,
+    statusIds: filters.open ? QUOTE_OPEN_STATUS_IDS : undefined,
   });
 
   const filteredCount = data?.metadata.filteredCount ?? 0;

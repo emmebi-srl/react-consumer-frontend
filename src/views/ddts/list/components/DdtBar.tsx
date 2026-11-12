@@ -4,7 +4,14 @@ import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
 import Metadata from '~/components/Table/Metadata';
 import { useDdtsMetadata, useDdtStatuses, useTransportCausals } from '~/proxies/aries-proxy/ddts';
 import { DdtRecipientType } from '~/types/aries-proxy/ddts';
-import { useDirtyState, useFilterState, useIsDirty, useResetFilters, useUpdateFilter } from '../state';
+import {
+  toDdtSearchRequest,
+  useDirtyState,
+  useFilterState,
+  useIsDirty,
+  useResetFilters,
+  useUpdateFilter,
+} from '../state';
 
 const DdtBar: React.FC = () => {
   const theme = useTheme();
@@ -16,7 +23,7 @@ const DdtBar: React.FC = () => {
 
   const { data: statusData } = useDdtStatuses();
   const { data: causalData } = useTransportCausals();
-  const { data } = useDdtsMetadata(filters);
+  const { data } = useDdtsMetadata(toDdtSearchRequest(filters));
 
   return (
     <Box

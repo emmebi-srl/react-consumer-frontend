@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import useSnackbar from '~/hooks/useSnackbar';
 import { useCreateCustomer, useCustomerStatuses, useCustomerTypes } from '~/proxies/aries-proxy/customers';
@@ -95,10 +95,7 @@ const CustomerNewView = () => {
   return (
     <PageContainer>
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: 10 }}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-          <BackButton to={RouteConfig.CustomerList.buildLink()} />
-          <Typography variant="h4">Nuovo cliente</Typography>
-        </Stack>
+        <DetailPageHeader backTo={RouteConfig.CustomerList.buildLink()} title="Nuovo cliente" />
 
         <CustomerFormFields
           mode="create"

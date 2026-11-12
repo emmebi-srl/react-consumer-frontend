@@ -24,7 +24,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import useSnackbar from '~/hooks/useSnackbar';
@@ -317,10 +317,7 @@ const DdtSettingsView = () => {
   return (
     <PageContainer>
       <Stack spacing={3}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-          <BackButton to={RouteConfig.DdtList.buildLink()} />
-          <Typography variant="h4">Tabelle DDT</Typography>
-        </Stack>
+        <DetailPageHeader backTo={RouteConfig.DdtList.buildLink()} title="Tabelle DDT" />
         <Tabs value={tab} onChange={(_, value: number) => setTab(value)}>
           <Tab label="Causali di trasporto" />
           <Tab label="Porto resa" />

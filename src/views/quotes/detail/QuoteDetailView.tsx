@@ -1,7 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary, Chip, Divider, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useParams } from 'react-router-dom';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
@@ -24,12 +24,11 @@ const QuoteDetailView = () => {
       <SplitMain>
         <PageContainer>
           <Stack spacing={3}>
-            <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-              <BackButton to={RouteConfig.QuoteList.buildLink()} />
-              <Typography variant="h4">
-                Preventivo #{quoteId} / {year}
-              </Typography>
-            </Stack>
+            <DetailPageHeader
+              backTo={RouteConfig.QuoteList.buildLink()}
+              title={`Preventivo #${quoteId} / ${year}`}
+              badges={quote ? <Chip label={quote.status?.name ?? quote.statusId ?? 'N/D'} /> : null}
+            />
 
             {quote && (
               <Stack spacing={2}>
@@ -41,7 +40,6 @@ const QuoteDetailView = () => {
                     flexWrap: 'wrap',
                   }}
                 >
-                  <Chip label={`Stato: ${quote.status?.name ?? quote.statusId ?? 'N/D'}`} />
                   <Chip label={`Tipo: ${quote.quoteType?.name ?? quote.quoteTypeId}`} />
                   <Chip label={`Revisione corrente: ${quote.revisionId ?? 'N/D'}`} />
                 </Stack>

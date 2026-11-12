@@ -4,6 +4,8 @@ export interface QuoteFilters {
   search: string;
   year?: number;
   statusId?: number;
+  /** "Aperti" tab. */
+  open?: boolean;
   typeId?: number;
 }
 

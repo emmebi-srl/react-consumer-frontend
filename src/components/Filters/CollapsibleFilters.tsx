@@ -54,8 +54,18 @@ const MoreFiltersButton: React.FC<{ counter: number }> = ({ counter }) => {
         )
       }
       onClick={() => setExpanded(!isExpanded)}
+      aria-label={isExpanded ? 'Meno filtri' : 'Più filtri'}
+      // Mobile: icon only, next to the search field.
+      sx={{
+        flexShrink: 0,
+        minWidth: { xs: 40, sm: 64 },
+        px: { xs: 1, sm: 1 },
+        '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: { xs: 0, sm: -0.5 } },
+      }}
     >
-      {isExpanded ? 'Meno filtri' : 'Più filtri'}
+      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+        {isExpanded ? 'Meno filtri' : 'Più filtri'}
+      </Box>
     </Button>
   );
 };
@@ -115,7 +125,8 @@ const CollapsibleFilters: React.FC<CollapsibleFiltersProps> = (props) => {
         gap: 1,
         flexDirection: 'column',
         width: '100%',
-        px: 3,
+        // Mobile: the table header cell already has its own padding.
+        px: { xs: 0, sm: 3 },
         mt: 1,
       }}
     >
