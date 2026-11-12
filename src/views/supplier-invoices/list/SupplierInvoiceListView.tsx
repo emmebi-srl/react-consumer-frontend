@@ -1,9 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
-import { Button, Chip, Stack, TableCell } from '@mui/material';
-import { EventRepeat, Refresh } from '@mui/icons-material';
+import { Chip, Stack, TableCell } from '@mui/material';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
-import { Link as RouterLink } from 'react-router-dom';
-import ListPageHeader from '~/components/Layout/ListPageHeader';
+import SupplierInvoiceTabs from './components/SupplierInvoiceTabs';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTableContainer from '~/components/Table/DataTableContainer';
 import DataTable from '~/components/Table/DataTable';
@@ -15,13 +13,12 @@ import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
 import { useSupplierInvoicesSearch } from '~/proxies/aries-proxy/supplier-invoices';
-import { SupplierInvoice } from '~/types/aries-proxy/supplier-invoices';
+import { SupplierInvoice, SUPPLIER_INVOICE_OPEN_STATUS_IDS } from '~/types/aries-proxy/supplier-invoices';
 import { getStringDateByUnixtimestamp } from '~/utils/datetime-utils';
 import { formatMoney } from '~/utils/money';
 import SupplierInvoiceBar from './components/SupplierInvoiceBar';
 import SupplierInvoiceTableHeading from './components/SupplierInvoiceTableHeading';
 import { useFilterState } from './state';
-import { RouteConfig } from '~/routes/routeConfig';
 
 const SupplierInvoiceTableComponents: TableComponents<SupplierInvoice> = {
   Table: DataTable,
@@ -80,11 +77,12 @@ const SupplierInvoiceListView = () => {
       search: filters.search,
       year: filters.year,
       statusId: filters.statusId,
+      statusIds: filters.open ? SUPPLIER_INVOICE_OPEN_STATUS_IDS : undefined,
       typeId: filters.typeId,
       causalId: filters.causalId,
       includes: 'supplier,status,type,causal,products,payment_condition,activity',
     }),
-    [filters.causalId, filters.search, filters.statusId, filters.typeId, filters.year],
+    [filters.causalId, filters.search, filters.statusId, filters.open, filters.typeId, filters.year],
   );
 
   const invoicesQuery = useSupplierInvoicesSearch(queryParams);
@@ -95,29 +93,7 @@ const SupplierInvoiceListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <ListPageHeader
-              title="Fatture Fornitore"
-              actions={
-                <Button
-                  variant="outlined"
-                  startIcon={<Refresh />}
-                  onClick={() => invoicesQuery.refetch()}
-                  disabled={invoicesQuery.isFetching}
-                >
-                  Aggiorna
-                </Button>
-              }
-              endActions={
-                <Button
-                  variant="contained"
-                  startIcon={<EventRepeat />}
-                  component={RouterLink}
-                  to={RouteConfig.SupplierInvoicePeriodicConfigurationList.buildLink()}
-                >
-                  Gestisci periodicità
-                </Button>
-              }
-            />
+            <SupplierInvoiceTabs onRefresh={() => invoicesQuery.refetch()} refreshing={invoicesQuery.isFetching} />
 
             <ScrollToTopButton
               onClick={() =>

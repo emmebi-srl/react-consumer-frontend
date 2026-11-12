@@ -103,19 +103,19 @@ When a backend resource exposes both a legacy endpoint and a newer `/new` endpoi
 
 ### Page Header And Back Navigation
 
-Detail/create/edit pages reached from a list use the same header: a back arrow on the left, immediately followed by the `h4` title (and any chips), with page actions on the right.
+Detail/create/edit pages reached from a list always use `DetailPageHeader` (`src/components/Layout/DetailPageHeader`). Don't build the header by hand with `BackButton` + `Typography`.
 
-- Use `BackButton` from `src/components/Layout/BackButton` (an `ArrowBack` `IconButton` linking to the list via `RouteConfig.<List>.buildLink()`).
-- Do not add a textual "← Torna alla lista" link, and do not put the back navigation on the right side of the header.
+- Desktop: back arrow, `h4` title and badges on the left, page actions on the right.
+- Mobile (< `sm`): first line "← Torna indietro" with the badges (status chips) next to it, then the title on its own lines (long names wrap, never truncated), then the actions.
+- Status and similar chips go in `badges`, not in the title or in a separate row.
 
 ```tsx
-<Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-  <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-    <BackButton to={RouteConfig.CustomerList.buildLink()} />
-    <Typography variant="h4">Titolo</Typography>
-  </Stack>
-  {/* optional page actions */}
-</Stack>
+<DetailPageHeader
+  backTo={RouteConfig.CustomerList.buildLink()}
+  title={customer.companyName}
+  badges={<CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />}
+  actions={<Button>Estratto conto</Button>}
+/>
 ```
 
 ### Mobile Layout
@@ -130,7 +130,13 @@ How a list must be built:
 
 - Use `DataTable`, `DataTableHead`, `DataTableBody`, `DataTableRow` (and `DataTableContainer`) from `src/components/Table`, also as the `TableVirtuoso` `components`. Don't use MUI `<Table>` directly for lists: it won't become cards. Pass `responsive={false}` to `DataTable` only for tables that must stay tables on mobile (e.g. a small numeric grid).
 - Column headers through `DataTableHeading` (`headLabel`): their labels become the field labels of the card, and sortable columns become chips.
-- Page title bar with `ListPageHeader` (`src/components/Layout/ListPageHeader`: `title`, `leading`, `actions`, `endActions`), not a hand-made `Stack direction="row"`: it wraps on small screens. List tabs headers (`CustomerTabs`, ...) wrap the same way; copy their `Container`.
+- Top of the page: a `<List>Tabs` component built on `ListTabs` (`src/components/Layout/ListTabs`), **no `h4` title** (the sidebar and the mobile header already name the section). Tabs on the left are quick filters, page actions ("Aggiorna", "Nuovo …") on the right; on mobile the buttons wrap below and many tabs scroll sideways.
+  - Keep the tabs few: **don't make one tab per status**. When the entity has open/closed statuses, use "Tutti" + "Aperti" (`OPEN_TAB_KEY`). The filter state keeps an `open` flag; the request sends the open statuses as `statusIds` (`QUOTE_OPEN_STATUS_IDS`, `DDT_OPEN_STATUS_IDS`, `SUPPLIER_INVOICE_OPEN_STATUS_IDS` next to the types: change the definition there). Send the same request to list, metadata and totals (DDT: `toDdtSearchRequest`) so the counts agree. The "Stato" select stays in "Più filtri". Examples: `QuoteTabs`, `DdtTabs`.
+  - Array query params go out as repeated keys (`statusIds=1&statusIds=2`, `paramsSerializer: { indexes: null }` on `ariesServicesClient`), the format the backend `[FromQuery]` binds. A new search filter with many values on the backend: add a `List<int> …Ids` to the request model the same way (backend `AGENTS.md`, "Multiple Statuses In Searches").
+  - A specific status that people check on its own can get its own tab, filtered with `statusId`: `SupplierInvoiceTabs` (Tutte / Aperte / Prefatture), email list (Tutte / Bozze / Fallite).
+  - Other quick filters are fine too (`CampaignTabs`: Tutte / Attive / Non attive; reports: Rapporti / Mobile da gestire). With nothing to filter, a single "Tutti" tab (`CustomerTabs`, systems).
+- Inside the table header (`fixedHeaderContent` → `<List>TableHeading` → `<List>Bar`): `CollapsibleFilters` with `InlineSearchFilter` + "Più filtri", then `Metadata` (results count). On mobile the filters have no side padding and "Più filtri" shows only its icon.
+- `ListPageHeader` (title + buttons that wrap) is only for list-like sub-pages without tabs, e.g. the supplier invoice periodic configurations reached from the invoices.
 
 How the card is built (`useResponsiveCardCells` reads header labels and cell text, `DataTable` styles it). Order and label the columns so the roles come out right:
 

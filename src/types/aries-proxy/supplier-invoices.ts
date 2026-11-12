@@ -181,11 +181,19 @@ export interface SupplierInvoiceProduct {
   repair: boolean;
 }
 
+/** Status "PREFATTURA" (stato_fattura), shown in its own tab of the list. */
+export const SUPPLIER_INVOICE_PRO_FORMA_STATUS_ID = 5;
+
+/** "Aperti" tab of the list: In attesa di pagamento, Non pagata (stato_fattura), i.e. not Pagata and not Prefattura (own tab). */
+export const SUPPLIER_INVOICE_OPEN_STATUS_IDS = [1, 4];
+
 export interface SupplierInvoiceSearchRequest {
   search?: string;
   year?: number;
   supplierId?: number;
   statusId?: number;
+  /** Any of these statuses (query string statusIds=1&statusIds=2). */
+  statusIds?: number[];
   typeId?: number;
   causalId?: number;
   fromDate?: string;

@@ -146,10 +146,15 @@ export interface QuoteItem {
   insertedByUser: number;
 }
 
+/** "Aperti" tab of the list: In attesa, Non specificato, Da visionare (stato_preventivo), i.e. not Accettato, Perso, Finito. */
+export const QUOTE_OPEN_STATUS_IDS = [3, 4, 5];
+
 export interface QuoteSearchRequest {
   search?: string;
   year?: number;
   statusId?: number;
+  /** Any of these statuses (query string statusIds=1&statusIds=2). */
+  statusIds?: number[];
   typeId?: number;
   quoteTypeId?: number;
   fromDate?: string;

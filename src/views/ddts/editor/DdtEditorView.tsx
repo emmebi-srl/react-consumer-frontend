@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Delete, PictureAsPdf } from '@mui/icons-material';
-import { Alert, Button, Chip, CircularProgress, Stack, Typography } from '@mui/material';
+import { Alert, Button, Chip, CircularProgress, Stack } from '@mui/material';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import FormSaveBar from '~/components/Layout/FormSaveBar';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
@@ -209,35 +209,41 @@ const DdtEditorView = () => {
     <PageContainer>
       <FormProvider {...form}>
         <Stack component="form" spacing={2.5} onSubmit={submit} sx={{ pb: 10 }}>
-          <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-            <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-              <BackButton to={RouteConfig.DdtList.buildLink()} />
-              <Typography variant="h4">{isNew ? 'Nuovo DDT' : `DDT ${id}/${year}`}</Typography>
-              {ddt?.status ? <Chip size="small" label={ddt.status.name} /> : null}
-              {ddt?.invoiceId ? (
-                <Chip size="small" variant="outlined" label={`Fattura ${ddt.invoiceId}/${ddt.invoiceYear}`} />
-              ) : null}
-            </Stack>
-            {!isNew && ddt ? (
-              <Stack direction="row" spacing={1}>
-                {permission?.canPrint ? (
-                  <Button
-                    variant="outlined"
-                    startIcon={printing ? <CircularProgress size={16} /> : <PictureAsPdf />}
-                    onClick={() => void print()}
-                    disabled={printing}
-                  >
-                    PDF
-                  </Button>
-                ) : null}
-                {permission?.canDelete ? (
-                  <Button color="error" variant="outlined" startIcon={<Delete />} onClick={() => void remove()}>
-                    Elimina
-                  </Button>
-                ) : null}
-              </Stack>
-            ) : null}
-          </Stack>
+          <DetailPageHeader
+            backTo={RouteConfig.DdtList.buildLink()}
+            title={isNew ? 'Nuovo DDT' : `DDT ${id}/${year}`}
+            badges={
+              ddt?.status || ddt?.invoiceId ? (
+                <>
+                  {ddt.status ? <Chip size="small" label={ddt.status.name} /> : null}
+                  {ddt.invoiceId ? (
+                    <Chip size="small" variant="outlined" label={`Fattura ${ddt.invoiceId}/${ddt.invoiceYear}`} />
+                  ) : null}
+                </>
+              ) : null
+            }
+            actions={
+              !isNew && ddt && (permission?.canPrint || permission?.canDelete) ? (
+                <>
+                  {permission.canPrint ? (
+                    <Button
+                      variant="outlined"
+                      startIcon={printing ? <CircularProgress size={16} /> : <PictureAsPdf />}
+                      onClick={() => void print()}
+                      disabled={printing}
+                    >
+                      PDF
+                    </Button>
+                  ) : null}
+                  {permission.canDelete ? (
+                    <Button color="error" variant="outlined" startIcon={<Delete />} onClick={() => void remove()}>
+                      Elimina
+                    </Button>
+                  ) : null}
+                </>
+              ) : null
+            }
+          />
 
           {!ready ? (
             <Stack sx={{ alignItems: 'center', py: 6 }}>

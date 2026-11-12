@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
 import FormSaveBar from '~/components/Layout/FormSaveBar';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import useSnackbar from '~/hooks/useSnackbar';
 import { useProductByCode, useSaveProduct } from '~/proxies/aries-proxy/products';
@@ -75,19 +75,21 @@ const ProductDetailView = () => {
   return (
     <PageContainer>
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: isDirty ? 10 : 0 }}>
-        <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center', minWidth: 0 }}>
-            <BackButton to={RouteConfig.ProductList.buildLink()} />
-            <Typography variant="h4" noWrap>
-              {product ? `${product.productCode} · ${product.description ?? ''}` : productCode}
-            </Typography>
-            {product?.productStatus && (
-              <DelphiColorChip label={product.productStatus.name} delphiColor={product.productStatus.color} />
-            )}
-            {product?.isKit && <Chip size="small" color="info" label="Composto" />}
-          </Stack>
-          {product && <ProductDetailActions productCode={product.productCode} hasUnsavedChanges={isDirty} />}
-        </Stack>
+        <DetailPageHeader
+          backTo={RouteConfig.ProductList.buildLink()}
+          title={product ? `${product.productCode} · ${product.description ?? ''}` : productCode}
+          badges={
+            product?.productStatus || product?.isKit ? (
+              <>
+                {product.productStatus && (
+                  <DelphiColorChip label={product.productStatus.name} delphiColor={product.productStatus.color} />
+                )}
+                {product.isKit && <Chip size="small" color="info" label="Composto" />}
+              </>
+            ) : null
+          }
+          actions={product && <ProductDetailActions productCode={product.productCode} hasUnsavedChanges={isDirty} />}
+        />
 
         {productQuery.isSuccess && !product && (
           <Typography sx={{ color: 'text.secondary' }}>Articolo non trovato.</Typography>

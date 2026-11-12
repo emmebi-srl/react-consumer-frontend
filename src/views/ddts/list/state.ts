@@ -1,15 +1,23 @@
 import { createTableState } from '~/state/table';
-import { DdtRecipientType } from '~/types/aries-proxy/ddts';
+import { DDT_OPEN_STATUS_IDS, DdtRecipientType, DdtSearchRequest } from '~/types/aries-proxy/ddts';
 
 export interface DdtFilters {
   search: string;
   year?: number;
   statusId?: number;
+  /** "Aperti" tab. */
+  open?: boolean;
   causalId?: string;
   recipientType?: DdtRecipientType;
   fromDate?: string;
   toDate?: string;
 }
+
+/** Search request of the list, metadata and totals: the "Aperti" tab becomes the list of open statuses. */
+export const toDdtSearchRequest = ({ open, ...filters }: DdtFilters): DdtSearchRequest => ({
+  ...filters,
+  statusIds: open ? DDT_OPEN_STATUS_IDS : undefined,
+});
 
 export const defaultValues: DdtFilters = {
   search: '',

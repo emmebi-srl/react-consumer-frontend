@@ -21,7 +21,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Link as RouterLink } from 'react-router-dom';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import useSnackbar from '~/hooks/useSnackbar';
@@ -112,10 +112,7 @@ const ProductPriceChargeView = () => {
   return (
     <PageContainer>
       <Stack spacing={3}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-          <BackButton to={RouteConfig.ProductList.buildLink()} />
-          <Typography variant="h4">Ricarico prezzi</Typography>
-        </Stack>
+        <DetailPageHeader backTo={RouteConfig.ProductList.buildLink()} title="Ricarico prezzi" />
 
         <Alert severity="info">
           Per ogni fascia, agli articoli con costo interno compreso tra importo iniziale e finale viene impostato il

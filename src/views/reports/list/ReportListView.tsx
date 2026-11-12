@@ -7,7 +7,7 @@ import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
 import DataTableContainer from '~/components/Table/DataTableContainer';
 import DataTableHead from '~/components/Table/DataTableHead';
-import ListPageHeader from '~/components/Layout/ListPageHeader';
+import ListTabs, { ALL_TAB_KEY } from '~/components/Layout/ListTabs';
 import PageContainer from '~/components/Layout/PageContainer';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import SplitLayout from '~/components/Layout/SplitLayout';
@@ -92,11 +92,15 @@ const MobileReportRow: React.FC<{ report: ReportMobileIntervention }> = ({ repor
   </TableRow>
 );
 
+/** Second tab: interventions sent from the mobile app, still to be turned into reports. */
+const MOBILE_TAB_KEY = 'mobile';
+
 const ReportListView = () => {
   const filters = useFilterState();
   const virtuoso = useRef<TableVirtuosoHandle>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [topReached, setTopReached] = useState(true);
+  const [tab, setTab] = useState(ALL_TAB_KEY);
 
   const queryParams = useMemo(
     () => ({
@@ -119,18 +123,18 @@ const ReportListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <ListPageHeader
-              title="Rapporti"
+            <ListTabs
+              tabs={[
+                { key: ALL_TAB_KEY, label: 'Rapporti' },
+                {
+                  key: MOBILE_TAB_KEY,
+                  label: mobileReports.length ? `Mobile da gestire (${mobileReports.length})` : 'Mobile da gestire',
+                },
+              ]}
+              selectedTabKey={tab}
+              onSelect={(selected) => setTab(selected.key)}
               actions={
                 <>
-                  <Button
-                    component={RouterLink}
-                    to={RouteConfig.ReportNew.buildLink()}
-                    variant="contained"
-                    startIcon={<Add />}
-                  >
-                    Nuovo
-                  </Button>
                   <Button
                     variant="outlined"
                     startIcon={<Refresh />}
@@ -142,16 +146,23 @@ const ReportListView = () => {
                   >
                     Aggiorna
                   </Button>
+                  <Button
+                    component={RouterLink}
+                    to={RouteConfig.ReportNew.buildLink()}
+                    variant="contained"
+                    startIcon={<Add />}
+                  >
+                    Nuovo
+                  </Button>
                 </>
               }
             />
 
-            <Stack spacing={1.5}>
-              <Typography variant="h6">RAPPORTI MOBILE DA GESTIRE</Typography>
+            {tab === MOBILE_TAB_KEY ? (
               <DataTableContainer>
                 <DataTable>
                   <DataTableHead>
-                    <TableRow>
+                    <TableRow data-table-labels>
                       <TableCell align="right">Rapporto</TableCell>
                       <TableCell>Data</TableCell>
                       <TableCell>Cliente</TableCell>
@@ -181,43 +192,41 @@ const ReportListView = () => {
                   </TableBody>
                 </DataTable>
               </DataTableContainer>
-            </Stack>
-
-            <Stack spacing={1.5}>
-              <Typography variant="h6">Rapporti</Typography>
-
-              <ScrollToTopButton
-                onClick={() =>
-                  virtuoso.current?.scrollToIndex({
-                    index: 0,
-                    align: 'start',
-                    behavior: 'smooth',
-                  })
-                }
-                visible={!topReached}
-              />
-
-              <DataTableContainer>
-                <TableVirtuoso<Report>
-                  ref={virtuoso}
-                  atTopStateChange={setTopReached}
-                  customScrollParent={scrollerRef.current || undefined}
-                  data={reports}
-                  components={ReportTableComponents}
-                  endReached={() => {
-                    if (!reportsQuery.hasNextPage || reportsQuery.isFetching) return;
-                    reportsQuery.fetchNextPage();
-                  }}
-                  fixedHeaderContent={() => (
-                    <ReportTableHeading>
-                      <ReportBar />
-                    </ReportTableHeading>
-                  )}
-                  computeItemKey={(_index, report) => `${report.year}-${report.id}`}
-                  itemContent={(_index, report) => <ReportTableRowContent report={report} />}
+            ) : (
+              <>
+                <ScrollToTopButton
+                  onClick={() =>
+                    virtuoso.current?.scrollToIndex({
+                      index: 0,
+                      align: 'start',
+                      behavior: 'smooth',
+                    })
+                  }
+                  visible={!topReached}
                 />
-              </DataTableContainer>
-            </Stack>
+
+                <DataTableContainer>
+                  <TableVirtuoso<Report>
+                    ref={virtuoso}
+                    atTopStateChange={setTopReached}
+                    customScrollParent={scrollerRef.current || undefined}
+                    data={reports}
+                    components={ReportTableComponents}
+                    endReached={() => {
+                      if (!reportsQuery.hasNextPage || reportsQuery.isFetching) return;
+                      reportsQuery.fetchNextPage();
+                    }}
+                    fixedHeaderContent={() => (
+                      <ReportTableHeading>
+                        <ReportBar />
+                      </ReportTableHeading>
+                    )}
+                    computeItemKey={(_index, report) => `${report.year}-${report.id}`}
+                    itemContent={(_index, report) => <ReportTableRowContent report={report} />}
+                  />
+                </DataTableContainer>
+              </>
+            )}
           </Stack>
         </PageContainer>
         <ReportAside />

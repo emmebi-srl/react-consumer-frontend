@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import useSnackbar from '~/hooks/useSnackbar';
@@ -234,19 +234,21 @@ const CustomerDetailView = () => {
   return (
     <PageContainer>
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: isDirty ? 10 : 0 }}>
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 1 }}
-        >
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <BackButton to={RouteConfig.CustomerList.buildLink()} />
-            <Typography variant="h4">{customer ? customer.companyName : `Cliente #${customerId}`}</Typography>
-            {customer && <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />}
-            {customer?.isInsolvent && <Chip size="small" color="error" label="Insolvente" />}
-          </Stack>
-          {customer && <CustomerInvoicesStatementButton customerId={customer.id} companyName={customer.companyName} />}
-        </Stack>
+        <DetailPageHeader
+          backTo={RouteConfig.CustomerList.buildLink()}
+          title={customer ? customer.companyName : `Cliente #${customerId}`}
+          badges={
+            customer ? (
+              <>
+                <CustomerStatusChip statusId={customer.status} status={customer.customerStatus} />
+                {customer.isInsolvent && <Chip size="small" color="error" label="Insolvente" />}
+              </>
+            ) : null
+          }
+          actions={
+            customer && <CustomerInvoicesStatementButton customerId={customer.id} companyName={customer.companyName} />
+          }
+        />
 
         {customer && (
           <Stack spacing={2}>

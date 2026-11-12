@@ -1,10 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
-import { Alert, Button, Stack, TableCell, Tooltip } from '@mui/material';
-import { Add, CheckCircleOutlined, Refresh, Settings } from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Alert, Stack, TableCell, Tooltip } from '@mui/material';
+import { CheckCircleOutlined } from '@mui/icons-material';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import DelphiColorChip from '~/components/DataDisplay/DelphiColorChip';
-import ListPageHeader from '~/components/Layout/ListPageHeader';
+import DdtTabs from './components/DdtTabs';
 import PageContainer from '~/components/Layout/PageContainer';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
@@ -23,9 +22,8 @@ import DdtBar from './components/DdtBar';
 import DdtTableHeading from './components/DdtTableHeading';
 import DdtTotalsCards from './components/DdtTotalsCards';
 import DdtTableRow from './components/DdtTableRow';
-import { RouteConfig } from '~/routes/routeConfig';
 import DdtAside from './components/DdtAside';
-import { useFilterState, useIsSidebarOpen } from './state';
+import { toDdtSearchRequest, useFilterState, useIsSidebarOpen } from './state';
 
 const DdtTableComponents: TableComponents<Ddt> = {
   Table: DataTable,
@@ -91,7 +89,7 @@ const DdtListView = () => {
   const [topReached, setTopReached] = useState(true);
 
   const queryParams = useMemo(
-    () => ({ ...filters, includes: 'customer,supplier,status,causal,destination,system' }),
+    () => ({ ...toDdtSearchRequest(filters), includes: 'customer,supplier,status,causal,destination,system' }),
     [filters],
   );
   const ddtsQuery = useDdtsSearch(queryParams);
@@ -102,40 +100,7 @@ const DdtListView = () => {
       <SplitMain sidebarOpen={isSidebarOpen} ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <ListPageHeader
-              title="DDT"
-              actions={
-                <Button
-                  variant="outlined"
-                  startIcon={<Refresh />}
-                  onClick={() => ddtsQuery.refetch()}
-                  disabled={ddtsQuery.isFetching}
-                >
-                  Aggiorna
-                </Button>
-              }
-              endActions={
-                permission?.canEdit || permission?.canInsert ? (
-                  <>
-                    {permission.canEdit ? (
-                      <Button component={RouterLink} to={RouteConfig.DdtSettings.buildLink()} startIcon={<Settings />}>
-                        Tabelle DDT
-                      </Button>
-                    ) : null}
-                    {permission.canInsert ? (
-                      <Button
-                        component={RouterLink}
-                        to={RouteConfig.DdtNew.buildLink()}
-                        variant="contained"
-                        startIcon={<Add />}
-                      >
-                        Nuovo DDT
-                      </Button>
-                    ) : null}
-                  </>
-                ) : null
-              }
-            />
+            <DdtTabs onRefresh={() => ddtsQuery.refetch()} refreshing={ddtsQuery.isFetching} />
 
             {permission?.canTotals ? <DdtTotalsCards /> : null}
 

@@ -1,3 +1,4 @@
+import { SUPPLIER_INVOICE_OPEN_STATUS_IDS } from '~/types/aries-proxy/supplier-invoices';
 import { Box, MenuItem, TextField, useTheme } from '@mui/material';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
@@ -26,6 +27,7 @@ const SupplierInvoiceBar: React.FC = () => {
     search: filters.search,
     year: filters.year,
     statusId: filters.statusId,
+    statusIds: filters.open ? SUPPLIER_INVOICE_OPEN_STATUS_IDS : undefined,
     typeId: filters.typeId,
     causalId: filters.causalId,
   });

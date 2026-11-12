@@ -358,10 +358,15 @@ export interface DdtProductDefaults {
   kitComponents: DdtKitComponent[];
 }
 
+/** "Aperti" tab of the list: Aperto, Parziale, In commessa (stato_ddt), i.e. every status but Chiuso. */
+export const DDT_OPEN_STATUS_IDS = [1, 2, 4];
+
 export interface DdtSearchRequest {
   search?: string;
   year?: number;
   statusId?: number;
+  /** Any of these statuses (query string statusIds=1&statusIds=2). */
+  statusIds?: number[];
   causalId?: string;
   recipientType?: DdtRecipientType;
   fromDate?: string;
