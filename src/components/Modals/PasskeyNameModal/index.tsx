@@ -9,6 +9,8 @@ interface PasskeyNameModalProps extends ModalProps {
   text?: string;
   initialName: string;
   confirmLabel: string;
+  /** Default "Annulla"; the suggestion after the login uses "Non ora". */
+  cancelLabel?: string;
   closeModal: (props?: { action: 'CLOSE' } | { action: 'CONFIRM'; name: string }) => void;
 }
 
@@ -46,7 +48,7 @@ const PasskeyNameModal = (props: PasskeyNameModalProps) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={close}>Annulla</Button>
+          <Button onClick={close}>{props.cancelLabel ?? 'Annulla'}</Button>
           <Button type="submit" variant="contained">
             {props.confirmLabel}
           </Button>

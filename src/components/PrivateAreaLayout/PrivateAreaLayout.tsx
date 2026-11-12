@@ -1,6 +1,7 @@
 import { Box, styled } from '@mui/system';
 import Sidebar from '../Sidebar/Sidebar';
 import { Outlet } from 'react-router-dom';
+import PasskeyLoginPrompt from '../Users/PasskeyLoginPrompt';
 
 const Content = styled('div')(({ theme }) => ({
   padding: '0px',
@@ -25,6 +26,7 @@ const PrivateAreaLayout = () => {
       }}
     >
       <Sidebar />
+      <PasskeyLoginPrompt />
       <Content>
         <Outlet />
       </Content>
