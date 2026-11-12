@@ -5,15 +5,11 @@ import PasskeyNameModal from '~/components/Modals/PasskeyNameModal';
 import PasskeyList from '~/components/Users/PasskeyList';
 import useSnackbar from '~/hooks/useSnackbar';
 import { useModal } from '~/modals/Modal';
-import { useDeleteMyPasskey, useMyPasskeys, useRegisterPasskey, useRenameMyPasskey } from '~/proxies/aries-proxy/users';
+import useAddPasskey from '~/hooks/useAddPasskey';
+import { useDeleteMyPasskey, useMyPasskeys, useRenameMyPasskey } from '~/proxies/aries-proxy/users';
 import { UserPasskey } from '~/types/aries-proxy/users';
 import { getApiErrorMessage } from '~/utils/api-error-utils';
-import {
-  getDefaultPasskeyName,
-  isPasskeyAlreadyRegistered,
-  isPasskeyCancelled,
-  isPasskeyEnabled,
-} from '~/utils/passkey-utils';
+import { isPasskeyEnabled } from '~/utils/passkey-utils';
 
 /**
  * Passkeys of the logged-in user. A passkey is created on this device (or on a phone through the QR code of the
@@ -23,35 +19,10 @@ const ProfilePasskeysCard: React.FC = () => {
   const snackbar = useSnackbar();
   const modal = useModal();
   const passkeysQuery = useMyPasskeys();
-  const registerPasskey = useRegisterPasskey();
+  const { addPasskey, isPending: isAddingPasskey } = useAddPasskey();
   const renamePasskey = useRenameMyPasskey();
   const deletePasskey = useDeleteMyPasskey();
   const canAdd = isPasskeyEnabled();
-
-  const addPasskey = async () => {
-    const result = await modal.showModal({
-      component: PasskeyNameModal,
-      props: {
-        title: 'Nuova passkey',
-        text: 'Il browser ti chiederà di confermare con impronta, volto, PIN del dispositivo o con il telefono.',
-        initialName: getDefaultPasskeyName(),
-        confirmLabel: 'Continua',
-      },
-    });
-    if (result.action !== 'CONFIRM') return;
-
-    try {
-      await registerPasskey.mutateAsync({ name: result.name });
-      snackbar.success('Passkey creata: ora puoi usarla per accedere');
-    } catch (error) {
-      if (isPasskeyCancelled(error)) return;
-      if (isPasskeyAlreadyRegistered(error)) {
-        snackbar.info('Questo dispositivo ha già una tua passkey.');
-        return;
-      }
-      snackbar.error(getApiErrorMessage(error, 'Non è stato possibile creare la passkey.'));
-    }
-  };
 
   const rename = async (passkey: UserPasskey) => {
     const result = await modal.showModal({
@@ -96,7 +67,7 @@ const ProfilePasskeysCard: React.FC = () => {
         slotProps={{ title: { variant: 'subtitle1', sx: { fontWeight: 700 } } }}
         action={
           canAdd ? (
-            <Button startIcon={<Add />} variant="contained" loading={registerPasskey.isPending} onClick={addPasskey}>
+            <Button startIcon={<Add />} variant="contained" loading={isAddingPasskey} onClick={() => addPasskey()}>
               Aggiungi passkey
             </Button>
           ) : null
