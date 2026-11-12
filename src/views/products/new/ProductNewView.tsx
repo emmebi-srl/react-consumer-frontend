@@ -1,8 +1,8 @@
-import { Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import FormSaveBar from '~/components/Layout/FormSaveBar';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import useSnackbar from '~/hooks/useSnackbar';
 import { useCreateProduct } from '~/proxies/aries-proxy/products';
@@ -55,10 +55,7 @@ const ProductNewView = () => {
   return (
     <PageContainer>
       <Stack component="form" onSubmit={handleSubmit(onSubmit)} spacing={3} sx={{ pb: 10 }}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-          <BackButton to={RouteConfig.ProductList.buildLink()} />
-          <Typography variant="h4">Nuovo articolo</Typography>
-        </Stack>
+        <DetailPageHeader backTo={RouteConfig.ProductList.buildLink()} title="Nuovo articolo" />
 
         <ProductFormFields control={control} dirtyFields={dirtyFields} setValue={setValue} />
 

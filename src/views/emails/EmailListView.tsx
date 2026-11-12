@@ -18,7 +18,7 @@ import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtu
 import DateRangePicker, { DateRangeValue } from '~/components/DateRangePicker/DateRangePicker';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
-import ListPageHeader from '~/components/Layout/ListPageHeader';
+import ListTabs, { ALL_TAB_KEY } from '~/components/Layout/ListTabs';
 import PageContainer from '~/components/Layout/PageContainer';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import EmailComposeModal from '~/components/Modals/EmailComposeModal';
@@ -46,6 +46,9 @@ interface EmailFilters {
   statusId: string;
   dateRange: DateRangeValue;
 }
+
+/** Status ids (as the `statusId` filter string) that have their own tab. */
+const EMAIL_TAB_STATUSES = [String(EmailStatusId.Draft), String(EmailStatusId.Failed)];
 
 const defaultFilters: EmailFilters = {
   search: '',
@@ -290,9 +293,18 @@ const EmailListView = () => {
   return (
     <PageContainer>
       <Stack spacing={3} direction="column" sx={{ flexGrow: 1, minHeight: 0 }}>
-        <ListPageHeader
-          title="Email"
-          endActions={
+        <ListTabs
+          tabs={[
+            { key: ALL_TAB_KEY, label: 'Tutte' },
+            { key: String(EmailStatusId.Draft), label: 'Bozze' },
+            { key: String(EmailStatusId.Failed), label: 'Fallite' },
+          ]}
+          // Another status picked in "Più filtri" leaves "Tutte" highlighted.
+          selectedTabKey={EMAIL_TAB_STATUSES.includes(filters.statusId) ? filters.statusId : ALL_TAB_KEY}
+          onSelect={(tab) =>
+            setFilters((current) => ({ ...current, statusId: tab.key === ALL_TAB_KEY ? '' : tab.key }))
+          }
+          actions={
             <>
               <Button
                 variant="outlined"

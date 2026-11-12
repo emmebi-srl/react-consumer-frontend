@@ -11,6 +11,8 @@ let tokenData: AriesAuthToken | null = null;
 const ariesServicesClient = axios.create({
   baseURL: import.meta.env.VITE_ARIES_API_HOST,
   headers: { 'Content-Type': 'application/json' },
+  // Arrays as repeated keys (statusIds=1&statusIds=2), the format ASP.NET Core [FromQuery] binds.
+  paramsSerializer: { indexes: null },
 });
 
 ariesServicesClient.interceptors.request.use(

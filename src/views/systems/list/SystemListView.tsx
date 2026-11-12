@@ -4,6 +4,7 @@ import { TableComponents, TableVirtuoso } from 'react-virtuoso';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
 import useVirtuosoStateRestoration from '~/hooks/useVirtuosoStateRestoration';
+import ListTabs, { ALL_TAB_KEY } from '~/components/Layout/ListTabs';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -162,6 +163,7 @@ const SystemListView = () => {
           minHeight: 0,
         }}
       >
+        <ListTabs tabs={[{ label: 'Tutti', key: ALL_TAB_KEY }]} selectedTabKey={ALL_TAB_KEY} onSelect={() => {}} />
         <ScrollToTopButton
           onClick={() => {
             virtuoso.current?.scrollToIndex({

@@ -36,10 +36,12 @@ const Container = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: 8,
-  // Mobile: many tabs scroll sideways inside the bar instead of widening the page.
+  // Many tabs (e.g. one per status) scroll sideways inside the bar instead of widening the page.
+  maxWidth: '100%',
+  overflowX: 'auto',
+  scrollbarWidth: 'none',
   [theme.breakpoints.down('sm')]: {
-    maxWidth: '100%',
-    overflowX: 'auto',
+    gap: 4,
   },
 }));
 

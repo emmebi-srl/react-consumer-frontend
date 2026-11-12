@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Add } from '@mui/icons-material';
 import PercentIcon from '@mui/icons-material/Percent';
 import PrintIcon from '@mui/icons-material/Print';
-import { Button, Stack, styled } from '@mui/material';
+import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import NavigationTabs, { StateTabData } from '~/components/Layout/NavigationTabs';
+import ListTabs, { ALL_TAB_KEY } from '~/components/Layout/ListTabs';
+import { StateTabData } from '~/components/Layout/NavigationTabs';
 import ConfirmationModal from '~/components/Modals/ConfirmationModal';
 import useSnackbar from '~/hooks/useSnackbar';
 import { useModal } from '~/modals/Modal';
@@ -12,28 +13,7 @@ import { fetchPriceListPdf } from '~/proxies/aries-proxy/products';
 import { RouteConfig } from '~/routes/routeConfig';
 import { getApiErrorMessage } from '~/utils/api-error-utils';
 
-const Container = styled('div')(({ theme }) => ({
-  paddingLeft: theme.spacing(3),
-  paddingRight: theme.spacing(3),
-  display: 'flex',
-  flex: '0 0 auto',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  flexWrap: 'wrap',
-  gap: theme.spacing(1.5),
-  // Mobile: no side padding, buttons wrap below the tabs.
-  [theme.breakpoints.down('sm')]: {
-    paddingLeft: 0,
-    paddingRight: 0,
-  },
-}));
-
-const Tabs: StateTabData[] = [
-  {
-    label: 'Tutti',
-    key: 'all',
-  },
-];
+const Tabs: StateTabData[] = [{ label: 'Tutti', key: ALL_TAB_KEY }];
 
 // Same header as CustomerTabs, plus the catalogue-wide actions of the Delphi product form.
 const ProductTabs: React.FC = () => {
@@ -69,32 +49,35 @@ const ProductTabs: React.FC = () => {
   };
 
   return (
-    <Container>
-      <NavigationTabs tabs={Tabs} selectedTabKey="all" onSelect={() => {}} />
-
-      <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap', rowGap: 1 }}>
-        <Button variant="outlined" startIcon={<PrintIcon />} disabled={printing} onClick={printPriceList}>
-          {printing ? 'Generazione…' : 'Stampa listino'}
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<PercentIcon />}
-          component={Link}
-          to={RouteConfig.ProductPriceCharge.buildLink()}
-        >
-          Ricarico prezzi
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          component={Link}
-          to={RouteConfig.ProductNew.buildLink()}
-        >
-          Nuovo articolo
-        </Button>
-      </Stack>
-    </Container>
+    <ListTabs
+      tabs={Tabs}
+      selectedTabKey={ALL_TAB_KEY}
+      onSelect={() => {}}
+      actions={
+        <>
+          <Button variant="outlined" startIcon={<PrintIcon />} disabled={printing} onClick={printPriceList}>
+            {printing ? 'Generazione…' : 'Stampa listino'}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<PercentIcon />}
+            component={Link}
+            to={RouteConfig.ProductPriceCharge.buildLink()}
+          >
+            Ricarico prezzi
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
+            component={Link}
+            to={RouteConfig.ProductNew.buildLink()}
+          >
+            Nuovo articolo
+          </Button>
+        </>
+      }
+    />
   );
 };
 

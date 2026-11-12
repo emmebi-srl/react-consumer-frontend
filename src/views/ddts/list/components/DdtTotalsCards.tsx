@@ -1,7 +1,7 @@
 import { Box, Card, CardContent, Skeleton, Stack, Typography } from '@mui/material';
 import { useDdtsTotals } from '~/proxies/aries-proxy/ddts';
 import { formatMoney, newMoney } from '~/utils/money';
-import { useFilterState } from '../state';
+import { toDdtSearchRequest, useFilterState } from '../state';
 
 const toEuro = (amount: number) => formatMoney(newMoney(amount, 'EUR'));
 
@@ -22,7 +22,7 @@ const TotalCard: React.FC<{ title: string; price?: number; cost?: number }> = ({
 /** Same totals as the Delphi DDT screen, calculated on the DDTs that match the current filters. */
 const DdtTotalsCards: React.FC = () => {
   const filters = useFilterState();
-  const { data, isError } = useDdtsTotals(filters);
+  const { data, isError } = useDdtsTotals(toDdtSearchRequest(filters));
 
   if (isError) {
     return null;

@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { Button, Chip, Stack, TableCell } from '@mui/material';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
-import ListPageHeader from '~/components/Layout/ListPageHeader';
+import QuoteTabs from './components/QuoteTabs';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTableContainer from '~/components/Table/DataTableContainer';
 import DataTable from '~/components/Table/DataTable';
@@ -10,7 +10,7 @@ import DataTableBody from '~/components/Table/DataTableBody';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
 import { useQuotesSearch } from '~/proxies/aries-proxy/quotes';
-import { Quote } from '~/types/aries-proxy/quotes';
+import { Quote, QUOTE_OPEN_STATUS_IDS } from '~/types/aries-proxy/quotes';
 import SplitLayout from '~/components/Layout/SplitLayout';
 import SplitMain from '~/components/Layout/SplitMain';
 import { RouteConfig } from '~/routes/routeConfig';
@@ -86,10 +86,11 @@ const QuoteListView = () => {
       search: filters.search,
       year: filters.year,
       statusId: filters.statusId,
+      statusIds: filters.open ? QUOTE_OPEN_STATUS_IDS : undefined,
       typeId: filters.typeId,
       includes: 'revisions,revisions.customer,revisions.destination,status,type',
     }),
-    [filters.search, filters.year, filters.statusId, filters.typeId],
+    [filters.search, filters.year, filters.statusId, filters.open, filters.typeId],
   );
 
   const quotesQuery = useQuotesSearch(queryParams);
@@ -100,14 +101,7 @@ const QuoteListView = () => {
       <SplitMain ref={scrollerRef}>
         <PageContainer>
           <Stack spacing={3}>
-            <ListPageHeader
-              title="Preventivi"
-              actions={
-                <Button variant="outlined" onClick={() => quotesQuery.refetch()} disabled={quotesQuery.isFetching}>
-                  Aggiorna
-                </Button>
-              }
-            />
+            <QuoteTabs onRefresh={() => quotesQuery.refetch()} refreshing={quotesQuery.isFetching} />
 
             <ScrollToTopButton
               onClick={() =>

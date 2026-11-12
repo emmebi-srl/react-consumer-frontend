@@ -19,7 +19,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
-import BackButton from '~/components/Layout/BackButton';
+import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -538,43 +538,31 @@ const CampaignDetailView = () => {
           minHeight: 0,
         }}
       >
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={2}
-          sx={{
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{
-              alignItems: 'center',
-            }}
-          >
-            <BackButton to={RouteConfig.CampaignList.buildLink()} ariaLabel="Torna alle campagne" />
-            <Typography variant="h4">Dettaglio campagna</Typography>
-          </Stack>
-          <Button
-            variant="outlined"
-            startIcon={<Refresh />}
-            onClick={() => {
-              campaignQuery.refetch();
-              campaignMailStatusesQuery.refetch();
-              campaignMailMetadataQuery.refetch();
-              campaignMailsQuery.refetch();
-            }}
-            disabled={
-              campaignQuery.isFetching ||
-              campaignMailStatusesQuery.isFetching ||
-              campaignMailMetadataQuery.isFetching ||
-              campaignMailsQuery.isFetching
-            }
-          >
-            Aggiorna
-          </Button>
-        </Stack>
+        <DetailPageHeader
+          backTo={RouteConfig.CampaignList.buildLink()}
+          backAriaLabel="Torna alle campagne"
+          title="Dettaglio campagna"
+          actions={
+            <Button
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={() => {
+                campaignQuery.refetch();
+                campaignMailStatusesQuery.refetch();
+                campaignMailMetadataQuery.refetch();
+                campaignMailsQuery.refetch();
+              }}
+              disabled={
+                campaignQuery.isFetching ||
+                campaignMailStatusesQuery.isFetching ||
+                campaignMailMetadataQuery.isFetching ||
+                campaignMailsQuery.isFetching
+              }
+            >
+              Aggiorna
+            </Button>
+          }
+        />
 
         {isPageLoading && !campaign ? (
           <Stack
