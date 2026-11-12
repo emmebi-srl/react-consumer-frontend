@@ -2,6 +2,7 @@ import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import AppRoot from './AppRoot';
 import { RouteConfig } from './routeConfig';
 import { ModuleGuard } from './ModuleGuard';
+import { AdminGuard } from './AdminGuard';
 import { AriesModule } from '~/types/aries-proxy/users';
 import asyncComponent from '~/components/AsyncComponent';
 import { PublicGuard } from './PublicGuard';
@@ -64,6 +65,7 @@ const SupplierInvoicePeriodicConfigurationListView = asyncComponent(
 );
 const DashboardView = asyncComponent(() => import('../views/dashboard/DashboardView'));
 const CompanySettingsView = asyncComponent(() => import('../views/company/CompanySettingsView'));
+const ServiceSettingsView = asyncComponent(() => import('../views/settings/services/ServiceSettingsView'));
 
 const routes: RouteObject[] = [
   {
@@ -132,6 +134,14 @@ const routes: RouteObject[] = [
               <ModuleGuard moduleId={AriesModule.Settings}>
                 <CompanySettingsView />
               </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.ServiceSettings.template,
+            element: (
+              <AdminGuard>
+                <ServiceSettingsView />
+              </AdminGuard>
             ),
           },
           {
