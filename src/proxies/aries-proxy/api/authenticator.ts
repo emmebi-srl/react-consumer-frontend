@@ -31,6 +31,28 @@ export const authenticate = ({ username, password }: { username: string; passwor
     });
 };
 
+/**
+ * Passkey login, after the browser signed the challenge of `startPasskeyLogin` (`./passkey-login`): same tokens as
+ * the password login. `credentialJson` is the browser AuthenticationResponseJSON.
+ */
+export const authenticateWithPasskey = ({
+  ceremonyId,
+  credentialJson,
+}: {
+  ceremonyId: string;
+  credentialJson: string;
+}) => {
+  // URLSearchParams encodes the values: the credential is JSON with characters that must be escaped.
+  const body = new URLSearchParams({ grant_type: 'passkey', ceremony_id: ceremonyId, credential: credentialJson });
+  return ariesAuthClient
+    .post<AriesAuthToken>('oauth2/Token', body.toString())
+    .then((resp) => resp.data)
+    .then((tokenData) => {
+      saveToken(tokenData);
+      return tokenData;
+    });
+};
+
 export const refreshAuthentication = ({ refreshToken }: { refreshToken: string }) => {
   return ariesAuthClient
     .post<AriesAuthToken>(
