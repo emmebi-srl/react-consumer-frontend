@@ -37,6 +37,9 @@ import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import ChecklistOutlined from '@mui/icons-material/ChecklistOutlined';
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
 import SettingsSuggestOutlined from '@mui/icons-material/SettingsSuggestOutlined';
+import ManageAccountsOutlined from '@mui/icons-material/ManageAccountsOutlined';
+import PersonOutlined from '@mui/icons-material/PersonOutlined';
+import Logout from '@mui/icons-material/Logout';
 import { Link } from 'react-router-dom';
 import Logo from '~/components/Layout/Logo';
 import { RouteConfig } from '~/routes/routeConfig';
@@ -162,19 +165,27 @@ const sections: SidebarSection[] = [
         icon: <SettingsSuggestOutlined />,
         adminOnly: true,
       },
+      {
+        label: 'Gestisci utenti',
+        path: RouteConfig.UserSettingsList.buildLink(),
+        icon: <ManageAccountsOutlined />,
+        adminOnly: true,
+      },
     ],
   },
 ];
 
 const allPaths = sections.flatMap((section) => section.items.map((item) => item.path));
 
-const UserMenu = () => {
+/** `onNavigate` closes the mobile drawer after picking an item. */
+const UserMenu: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => {
   const [anchorElUser, setAnchorElUser] = React.useState<HTMLElement | null>(null);
   const { data: userData } = useUserMe();
   const user = userData?.users.at(0);
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+    onNavigate?.();
   };
 
   return (
@@ -214,7 +225,16 @@ const UserMenu = () => {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
+        <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.Profile.buildLink()}>
+          <ListItemIcon>
+            <PersonOutlined fontSize="small" />
+          </ListItemIcon>
+          Il mio profilo
+        </MenuItem>
         <MenuItem component={Link} onClick={handleCloseUserMenu} to={RouteConfig.Logout.buildLink()}>
+          <ListItemIcon>
+            <Logout fontSize="small" />
+          </ListItemIcon>
           Logout
         </MenuItem>
       </Menu>
@@ -308,7 +328,7 @@ const SidebarContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) =
       </Box>
 
       <Box sx={{ borderTop: `1px solid ${alpha('#ffffff', 0.08)}` }}>
-        <UserMenu />
+        <UserMenu onNavigate={onNavigate} />
       </Box>
     </Box>
   );
@@ -348,7 +368,11 @@ const paperSx: SxProps<Theme> = {
 
 export const MOBILE_HEADER_HEIGHT = 56;
 
-const titledItems = sections.flatMap((section) => section.items);
+// Pages outside the sidebar that still need a title in the mobile header (the profile is in the user menu).
+const titledItems = [
+  ...sections.flatMap((section) => section.items),
+  { label: 'Il mio profilo', path: RouteConfig.Profile.buildLink() },
+];
 const titledPaths = titledItems.map((item) => item.path);
 
 /** Mobile only: top bar with the menu button and the current section (e.g. CLIENTI, DDT). */

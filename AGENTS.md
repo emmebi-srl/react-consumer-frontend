@@ -299,9 +299,17 @@ When extending system subscription flows:
 
 Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
 
-Admin-only pages (Delphi "Admin" settings, role `aries_admin`): wrap the route with `AdminGuard`, set `adminOnly` on the `Sidebar` item, read it with `useIsAriesAdmin`; the backend uses `[RequireAriesAdmin]`. Currently: services settings.
+Admin-only pages (Delphi "Admin" settings, role `aries_admin`): wrap the route with `AdminGuard`, set `adminOnly` on the `Sidebar` item, read it with `useIsAriesAdmin`; the backend uses `[RequireAriesAdmin]`. Currently: services settings, users management.
 
 Only opening the module is applied everywhere. The DDT and email pages read the action permissions (`canInsert`, `canEdit`, `canDelete`, `canPrint`, `canPrices`, `canTotals`), but for now the server always returns them true, like Delphi `TUserTypePermission`. Don't treat a missing `tipo_utente_permessi` row as "no actions".
+
+## Notes For Users, Profile And Passkeys
+
+- "Gestisci utenti" (`RouteConfig.UserSettingsList` / `UserSettingsNew` / `UserSettingsDetail`, `settings/users`, admin only, Delphi `TFSettingsUsers`): list + editor in `src/views/settings/users`, hooks in `proxies/aries-proxy/user-accounts.ts` (`api/user-account`). Use `UserAccount`, never the legacy `User` (`api/user`, it carries password hash and salt for the Android app). The email password is write-only (`hasEmailPassword`): an empty field keeps it. The current admin can't remove their own `aries_admin` role nor delete themselves (the server refuses it too).
+- "Il mio profilo" (`RouteConfig.Profile`, `profile`, every logged-in user, from the user menu next to Logout): email settings, password change, passkeys. The email fields are shared with the admin editor: `src/components/Users` (`UserEmailSettingsFields`, `userEmailSettingsForm`, `PasskeyList`, `userPasswordRules`).
+- Passkeys are switched on per company with `VITE_PASSKEY_ENABLED=true` (today only `.env.emmebi`) and need the API section `Authentication:Passkey` for the same domain; they only work on HTTPS or `localhost` (not on an IP). Check with `isPasskeyConfigured()` (env) / `isPasskeyEnabled()` (env + browser support) from `src/utils/passkey-utils`.
+- Flow with `@simplewebauthn/browser`: options arrive as a JSON string (`optionsJson`) and the browser response is sent back with `JSON.stringify` (`credentialJson`), because the client would rename the WebAuthn keys of a JSON object. Login: `useAuthenticateWithPasskey` (usernameless, then `oauth2/Token` with `grant_type=passkey`); registration: `useRegisterPasskey`. Closing the browser dialog (`isPasskeyCancelled`) is not an error.
+- Local test: run Vite on `localhost` (`VITE_DEV_HOST=localhost`, `VITE_PASSKEY_ENABLED=true`) and the API with `Authentication__Passkey__Enabled=true`, `__RpId=localhost`, `__Origins__0=http://localhost:5173`.
 
 ## Notes For Settings Work
 

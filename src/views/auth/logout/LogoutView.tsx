@@ -15,10 +15,11 @@ const LogoutView: React.FunctionComponent = () => {
   useEffect(() => {
     async function run() {
       try {
-        localStorage.clear();
+        // While the token is still stored: the server revokes its refresh token (user/logout needs the Bearer).
         await logout();
-        queryClient.clear();
       } finally {
+        localStorage.clear();
+        queryClient.clear();
         const redirectUrl = new URL(RouteConfig.Login.buildLink(), window.location.origin);
         redirectUrl.search = location.search;
         window.location.href = redirectUrl.toString();
