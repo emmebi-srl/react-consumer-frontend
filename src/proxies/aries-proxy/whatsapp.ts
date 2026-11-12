@@ -3,18 +3,28 @@ import useExceptionLogger from '~/hooks/useExceptionLogger';
 
 import {
   createWhatsappTemplate,
+  getWhatsappConversation,
   getWhatsappReceivedMessages,
   getWhatsappReceivedMessagesMetadata,
   getWhatsappTemplates,
+  sendWhatsappReply,
   syncWhatsappTemplates,
 } from './api/whatsapp';
-import { WhatsappReceivedMessageSearchRequest, WhatsappTemplateCreate } from '~/types/aries-proxy/whatsapp';
+import {
+  WhatsappConversationReply,
+  WhatsappReceivedMessageSearchRequest,
+  WhatsappTemplateCreate,
+} from '~/types/aries-proxy/whatsapp';
 
 const ReceivedMessageSearchPageSize = 50;
+
+/** New messages of the customer arrive through the Meta webhook: refresh the open conversation. */
+const ConversationRefreshMs = 15_000;
 
 export const WhatsappQueryKeys = {
   all: ['whatsapp'] as const,
   templates: ['whatsapp', 'templates'] as const,
+  conversation: (phone: string) => ['whatsapp', 'conversation', phone] as const,
   receivedMessages: (params?: WhatsappReceivedMessageSearchRequest) =>
     ['whatsapp', 'received-messages', params ?? {}] as const,
   receivedMessagesMetadata: (params?: WhatsappReceivedMessageSearchRequest) =>
@@ -38,6 +48,26 @@ export const useWhatsappReceivedMessagesMetadata = (params?: WhatsappReceivedMes
   return useQuery({
     queryKey: WhatsappQueryKeys.receivedMessagesMetadata(params),
     queryFn: async () => (await getWhatsappReceivedMessagesMetadata(params)).data,
+  });
+};
+
+export const useWhatsappConversation = (phone?: string | null) => {
+  return useQuery({
+    queryKey: WhatsappQueryKeys.conversation(phone ?? ''),
+    queryFn: async () => (await getWhatsappConversation(phone as string)).data,
+    enabled: !!phone,
+    refetchInterval: ConversationRefreshMs,
+  });
+};
+
+/** The response is the updated conversation: a reply refused by Meta comes back with status "failed". */
+export const useSendWhatsappReply = (phone: string) => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: WhatsappConversationReply) => (await sendWhatsappReply(phone, data)).data,
+    onError: (err) => exceptionLogger.captureException(err),
+    onSuccess: (conversation) => queryClient.setQueryData(WhatsappQueryKeys.conversation(phone), conversation),
   });
 };
 
