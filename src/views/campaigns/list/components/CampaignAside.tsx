@@ -32,6 +32,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RouteConfig } from '~/routes/routeConfig';
 import { emailAddressListSchema } from '../../emailAddressListSchema';
 import WhatsappTemplateSelect from '../../WhatsappTemplateSelect';
+import WhatsappMailBodyPdfFields, { whatsappMailBodyPdfFileNameSchema } from '../../WhatsappMailBodyPdfFields';
+import CampaignTypeCustomerTypeSettings from './CampaignTypeCustomerTypeSettings';
 
 const EditCampaignFormSchema = z.object({
   replyToAddress: z
@@ -41,6 +43,8 @@ const EditCampaignFormSchema = z.object({
     .pipe(z.email('Indirizzo email non valido').or(z.literal(''))),
   whatsappReplyNotificationAddresses: emailAddressListSchema,
   whatsappTemplateId: z.number().int().positive().nullable(),
+  whatsappMailBodyPdf: z.boolean(),
+  whatsappMailBodyPdfFileName: whatsappMailBodyPdfFileNameSchema,
   name: z.string().min(1, { message: 'Nome è obbligatorio' }),
   description: z.string().min(1, { message: 'Descrizione è obbligatoria' }),
   mailSubject: z.string().min(1, { message: 'Oggetto email è obbligatorio' }),
@@ -71,6 +75,8 @@ const CampaignAsideForm: React.FC<{
       replyToAddress: campaign.replyToAddress ?? '',
       whatsappReplyNotificationAddresses: campaign.whatsappReplyNotificationAddresses ?? '',
       whatsappTemplateId: campaign.whatsappTemplateId ?? null,
+      whatsappMailBodyPdf: campaign.whatsappMailBodyPdf ?? false,
+      whatsappMailBodyPdfFileName: campaign.whatsappMailBodyPdfFileName ?? '',
     },
     resetOptions: { keepDirtyValues: true },
   });
@@ -88,6 +94,9 @@ const CampaignAsideForm: React.FC<{
           whatsappReplyNotificationAddresses: data.whatsappReplyNotificationAddresses,
           // 0 removes the template: the campaign becomes email only.
           whatsappTemplateId: data.whatsappTemplateId ?? 0,
+          whatsappMailBodyPdf: data.whatsappMailBodyPdf,
+          // An empty string restores the email subject as file name.
+          whatsappMailBodyPdfFileName: data.whatsappMailBodyPdfFileName,
         },
       },
       {
@@ -203,6 +212,7 @@ const CampaignAsideForm: React.FC<{
               />
             )}
           />
+          <WhatsappMailBodyPdfFields control={form.control} />
           <Box
             sx={{
               maxHeight: '400px',
@@ -253,6 +263,8 @@ const CampaignAsideForm: React.FC<{
                 replyToAddress: campaign.replyToAddress ?? '',
                 whatsappReplyNotificationAddresses: campaign.whatsappReplyNotificationAddresses ?? '',
                 whatsappTemplateId: campaign.whatsappTemplateId ?? null,
+                whatsappMailBodyPdf: campaign.whatsappMailBodyPdf ?? false,
+                whatsappMailBodyPdfFileName: campaign.whatsappMailBodyPdfFileName ?? '',
                 campaignTypeId: campaign.campaignTypeId,
               })
             }
@@ -367,6 +379,12 @@ const CampaignAsideContent: React.FC<{ campaignId: number }> = ({ campaignId }) 
             <CampaignActions campaign={campaign} />
             <Divider />
             <CampaignAsideForm key={campaign.id} campaign={campaign} />
+            {campaign.campaignType && (
+              <>
+                <Divider />
+                <CampaignTypeCustomerTypeSettings campaignType={campaign.campaignType} />
+              </>
+            )}
           </>
         )}
       </AsideContentView>

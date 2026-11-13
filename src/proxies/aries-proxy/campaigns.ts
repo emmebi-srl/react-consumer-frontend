@@ -12,6 +12,8 @@ import {
   getCampaignTypeById,
   createCampaignType,
   updateCampaignType,
+  searchCampaignTypeCustomerTypes,
+  saveCampaignTypeCustomerType,
   getCampaignGlobalPlaceholders,
   getCampaignPlaceholders,
   getCampaignPlaceholderById,
@@ -44,6 +46,8 @@ import {
   CampaignSearchRequest,
   CampaignTypeCreate,
   CampaignTypeUpdate,
+  CampaignTypeCustomerTypeSave,
+  CampaignTypeCustomerTypeSearchRequest,
   CampaignUpdate,
 } from '~/types/aries-proxy/campaigns';
 
@@ -65,6 +69,8 @@ export const CampaignQueryKeys = {
   allTypes: ['CampaignTypes'] as const,
   types: ['CampaignTypes'] as const,
   typeById: (id: number) => ['CampaignType', id] as const,
+  allTypeCustomerTypes: ['CampaignTypeCustomerTypes'] as const,
+  typeCustomerTypes: (params: CampaignTypeCustomerTypeSearchRequest) => ['CampaignTypeCustomerTypes', params] as const,
 
   allGlobalPlaceholders: ['CampaignGlobalPlaceholders'] as const,
   globalPlaceholders: ['CampaignGlobalPlaceholders'] as const,
@@ -248,6 +254,23 @@ export const useUpdateCampaignType = () => {
         }),
       ]);
     },
+  });
+};
+
+export const useCampaignTypeCustomerTypes = (params: CampaignTypeCustomerTypeSearchRequest) => {
+  return useQuery({
+    queryKey: CampaignQueryKeys.typeCustomerTypes(params),
+    queryFn: async () => (await searchCampaignTypeCustomerTypes(params)).data,
+  });
+};
+
+export const useSaveCampaignTypeCustomerType = () => {
+  const exceptionLogger = useExceptionLogger();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: CampaignTypeCustomerTypeSave) => (await saveCampaignTypeCustomerType(data)).data,
+    onError: (err, d) => exceptionLogger.captureException(err, { extra: { data: d } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CampaignQueryKeys.allTypeCustomerTypes }),
   });
 };
 

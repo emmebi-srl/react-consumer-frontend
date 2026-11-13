@@ -15,6 +15,10 @@ export interface Campaign {
   replyToAddress?: string | null;
   whatsappReplyNotificationAddresses?: string | null;
   whatsappTemplateId?: number | null;
+  /** The WhatsApp document header gets the email body as PDF (not attached to the email). */
+  whatsappMailBodyPdf?: boolean;
+  /** Name of that PDF, placeholders allowed; empty = the email subject. */
+  whatsappMailBodyPdfFileName?: string | null;
   id: number;
   campaignTypeId: number;
   name: string;
@@ -31,6 +35,8 @@ export interface CampaignCreate {
   replyToAddress?: string | null;
   whatsappReplyNotificationAddresses?: string | null;
   whatsappTemplateId?: number | null;
+  whatsappMailBodyPdf?: boolean;
+  whatsappMailBodyPdfFileName?: string | null;
   campaignTypeId: number;
   name: string;
   description: string;
@@ -45,6 +51,9 @@ export interface CampaignUpdate {
   replyToAddress?: string | null;
   whatsappReplyNotificationAddresses?: string | null;
   whatsappTemplateId?: number | null;
+  whatsappMailBodyPdf?: boolean | null;
+  /** Empty string restores the email subject; omitted leaves it unchanged. */
+  whatsappMailBodyPdfFileName?: string | null;
   campaignTypeId?: number | null;
   name?: string | null;
   description?: string | null;
@@ -76,6 +85,25 @@ export interface CampaignTypeCreate {
 export interface CampaignTypeUpdate {
   name?: string | null;
 }
+
+/** Settings of a campaign type for a customer type. A pair without a row uses the defaults (every channel enabled). */
+export interface CampaignTypeCustomerType {
+  campaignTypeId: number;
+  customerTypeId: number;
+  isWhatsappEnabled: boolean;
+}
+
+export interface CampaignTypeCustomerTypeList {
+  campaignTypeCustomerTypes: CampaignTypeCustomerType[];
+}
+
+export interface CampaignTypeCustomerTypeSearchRequest {
+  campaignTypeId?: number;
+  customerTypeId?: number;
+}
+
+/** Upsert of the row of the pair. */
+export type CampaignTypeCustomerTypeSave = CampaignTypeCustomerType;
 
 // ==============================
 // Campaign Global Placeholder

@@ -30,6 +30,9 @@ import { Grid } from '@mui/system';
 import { sanitize } from 'lettersanitizer';
 import { emailAddressListSchema } from '../emailAddressListSchema';
 import WhatsappTemplateSelect from '../WhatsappTemplateSelect';
+import WhatsappMailBodyPdfFields, { whatsappMailBodyPdfFileNameSchema } from '../WhatsappMailBodyPdfFields';
+
+const SYSTEM_SUBSCRIPTION_CAMPAIGN_TYPE = 'system_subscription';
 
 const CampaignFormSchema = z.object({
   replyToAddress: z
@@ -39,6 +42,8 @@ const CampaignFormSchema = z.object({
     .pipe(z.email('Indirizzo email non valido').or(z.literal(''))),
   whatsappReplyNotificationAddresses: emailAddressListSchema,
   whatsappTemplateId: z.number().int().positive().nullable(),
+  whatsappMailBodyPdf: z.boolean(),
+  whatsappMailBodyPdfFileName: whatsappMailBodyPdfFileNameSchema,
   campaignTypeId: z
     .number({
       message: 'Tipo campagna obbligatorio',
@@ -70,6 +75,8 @@ const CampaignNewView = () => {
       replyToAddress: '',
       whatsappReplyNotificationAddresses: '',
       whatsappTemplateId: null,
+      whatsappMailBodyPdf: false,
+      whatsappMailBodyPdfFileName: '',
       active: false,
     },
   });
@@ -88,6 +95,8 @@ const CampaignNewView = () => {
       replyToAddress: values.replyToAddress,
       whatsappReplyNotificationAddresses: values.whatsappReplyNotificationAddresses,
       whatsappTemplateId: values.whatsappTemplateId,
+      whatsappMailBodyPdf: values.whatsappMailBodyPdf,
+      whatsappMailBodyPdfFileName: values.whatsappMailBodyPdf ? values.whatsappMailBodyPdfFileName : null,
     };
 
     await createCampaign(payload);
@@ -122,7 +131,16 @@ const CampaignNewView = () => {
                     value={field.value || ''}
                     onChange={(event) => {
                       const value = event.target.value;
-                      field.onChange(value === '' ? undefined : Number(value));
+                      const typeId = value === '' ? undefined : Number(value);
+                      field.onChange(typeId);
+                      // For now only the subscription campaigns send the email PDF on WhatsApp by default.
+                      if (!form.formState.dirtyFields.whatsappMailBodyPdf) {
+                        const type = campaignTypes.find((item) => item.id === typeId);
+                        form.setValue(
+                          'whatsappMailBodyPdf',
+                          type?.applicationReference === SYSTEM_SUBSCRIPTION_CAMPAIGN_TYPE,
+                        );
+                      }
                     }}
                     disabled={areCampaignTypesLoading}
                     error={!!form.formState.errors.campaignTypeId}
@@ -205,6 +223,9 @@ const CampaignNewView = () => {
                     />
                   )}
                 />
+              </Stack>
+              <Stack sx={{ mb: 2 }}>
+                <WhatsappMailBodyPdfFields control={form.control} />
               </Stack>
               {templateHtml ? (
                 <Card>
