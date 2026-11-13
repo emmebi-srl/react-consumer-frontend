@@ -280,6 +280,11 @@ When extending system subscription flows:
 - Editor cards: `DdtJobCard` (job lot of the customer; the rows card then shows the economy column and the remaining quantity of `ddt/job-remaining`, with "Eccedenza in economia"), `DdtRowsCard` (kit components with their serial numbers, price from `product-defaults` with the customer), `DdtDocumentsCard` (report links, pick lists, "Importa materiale" from `ddt/documents`: imported rows are added with `setValue('rows', ...)` so the rows field array stays in sync; on a new DDT the first imported report with signatures becomes `signatureReport`), `DdtSignaturesCard` (saved DDTs only: driver/recipient signature from a linked report or an employee).
 - Support tables (causals, porto resa, trasporto a cura, carriers): `RouteConfig.DdtSettings` (`ddts/settings`), they need `canEdit` to change. The "aspetto" checkboxes only show the bits returned by `ddt/aspect` (codes present in the `aspetto` table).
 
+## Notes For Campaigns
+
+- The campaign forms (`CampaignNewView`, `CampaignAside`) share `WhatsappMailBodyPdfFields` (`src/views/campaigns`), next to the WhatsApp template: "Su WhatsApp invia l'email in PDF" (`whatsappMailBodyPdf`) and the PDF name with placeholders (`whatsappMailBodyPdfFileName`, empty = subject). The server uses it for the document header of the WhatsApp template only when the dispatch has no attachment (the first attachment always wins); it is not attached to the email.
+- "WhatsApp per tipo cliente" (`CampaignTypeCustomerTypeSettings` in the campaign aside) is a setting of the **campaign type** (`GET campaign/type/customer-type?campaignTypeId=`, `PUT campaign/type/customer-type` per pair): one switch per customer type, saved on change; a type without a row is on. It applies to every campaign of that type, say so in the UI. There is no campaign type page yet; move it there if one is added.
+
 ## Notes For WhatsApp Conversations
 
 - `RouteConfig.WhatsappMessageList` (`whatsapp/messages`) lists the messages written by the customers; a click on a row opens `WhatsappConversationModal` (`src/views/whatsapp/components`) for the sender phone (links to customer/campaign inside the row `stopPropagation`). The phone is digits only, as Meta sends it.
