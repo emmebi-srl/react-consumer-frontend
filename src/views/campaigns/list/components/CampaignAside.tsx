@@ -33,7 +33,6 @@ import { RouteConfig } from '~/routes/routeConfig';
 import { emailAddressListSchema } from '../../emailAddressListSchema';
 import WhatsappTemplateSelect from '../../WhatsappTemplateSelect';
 import WhatsappMailBodyPdfFields, { whatsappMailBodyPdfFileNameSchema } from '../../WhatsappMailBodyPdfFields';
-import CampaignTypeCustomerTypeSettings from './CampaignTypeCustomerTypeSettings';
 
 const EditCampaignFormSchema = z.object({
   replyToAddress: z
@@ -379,12 +378,6 @@ const CampaignAsideContent: React.FC<{ campaignId: number }> = ({ campaignId }) 
             <CampaignActions campaign={campaign} />
             <Divider />
             <CampaignAsideForm key={campaign.id} campaign={campaign} />
-            {campaign.campaignType && (
-              <>
-                <Divider />
-                <CampaignTypeCustomerTypeSettings campaignType={campaign.campaignType} />
-              </>
-            )}
           </>
         )}
       </AsideContentView>

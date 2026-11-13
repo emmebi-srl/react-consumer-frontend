@@ -23,7 +23,7 @@ const CampaignTypeCustomerTypeSettings: React.FC<{ campaignType: CampaignType }>
     <Stack direction="column" sx={{ gap: 1 }}>
       <Typography variant="subtitle1">WhatsApp per tipo cliente</Typography>
       <Typography variant="body2" color="text.secondary">
-        {`Vale per tutte le campagne di tipo "${campaignType.name}". Ai tipi cliente disattivati arriva solo l'email.`}
+        {`Vale per tutte le campagne di tipo "${campaignType.name}". Ai tipi cliente disattivati arriva solo l'email. Gli invii già creati non cambiano.`}
       </Typography>
       {isLoading ? (
         <CircularProgress size={24} />

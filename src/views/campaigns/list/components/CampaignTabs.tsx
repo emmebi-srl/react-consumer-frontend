@@ -1,11 +1,13 @@
-import { Add } from '@mui/icons-material';
+import { Add, Settings } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import ListTabs, { ALL_TAB_KEY } from '~/components/Layout/ListTabs';
 import { StateTabData } from '~/components/Layout/NavigationTabs';
+import { useModal } from '~/modals/Modal';
 import { RouteConfig } from '~/routes/routeConfig';
 import { useFilterState, useUpdateFilter } from '../state';
+import CampaignTypeSettingsModal from './CampaignTypeSettingsModal';
 
 const Tabs: StateTabData[] = [
   { label: 'Tutte', key: ALL_TAB_KEY },
@@ -16,6 +18,7 @@ const Tabs: StateTabData[] = [
 const CampaignTabs: React.FC = () => {
   const filters = useFilterState();
   const updateFilter = useUpdateFilter();
+  const modal = useModal();
 
   const selectedTab = useMemo(() => {
     if (filters.active === true) return 'active';
@@ -33,15 +36,25 @@ const CampaignTabs: React.FC = () => {
         else updateFilter('active', undefined);
       }}
       actions={
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          component={Link}
-          to={RouteConfig.CampaignNew.buildLink()}
-        >
-          Crea campagna
-        </Button>
+        <>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<Settings />}
+            onClick={() => void modal.showModal({ component: CampaignTypeSettingsModal, props: {} })}
+          >
+            Impostazioni
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
+            component={Link}
+            to={RouteConfig.CampaignNew.buildLink()}
+          >
+            Crea campagna
+          </Button>
+        </>
       }
     />
   );
