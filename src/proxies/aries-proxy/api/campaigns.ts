@@ -8,6 +8,9 @@ import {
   CampaignTypeList,
   CampaignTypeCreate,
   CampaignTypeUpdate,
+  CampaignTypeCustomerTypeList,
+  CampaignTypeCustomerTypeSave,
+  CampaignTypeCustomerTypeSearchRequest,
   CampaignGlobalPlaceholderList,
   CampaignPlaceholderList,
   CampaignPlaceholderCreate,
@@ -79,6 +82,16 @@ export const createCampaignType = (model: CampaignTypeCreate) => {
 
 export const updateCampaignType = (id: number, model: CampaignTypeUpdate) => {
   return ariesServicesClient.patch<CampaignTypeList>(`campaign/type/${id}`, model);
+};
+
+export const searchCampaignTypeCustomerTypes = (req: CampaignTypeCustomerTypeSearchRequest) => {
+  return ariesServicesClient.get<CampaignTypeCustomerTypeList>('campaign/type/customer-type', {
+    params: req,
+  });
+};
+
+export const saveCampaignTypeCustomerType = (model: CampaignTypeCustomerTypeSave) => {
+  return ariesServicesClient.put<CampaignTypeCustomerTypeList>('campaign/type/customer-type', model);
 };
 
 //

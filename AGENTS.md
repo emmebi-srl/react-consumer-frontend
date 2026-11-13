@@ -280,6 +280,11 @@ When extending system subscription flows:
 - Editor cards: `DdtJobCard` (job lot of the customer; the rows card then shows the economy column and the remaining quantity of `ddt/job-remaining`, with "Eccedenza in economia"), `DdtRowsCard` (kit components with their serial numbers, price from `product-defaults` with the customer), `DdtDocumentsCard` (report links, pick lists, "Importa materiale" from `ddt/documents`: imported rows are added with `setValue('rows', ...)` so the rows field array stays in sync; on a new DDT the first imported report with signatures becomes `signatureReport`), `DdtSignaturesCard` (saved DDTs only: driver/recipient signature from a linked report or an employee).
 - Support tables (causals, porto resa, trasporto a cura, carriers): `RouteConfig.DdtSettings` (`ddts/settings`), they need `canEdit` to change. The "aspetto" checkboxes only show the bits returned by `ddt/aspect` (codes present in the `aspetto` table).
 
+## Notes For Campaigns
+
+- The campaign forms (`CampaignNewView`, `CampaignAside`) share `WhatsappMailBodyPdfFields` (`src/views/campaigns`), next to the WhatsApp template: "Su WhatsApp invia l'email in PDF" (`whatsappMailBodyPdf`) and the PDF name with placeholders (`whatsappMailBodyPdfFileName`, empty = subject). The server uses it for the document header of the WhatsApp template only when the dispatch has no attachment (the first attachment always wins); it is not attached to the email.
+- "WhatsApp per tipo cliente" (`CampaignTypeCustomerTypeSettings` in the campaign aside) is a setting of the **campaign type** (`GET campaign/type/customer-type?campaignTypeId=`, `PUT campaign/type/customer-type` per pair): one switch per customer type, saved on change; a type without a row is on. It applies to every campaign of that type, say so in the UI. There is no campaign type page yet; move it there if one is added.
+
 ## Notes For WhatsApp Conversations
 
 - `RouteConfig.WhatsappMessageList` (`whatsapp/messages`) lists the messages written by the customers; a click on a row opens `WhatsappConversationModal` (`src/views/whatsapp/components`) for the sender phone (links to customer/campaign inside the row `stopPropagation`). The phone is digits only, as Meta sends it.
@@ -299,9 +304,18 @@ When extending system subscription flows:
 
 Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
 
-Admin-only pages (Delphi "Admin" settings, role `aries_admin`): wrap the route with `AdminGuard`, set `adminOnly` on the `Sidebar` item, read it with `useIsAriesAdmin`; the backend uses `[RequireAriesAdmin]`. Currently: services settings.
+Admin-only pages (Delphi "Admin" settings, role `aries_admin`): wrap the route with `AdminGuard`, set `adminOnly` on the `Sidebar` item, read it with `useIsAriesAdmin`; the backend uses `[RequireAriesAdmin]`. Currently: services settings, users management.
 
 Only opening the module is applied everywhere. The DDT and email pages read the action permissions (`canInsert`, `canEdit`, `canDelete`, `canPrint`, `canPrices`, `canTotals`), but for now the server always returns them true, like Delphi `TUserTypePermission`. Don't treat a missing `tipo_utente_permessi` row as "no actions".
+
+## Notes For Users, Profile And Passkeys
+
+- "Gestisci utenti" (`RouteConfig.UserSettingsList` / `UserSettingsNew` / `UserSettingsDetail`, `settings/users`, admin only, Delphi `TFSettingsUsers`): list + editor in `src/views/settings/users`, hooks in `proxies/aries-proxy/user-accounts.ts` (`api/user-account`). Use `UserAccount`, never the legacy `User` (`api/user`, it carries password hash and salt for the Android app). The email password is write-only (`hasEmailPassword`): an empty field keeps it. The current admin can't remove their own `aries_admin` role nor delete themselves (the server refuses it too).
+- "Il mio profilo" (`RouteConfig.Profile`, `profile`, every logged-in user, from the user menu next to Logout): email settings, password change, passkeys. The email fields are shared with the admin editor: `src/components/Users` (`UserEmailSettingsFields`, `userEmailSettingsForm`, `PasskeyList`, `userPasswordRules`).
+- Passkeys are switched on per company with `VITE_PASSKEY_ENABLED=true` (today only `.env.emmebi`) and need the API section `Authentication:Passkey` for the same domain; they only work on HTTPS or `localhost` (not on an IP). Check with `isPasskeyConfigured()` (env) / `isPasskeyEnabled()` (env + browser support) from `src/utils/passkey-utils`.
+- Flow with `@simplewebauthn/browser`: options arrive as a JSON string (`optionsJson`) and the browser response is sent back with `JSON.stringify` (`credentialJson`), because the client would rename the WebAuthn keys of a JSON object. Login: `useAuthenticateWithPasskey` (usernameless, then `oauth2/Token` with `grant_type=passkey`); registration: `useRegisterPasskey`. Closing the browser dialog (`isPasskeyCancelled`) is not an error.
+- After the login, `PasskeyLoginPrompt` (mounted in `PrivateAreaLayout`) suggests adding a passkey to users without one: once per user on each device, whatever the answer. The shown user ids are in localStorage `ARIES_PASSKEY_PROMPT_SHOWN`, which `LogoutView` keeps (`KEYS_KEPT_ON_LOGOUT`, add there any key that must survive the logout). Profile and prompt share `useAddPasskey`.
+- Local test: run Vite on `localhost` (`VITE_DEV_HOST=localhost`, `VITE_PASSKEY_ENABLED=true`) and the API with `Authentication__Passkey__Enabled=true`, `__RpId=localhost`, `__Origins__0=http://localhost:5173`.
 
 ## Notes For Settings Work
 

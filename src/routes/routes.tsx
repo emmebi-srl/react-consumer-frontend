@@ -66,6 +66,9 @@ const SupplierInvoicePeriodicConfigurationListView = asyncComponent(
 const DashboardView = asyncComponent(() => import('../views/dashboard/DashboardView'));
 const CompanySettingsView = asyncComponent(() => import('../views/company/CompanySettingsView'));
 const ServiceSettingsView = asyncComponent(() => import('../views/settings/services/ServiceSettingsView'));
+const UserListView = asyncComponent(() => import('../views/settings/users/list/UserListView'));
+const UserEditorView = asyncComponent(() => import('../views/settings/users/editor/UserEditorView'));
+const ProfileView = asyncComponent(() => import('../views/profile/ProfileView'));
 
 const routes: RouteObject[] = [
   {
@@ -143,6 +146,35 @@ const routes: RouteObject[] = [
                 <ServiceSettingsView />
               </AdminGuard>
             ),
+          },
+          {
+            path: RouteConfig.UserSettingsList.template,
+            element: (
+              <AdminGuard>
+                <UserListView />
+              </AdminGuard>
+            ),
+          },
+          {
+            path: RouteConfig.UserSettingsNew.template,
+            element: (
+              <AdminGuard>
+                <UserEditorView />
+              </AdminGuard>
+            ),
+          },
+          {
+            path: RouteConfig.UserSettingsDetail.template,
+            element: (
+              <AdminGuard>
+                <UserEditorView />
+              </AdminGuard>
+            ),
+          },
+          {
+            // Every logged-in user, like the non-admin Delphi TFSettingsUsers.
+            path: RouteConfig.Profile.template,
+            element: <ProfileView />,
           },
           {
             path: RouteConfig.CustomerList.template,
