@@ -283,7 +283,7 @@ When extending system subscription flows:
 ## Notes For Campaigns
 
 - The campaign forms (`CampaignNewView`, `CampaignAside`) share `WhatsappMailBodyPdfFields` (`src/views/campaigns`), next to the WhatsApp template: "Su WhatsApp invia l'email in PDF" (`whatsappMailBodyPdf`) and the PDF name with placeholders (`whatsappMailBodyPdfFileName`, empty = subject). The server uses it for the document header of the WhatsApp template only when the dispatch has no attachment (the first attachment always wins); it is not attached to the email.
-- "WhatsApp per tipo cliente" (`CampaignTypeCustomerTypeSettings` in the campaign aside) is a setting of the **campaign type** (`GET campaign/type/customer-type?campaignTypeId=`, `PUT campaign/type/customer-type` per pair): one switch per customer type, saved on change; a type without a row is on. It applies to every campaign of that type, say so in the UI. There is no campaign type page yet; move it there if one is added.
+- Campaign type settings live in `CampaignTypeSettingsModal`, opened by "Impostazioni" next to "Crea campagna" (`CampaignTabs`), not in the campaign aside: they belong to the **campaign type** and apply to every campaign of that type. The modal picks the type, then `CampaignTypeCustomerTypeSettings` shows "WhatsApp per tipo cliente" (`GET campaign/type/customer-type?campaignTypeId=`, `PUT campaign/type/customer-type` per pair): one switch per customer type, saved on change; a type without a row is on. Put further campaign type settings in the same modal.
 
 ## Notes For WhatsApp Conversations
 
