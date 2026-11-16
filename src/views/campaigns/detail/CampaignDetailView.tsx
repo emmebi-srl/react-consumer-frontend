@@ -5,10 +5,10 @@ import {
   Button,
   Card,
   CardContent,
-  Checkbox,
   Chip,
   CircularProgress,
   IconButton,
+  Link,
   MenuItem,
   Stack,
   TableCell,
@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
-import { Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate, Link as RouterLink, useParams, useSearchParams } from 'react-router-dom';
 import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
@@ -179,10 +179,8 @@ const CampaignMailTableHeading: React.FC<{ children: React.ReactNode }> = ({ chi
       rowCount={0}
       headLabel={[
         { id: 'id', label: 'ID', align: 'right' },
-        { id: 'status', label: 'Stato', align: 'left' },
-        { id: 'isUnsubscribed', label: 'Disisc.', align: 'center' },
         { id: 'customer', label: 'Cliente', align: 'left' },
-        { id: 'system', label: 'Impianto', align: 'left' },
+        { id: 'status', label: 'Stato', align: 'left' },
         { id: 'email', label: 'Email', align: 'left' },
         { id: 'whatsapp', label: 'WhatsApp', align: 'left' },
         { id: 'note', label: 'Note', align: 'left' },
@@ -247,8 +245,9 @@ const CampaignMailTableRowContent: React.FC<{
   onPreview: (mail: CampaignMail) => void;
 }> = ({ canCreateSubscription, mail, onCreateSubscription, onPreview }) => {
   const customerName = mail.customer?.companyName ?? `Cliente ${mail.customerId}`;
-  const systemDescription = mail.system?.description ?? (mail.systemId ? `Impianto ${mail.systemId}` : 'N/D');
+  const systemDescription = mail.system?.description ?? (mail.systemId ? `Impianto ${mail.systemId}` : '');
   const systemType = mail.system?.typeDescription ?? '';
+  const systemLabel = [systemDescription, systemType].filter(Boolean).join(' - ');
   const statusLabel = getCampaignMailStatusLabel(mail);
   const statusColor = normalizeToHexColor(mail.status?.color);
   const isUnsubscribed = mail.isUnsubscribed || !!mail.whatsapp?.isUnsubscribed;
@@ -258,8 +257,26 @@ const CampaignMailTableRowContent: React.FC<{
       <TableCell align="right" width={90}>
         <MainLabel>{mail.id}</MainLabel>
       </TableCell>
+      {/* The only flexible column: the others have fixed widths, so it must keep a minimum width. */}
+      <TableCell sx={{ maxWidth: 0, minWidth: 240 }}>
+        <MainLabel title={customerName}>
+          {mail.customerId ? (
+            <Link
+              component={RouterLink}
+              to={RouteConfig.CustomerDetail.buildLink({ customerId: String(mail.customerId) })}
+              underline="hover"
+              color="inherit"
+            >
+              {customerName}
+            </Link>
+          ) : (
+            customerName
+          )}
+        </MainLabel>
+        {systemLabel ? <SecondaryLabel title={systemLabel}>{systemLabel}</SecondaryLabel> : null}
+      </TableCell>
       <TableCell width={160}>
-        <Stack direction="column" spacing={0.5}>
+        <Stack direction="column" spacing={0.5} sx={{ alignItems: 'flex-start' }}>
           <Chip
             size="small"
             label={statusLabel}
@@ -273,27 +290,8 @@ const CampaignMailTableRowContent: React.FC<{
                 : undefined
             }
           />
+          {isUnsubscribed ? <Chip size="small" variant="outlined" color="warning" label="Disiscritto" /> : null}
         </Stack>
-      </TableCell>
-      <TableCell align="center" width={60}>
-        <Checkbox
-          checked={isUnsubscribed}
-          disableRipple
-          sx={{ p: 0, pointerEvents: 'none' }}
-          slotProps={{
-            input: { readOnly: true, 'aria-label': 'Disiscritta' },
-          }}
-        />
-      </TableCell>
-      <TableCell sx={{ maxWidth: 0 }}>
-        <MainLabel>{customerName}</MainLabel>
-        <SecondaryLabel>Cliente #{mail.customerId}</SecondaryLabel>
-      </TableCell>
-      <TableCell sx={{ maxWidth: 0 }}>
-        <MainLabel>{systemDescription}</MainLabel>
-        <SecondaryLabel>
-          {mail.systemId ? `Impianto #${mail.systemId}${systemType ? ` - ${systemType}` : ''}` : 'Nessun impianto'}
-        </SecondaryLabel>
       </TableCell>
       <CampaignChannelCell
         recipient={mail.email}
@@ -309,20 +307,23 @@ const CampaignMailTableRowContent: React.FC<{
         error={mail.whatsapp?.processingError}
         notSentLabel="Non inviata su WhatsApp"
       />
-      <TableCell sx={{ width: 280 }}>
-        <Typography
-          variant="body2"
-          sx={{
-            display: '-webkit-box',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: 3,
-            whiteSpace: 'normal',
-          }}
-        >
-          {mail.note || 'N/D'}
-        </Typography>
+      <TableCell sx={{ width: 220 }}>
+        <Tooltip title={mail.note ?? ''}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              display: '-webkit-box',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              WebkitBoxOrient: 'vertical',
+              WebkitLineClamp: 2,
+              whiteSpace: 'normal',
+            }}
+          >
+            {mail.note || 'N/D'}
+          </Typography>
+        </Tooltip>
       </TableCell>
       <TableCell align="center" width={180}>
         <Stack
