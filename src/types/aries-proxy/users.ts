@@ -122,6 +122,7 @@ export const AriesModule = {
   Quotes: 9,
   Systems: 10,
   SupplierInvoices: 12,
+  Tickets: 13,
   Emails: 22,
   Settings: 47,
 } as const;
