@@ -34,6 +34,7 @@ import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
 import MailOutlined from '@mui/icons-material/MailOutlined';
 import WhatsApp from '@mui/icons-material/WhatsApp';
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
+import ConfirmationNumberOutlined from '@mui/icons-material/ConfirmationNumberOutlined';
 import ChecklistOutlined from '@mui/icons-material/ChecklistOutlined';
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
 import SettingsSuggestOutlined from '@mui/icons-material/SettingsSuggestOutlined';
@@ -141,6 +142,12 @@ const sections: SidebarSection[] = [
   {
     title: 'Operatività',
     items: [
+      {
+        label: 'Ticket',
+        path: RouteConfig.TicketList.buildLink(),
+        icon: <ConfirmationNumberOutlined />,
+        moduleId: AriesModule.Tickets,
+      },
       {
         label: 'Interventi',
         path: RouteConfig.InterventionsNearby.buildLink(),
