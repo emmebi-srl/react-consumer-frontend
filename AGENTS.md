@@ -269,6 +269,16 @@ When extending system subscription flows:
 - New email, forward and resend live in `src/components/Modals/EmailComposeModal` and in the preview actions (`allowActions`, the close action is `RESEND` or `FORWARD`). The body is plain text: the server stores it as RTF for Delphi and sends text + HTML. Attachments go as multipart (`email/send`), and the JSON `payload` is written in snake_case by hand because FormData is not mapped by the client. The sender list (`email/senders`) only has users with an SMTP server marked `canSend`; their signature is plain text and is swapped when the sender changes.
 - A send refused by the mail server is not an HTTP error: the response is the saved email with status Failed (`EmailStatusId.Failed`) and `errorMessage`. Check it.
 
+## Notes For Ticket Work
+
+- `RouteConfig.TicketList` (`tickets`, `src/views/tickets/list`) ports the Delphi `TFTickets` screen (module 13, `AriesModule.Tickets`), same structure as the DDT list: server-side search on `GET ticket/new` / `ticket/new/metadata`, infinite scroll, tabs Tutti / Aperti / Scaduti. The open statuses are **not** a constant: they come from `GET ticket/status` (`isOpen`, the `stato_ticket.aperto` flag the ticket triggers also use), through `useTicketOpenStatusIds`; `toTicketSearchRequest` returns null until they are loaded and the queries wait. "Ore da svolgere" is `ticket/new/workload`.
+- A click on a row opens `TicketAside` (`TicketDetails` + `TicketActions`), a double click the editor, Cmd/Ctrl+click and middle-click the editor in a new tab. The selection id is `ticket.id` (the autoincrement key, not number/year).
+- Editor: `RouteConfig.TicketNew` / `RouteConfig.TicketDetail` (`tickets/:ticketId`) render `src/views/tickets/editor/TicketEditorView.tsx`; conversions and the required-field messages of Delphi are in `ticketFormValues.ts` (tested). A customer just picked with a single system gets it automatically, like Delphi. Status / sending / solution date (`TicketStatusModal`), "stampato" and delete are actions (`TicketActions`), not form fields, as in the Delphi list menu.
+- Legacy JSON names of `Ticket`: `communicatedVia` is the request channel, `rememberMeDate` the reminder date. Attachments are opened as blob URLs (`getTicketAttachment`, `arraybuffer`); an upload (`TicketAttachmentsList` with `canUpload`, FormData) replaces the ticket attachment, like Delphi.
+- `TicketActions` (aside and editor header): Modifica, Cambia stato, Stampa menu (summary PDFs `system` / `customer` / `customer_systems` in `PdfPreviewModal`), Altro menu (stampato, `TicketTagsModal`, `TicketEventModal` "Fissa a calendario" only while there is no `kind: 'ticket'` event, Genera / Duplica preventivo then navigate to the quote, Elimina). Quote actions also need the Quotes `canInsert`; "Genera preventivo" closes the ticket on the server, so it asks first.
+- The detail shows `systemConditions` (`TicketSystemConditions`: subscription of the year, prices, periodic checks), tags and `events` with technicians (`TicketEventsList`).
+- List: tab "Controlli periodici" (`periodicChecks` filter flag, `TicketPeriodicChecks`, `ticket/new/periodic-checks`) replaces the ticket table; "In scadenza" (`TicketExpiringExportModal`) downloads the CSV; "Più filtri" has the tag filter (`tagId`).
+
 ## Notes For DDT List Work
 
 - `RouteConfig.DdtList` (`ddts`, `src/views/ddts/list`) is the read-only list of the Delphi `UFDDTs` screen, with the same `View + state + Bar + TableHeading` structure as the supplier invoices: server-side search on `GET ddt` / `ddt/metadata`, infinite scroll. Received DDTs (`ddt_ricevuti`, Delphi `UFReceivedDDTs`) are not included.
@@ -302,7 +312,7 @@ When extending system subscription flows:
 - Protect the backend too (see its `AGENTS.md`): the frontend only adapts the UI and must never be the only check.
 - For single actions use `useModulePermission(moduleId)`, e.g. `permission?.canTotals`.
 
-Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
+Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, tickets, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
 
 Admin-only pages (Delphi "Admin" settings, role `aries_admin`): wrap the route with `AdminGuard`, set `adminOnly` on the `Sidebar` item, read it with `useIsAriesAdmin`; the backend uses `[RequireAriesAdmin]`. Currently: services settings, users management.
 
