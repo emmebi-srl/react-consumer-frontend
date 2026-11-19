@@ -54,6 +54,7 @@ const DdtEditorView = asyncComponent(() => import('../views/ddts/editor/DdtEdito
 const DdtSettingsView = asyncComponent(() => import('../views/ddts/settings/DdtSettingsView'));
 const TicketListView = asyncComponent(() => import('../views/tickets/list/TicketListView'));
 const TicketEditorView = asyncComponent(() => import('../views/tickets/editor/TicketEditorView'));
+const DeadlinesView = asyncComponent(() => import('../views/deadlines/DeadlinesView'));
 const WhatsappMessageListView = asyncComponent(() => import('../views/whatsapp/WhatsappMessageListView'));
 const QuoteListView = asyncComponent(() => import('../views/quotes/list/QuoteListView'));
 const QuoteDetailView = asyncComponent(() => import('../views/quotes/detail/QuoteDetailView'));
@@ -331,6 +332,14 @@ const routes: RouteObject[] = [
             element: (
               <ModuleGuard moduleId={AriesModule.Tickets}>
                 <TicketEditorView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.Deadlines.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Systems}>
+                <DeadlinesView />
               </ModuleGuard>
             ),
           },

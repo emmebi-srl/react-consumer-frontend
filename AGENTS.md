@@ -277,7 +277,11 @@ When extending system subscription flows:
 - Legacy JSON names of `Ticket`: `communicatedVia` is the request channel, `rememberMeDate` the reminder date. Attachments are opened as blob URLs (`getTicketAttachment`, `arraybuffer`); an upload (`TicketAttachmentsList` with `canUpload`, FormData) replaces the ticket attachment, like Delphi.
 - `TicketActions` (aside and editor header): Modifica, Cambia stato, Stampa menu (summary PDFs `system` / `customer` / `customer_systems` in `PdfPreviewModal`), Altro menu (stampato, `TicketTagsModal`, `TicketEventModal` "Fissa a calendario" only while there is no `kind: 'ticket'` event, Genera / Duplica preventivo then navigate to the quote, Elimina). Quote actions also need the Quotes `canInsert`; "Genera preventivo" closes the ticket on the server, so it asks first.
 - The detail shows `systemConditions` (`TicketSystemConditions`: subscription of the year, prices, periodic checks), tags and `events` with technicians (`TicketEventsList`).
-- List: tab "Controlli periodici" (`periodicChecks` filter flag, `TicketPeriodicChecks`, `ticket/new/periodic-checks`) replaces the ticket table; "In scadenza" (`TicketExpiringExportModal`) downloads the CSV; "Più filtri" has the tag filter (`tagId`).
+- List: "In scadenza" (`TicketExpiringExportModal`) downloads the CSV; "Più filtri" has the tag filter (`tagId`). The periodic checks ("controlli" of the Delphi ticket list) are not here: they are in the "Scadenze" page.
+
+## Notes For Deadlines
+
+- `RouteConfig.Deadlines` (`deadlines`, `src/views/deadlines`, sidebar "Scadenze" in Operatività, `AriesModule.Systems`): system deadlines in two tabs, kept in the query string (`?tab=components`): "Controlli periodici" (`PeriodicChecksTable`, `system/periodic-check`, year + "solo da eseguire") and "Materiali in scadenza" (`ExpiringComponentsTable`, `system/component/expiring`, installed components up to a date, already expired ones included by default). Hooks `useSystemPeriodicChecks` / `useExpiringSystemComponents` in `proxies/aries-proxy/systems.ts`. Both are read-only lists: the checks and replacements are done with the reports.
 
 ## Notes For DDT List Work
 
@@ -312,7 +316,7 @@ When extending system subscription flows:
 - Protect the backend too (see its `AGENTS.md`): the frontend only adapts the UI and must never be the only check.
 - For single actions use `useModulePermission(moduleId)`, e.g. `permission?.canTotals`.
 
-Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions page, which searches systems), supplier invoices, tickets, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
+Currently protected: customers, products, reports, DDTs, quotes, systems (also the interventions and deadlines pages, which read systems), supplier invoices, tickets, emails, company settings. Without a Delphi module, so open to every logged-in user: dashboard, checklists, campaigns, WhatsApp.
 
 Admin-only pages (Delphi "Admin" settings, role `aries_admin`): wrap the route with `AdminGuard`, set `adminOnly` on the `Sidebar` item, read it with `useIsAriesAdmin`; the backend uses `[RequireAriesAdmin]`. Currently: services settings, users management.
 

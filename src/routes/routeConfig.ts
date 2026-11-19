@@ -78,6 +78,7 @@ export const RouteConfig = {
   TicketList: defineRoute('tickets'),
   TicketNew: defineRoute('tickets/new'),
   TicketDetail: defineRoute('tickets/:ticketId'),
+  Deadlines: defineRoute('deadlines'),
   SupplierInvoiceList: defineRoute('supplier-invoices'),
   SupplierInvoicePeriodicConfigurationList: defineRoute('supplier-invoices/periodic-configurations'),
   SupplierList: defineRoute('suppliers'),

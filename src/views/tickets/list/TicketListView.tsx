@@ -18,7 +18,6 @@ import { getStringDateByUnixtimestamp } from '~/utils/datetime-utils';
 import { getUrgencyColor, getUrgencyLabel, isTicketExpired } from '../ticketHelpers';
 import TicketAside from './components/TicketAside';
 import TicketBar from './components/TicketBar';
-import TicketPeriodicChecks from './components/TicketPeriodicChecks';
 import TicketTableHeading from './components/TicketTableHeading';
 import TicketTableRow from './components/TicketTableRow';
 import TicketTabs from './components/TicketTabs';
@@ -101,8 +100,7 @@ const TicketListView = () => {
 
   const request = useMemo(() => toTicketSearchRequest(filters, openStatusIds), [filters, openStatusIds]);
   const queryParams = useMemo(() => (request ? { ...request, includes: TicketListIncludes } : undefined), [request]);
-  const showPeriodicChecks = !!filters.periodicChecks;
-  const ticketsQuery = useTicketsSearch(queryParams, { enabled: !!queryParams && !showPeriodicChecks });
+  const ticketsQuery = useTicketsSearch(queryParams, { enabled: !!queryParams });
   const tickets = ticketsQuery.data?.pages.flatMap((page) => page.list) ?? [];
 
   return (
@@ -112,39 +110,33 @@ const TicketListView = () => {
           <Stack spacing={3}>
             <TicketTabs onRefresh={() => void ticketsQuery.refetch()} refreshing={ticketsQuery.isFetching} />
 
-            {showPeriodicChecks ? <TicketPeriodicChecks /> : null}
-
             {ticketsQuery.isError ? <Alert severity="error">Non sono riuscito a caricare i ticket.</Alert> : null}
 
-            {showPeriodicChecks ? null : (
-              <>
-                <ScrollToTopButton
-                  onClick={() => virtuoso.current?.scrollToIndex({ index: 0, align: 'start', behavior: 'smooth' })}
-                  visible={!topReached}
-                />
+            <ScrollToTopButton
+              onClick={() => virtuoso.current?.scrollToIndex({ index: 0, align: 'start', behavior: 'smooth' })}
+              visible={!topReached}
+            />
 
-                <DataTableContainer>
-                  <TableVirtuoso<Ticket>
-                    ref={virtuoso}
-                    atTopStateChange={setTopReached}
-                    customScrollParent={scrollerRef.current || undefined}
-                    data={tickets}
-                    components={TicketTableComponents}
-                    endReached={() => {
-                      if (!ticketsQuery.hasNextPage || ticketsQuery.isFetching) return;
-                      void ticketsQuery.fetchNextPage();
-                    }}
-                    fixedHeaderContent={() => (
-                      <TicketTableHeading>
-                        <TicketBar />
-                      </TicketTableHeading>
-                    )}
-                    computeItemKey={(_index, ticket) => ticket.id}
-                    itemContent={(_index, ticket) => <TicketTableRowContent ticket={ticket} />}
-                  />
-                </DataTableContainer>
-              </>
-            )}
+            <DataTableContainer>
+              <TableVirtuoso<Ticket>
+                ref={virtuoso}
+                atTopStateChange={setTopReached}
+                customScrollParent={scrollerRef.current || undefined}
+                data={tickets}
+                components={TicketTableComponents}
+                endReached={() => {
+                  if (!ticketsQuery.hasNextPage || ticketsQuery.isFetching) return;
+                  void ticketsQuery.fetchNextPage();
+                }}
+                fixedHeaderContent={() => (
+                  <TicketTableHeading>
+                    <TicketBar />
+                  </TicketTableHeading>
+                )}
+                computeItemKey={(_index, ticket) => ticket.id}
+                itemContent={(_index, ticket) => <TicketTableRowContent ticket={ticket} />}
+              />
+            </DataTableContainer>
           </Stack>
         </PageContainer>
         <TicketAside />
