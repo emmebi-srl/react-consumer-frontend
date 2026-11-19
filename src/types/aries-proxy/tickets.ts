@@ -210,23 +210,6 @@ export interface TicketQuoteLink {
 /** "Riepilogo" prints of the Delphi screen: the ticket system, the systems with open tickets, every system of the customer. */
 export type TicketPrintScope = 'system' | 'customer' | 'customer_systems';
 
-export interface TicketPeriodicCheck {
-  id: number;
-  systemId: number;
-  systemDescription?: string | null;
-  customerId?: number | null;
-  customerName?: string | null;
-  subscriptionName?: string | null;
-  month: number;
-  year: number;
-  expectedDate?: number | null;
-  executedDate?: number | null;
-}
-
-export interface TicketPeriodicCheckList {
-  periodicChecks: TicketPeriodicCheck[];
-}
-
 export interface TicketList {
   list: Ticket[];
 }

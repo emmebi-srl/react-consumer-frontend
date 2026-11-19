@@ -8,7 +8,7 @@ import { useModulePermission } from '~/proxies/aries-proxy/users';
 import { RouteConfig } from '~/routes/routeConfig';
 import { AriesModule } from '~/types/aries-proxy/users';
 import { formatWorkHours } from '../../ticketHelpers';
-import { EXPIRED_TAB_KEY, PERIODIC_CHECKS_TAB_KEY, useFilterState, useSetFilterState } from '../state';
+import { EXPIRED_TAB_KEY, useFilterState, useSetFilterState } from '../state';
 import TicketExpiringExportModal from './TicketExpiringExportModal';
 
 interface Props {
@@ -17,8 +17,8 @@ interface Props {
 }
 
 /**
- * Tutti / Aperti / Scaduti (open statuses of `ticket/status`) / Controlli periodici + "ore da svolgere" and page
- * actions ("In scadenza" export, new ticket).
+ * Tutti / Aperti / Scaduti (open statuses of `ticket/status`) + "ore da svolgere" and page actions ("In scadenza"
+ * export, new ticket). The periodic checks of the Delphi list are in the "Scadenze" page.
  */
 const TicketTabs: React.FC<Props> = ({ onRefresh, refreshing }) => {
   const filters = useFilterState();
@@ -27,13 +27,7 @@ const TicketTabs: React.FC<Props> = ({ onRefresh, refreshing }) => {
   const { permission } = useModulePermission(AriesModule.Tickets);
   const { data: workload } = useTicketWorkload();
 
-  const selectedTabKey = filters.periodicChecks
-    ? PERIODIC_CHECKS_TAB_KEY
-    : filters.expired
-      ? EXPIRED_TAB_KEY
-      : filters.open
-        ? OPEN_TAB_KEY
-        : ALL_TAB_KEY;
+  const selectedTabKey = filters.expired ? EXPIRED_TAB_KEY : filters.open ? OPEN_TAB_KEY : ALL_TAB_KEY;
 
   return (
     <ListTabs
@@ -41,7 +35,6 @@ const TicketTabs: React.FC<Props> = ({ onRefresh, refreshing }) => {
         { key: ALL_TAB_KEY, label: 'Tutti' },
         { key: OPEN_TAB_KEY, label: 'Aperti' },
         { key: EXPIRED_TAB_KEY, label: 'Scaduti' },
-        { key: PERIODIC_CHECKS_TAB_KEY, label: 'Controlli periodici' },
       ]}
       selectedTabKey={selectedTabKey}
       onSelect={(tab) =>
@@ -49,7 +42,6 @@ const TicketTabs: React.FC<Props> = ({ onRefresh, refreshing }) => {
           ...current,
           open: tab.key === OPEN_TAB_KEY ? true : undefined,
           expired: tab.key === EXPIRED_TAB_KEY ? true : undefined,
-          periodicChecks: tab.key === PERIODIC_CHECKS_TAB_KEY ? true : undefined,
         }))
       }
       actions={
