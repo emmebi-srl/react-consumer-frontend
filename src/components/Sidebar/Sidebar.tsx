@@ -35,6 +35,7 @@ import MailOutlined from '@mui/icons-material/MailOutlined';
 import WhatsApp from '@mui/icons-material/WhatsApp';
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import ConfirmationNumberOutlined from '@mui/icons-material/ConfirmationNumberOutlined';
+import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined';
 import ChecklistOutlined from '@mui/icons-material/ChecklistOutlined';
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
 import SettingsSuggestOutlined from '@mui/icons-material/SettingsSuggestOutlined';
@@ -152,6 +153,12 @@ const sections: SidebarSection[] = [
         label: 'Interventi',
         path: RouteConfig.InterventionsNearby.buildLink(),
         icon: <BuildOutlined />,
+        moduleId: AriesModule.Systems,
+      },
+      {
+        label: 'Scadenze',
+        path: RouteConfig.Deadlines.buildLink(),
+        icon: <EventBusyOutlined />,
         moduleId: AriesModule.Systems,
       },
       { label: 'Checklist', path: RouteConfig.ChecklistList.buildLink(), icon: <ChecklistOutlined /> },

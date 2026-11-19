@@ -2,7 +2,6 @@ import { createTableState } from '~/state/table';
 import { TicketSearchRequest, TicketUrgency } from '~/types/aries-proxy/tickets';
 
 export const EXPIRED_TAB_KEY = 'expired';
-export const PERIODIC_CHECKS_TAB_KEY = 'periodic-checks';
 
 export interface TicketFilters {
   search: string;
@@ -12,8 +11,6 @@ export interface TicketFilters {
   open?: boolean;
   /** "Scaduti" tab: open tickets with the expiration date before today. */
   expired?: boolean;
-  /** "Controlli periodici" tab: the periodic checks of the year instead of the tickets (Delphi "controlli" checkbox). */
-  periodicChecks?: boolean;
   causalId?: number;
   interventionTypeId?: number;
   urgency?: TicketUrgency;
@@ -27,8 +24,7 @@ export interface TicketFilters {
  * loaded the "Aperti" / "Scaduti" request can't be built, so it returns null.
  */
 export const toTicketSearchRequest = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  { open, expired, periodicChecks, ...filters }: TicketFilters,
+  { open, expired, ...filters }: TicketFilters,
   openStatusIds: number[] | undefined,
 ): TicketSearchRequest | null => {
   if ((open || expired) && !openStatusIds) return null;
@@ -45,7 +41,6 @@ export const defaultValues: TicketFilters = {
   statusId: undefined,
   open: undefined,
   expired: undefined,
-  periodicChecks: undefined,
   causalId: undefined,
   interventionTypeId: undefined,
   urgency: undefined,

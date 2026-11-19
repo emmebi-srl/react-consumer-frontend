@@ -27,7 +27,7 @@ const TicketBar: React.FC = () => {
   const filters = useFilterState();
   const isDirty = useIsDirty();
   const resetFilters = useResetFilters();
-  const dirtyState = useDirtyState(['open', 'expired', 'periodicChecks']);
+  const dirtyState = useDirtyState(['open', 'expired']);
   const { data: tags } = useTicketTagsSearch('');
   const updateFilter = useUpdateFilter();
 

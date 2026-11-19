@@ -12,7 +12,6 @@ import {
   TicketSystemList,
   TicketWorkload,
   TicketEventCreateRequest,
-  TicketPeriodicCheckList,
   TicketPrintScope,
   TicketQuoteLink,
   TicketTagList,
@@ -129,8 +128,4 @@ export const exportExpiringTickets = (fromDate: string, toDate: string, includeW
     params: { fromDate, toDate, includeWithoutExpiration },
     responseType: 'arraybuffer',
   });
-};
-
-export const getTicketPeriodicChecks = (params: { year: number; onlyPending?: boolean; search?: string }) => {
-  return ariesServicesClient.get<TicketPeriodicCheckList>('ticket/new/periodic-checks', { params });
 };

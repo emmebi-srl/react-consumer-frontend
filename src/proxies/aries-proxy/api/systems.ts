@@ -1,6 +1,14 @@
 import ariesServicesClient from '~/clients/aries-services-client';
 import { SearchMetadata } from '~/types/aries-proxy/shared';
-import { System, SystemResponse, SystemSearchRequest } from '~/types/aries-proxy/systems';
+import {
+  System,
+  SystemExpiringComponentList,
+  SystemExpiringComponentRequest,
+  SystemPeriodicCheckList,
+  SystemPeriodicCheckRequest,
+  SystemResponse,
+  SystemSearchRequest,
+} from '~/types/aries-proxy/systems';
 
 type SystemApiResponse = System[] | SystemResponse;
 
@@ -23,4 +31,14 @@ export const getSystemsMetadata = (req?: SystemSearchRequest) => {
   return ariesServicesClient.get<SearchMetadata>('system/metadata', {
     params: req,
   });
+};
+
+/** Periodic checks of the year ("Scadenze" page). */
+export const getSystemPeriodicChecks = (req: SystemPeriodicCheckRequest) => {
+  return ariesServicesClient.get<SystemPeriodicCheckList>('system/periodic-check', { params: req });
+};
+
+/** Installed components expiring up to toDate ("Scadenze" page). */
+export const getExpiringSystemComponents = (req: SystemExpiringComponentRequest) => {
+  return ariesServicesClient.get<SystemExpiringComponentList>('system/component/expiring', { params: req });
 };

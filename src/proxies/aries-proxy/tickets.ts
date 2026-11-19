@@ -8,7 +8,6 @@ import {
 import {
   cloneTicketQuote,
   generateTicketQuote,
-  getTicketPeriodicChecks,
   saveTicketTags,
   scheduleTicketEvent,
   searchTicketTags,
@@ -45,7 +44,6 @@ export const TicketQueryKeys = {
   customerSystems: (customerId: number) => ['TicketLookups', 'customer-systems', customerId] as const,
   customerContact: (customerId: number) => ['TicketLookups', 'customer-contact', customerId] as const,
   tags: (search: string) => ['TicketTags', search] as const,
-  periodicChecks: (params: object) => ['Tickets', 'periodic-checks', params] as const,
 };
 
 export const TicketListIncludes = 'customer,system,status,causal,intervention_type';
@@ -182,13 +180,6 @@ export const useTicketTagsSearch = (search: string) => {
     queryKey: TicketQueryKeys.tags(search),
     queryFn: async () => (await searchTicketTags(search)).data.tags,
     staleTime: 60 * 1000,
-  });
-};
-
-export const useTicketPeriodicChecks = (params: { year: number; onlyPending?: boolean; search?: string }) => {
-  return useQuery({
-    queryKey: TicketQueryKeys.periodicChecks(params),
-    queryFn: async () => (await getTicketPeriodicChecks(params)).data.periodicChecks,
   });
 };
 

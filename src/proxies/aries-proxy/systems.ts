@@ -1,8 +1,12 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import _isEmpty from 'lodash/isEmpty';
-import { getSystems, getSystemsMetadata } from './api/systems';
-import { System } from '~/types/aries-proxy/systems';
-import { SystemSearchRequest } from '~/types/aries-proxy/systems';
+import { getExpiringSystemComponents, getSystemPeriodicChecks, getSystems, getSystemsMetadata } from './api/systems';
+import {
+  System,
+  SystemExpiringComponentRequest,
+  SystemPeriodicCheckRequest,
+  SystemSearchRequest,
+} from '~/types/aries-proxy/systems';
 
 const SystemListPageSize = 100;
 const SystemAutocompletePageSize = 20;
@@ -12,6 +16,23 @@ export const SystemsQueryKeys = {
   metadata: (params: SystemSearchRequest) => ['systems', 'metadata', params] as const,
   search: (searchText: string) => ['systems', 'search', searchText] as const,
   byIds: (systemIds: number[]) => ['systems', 'byIds', [...systemIds].sort((a, b) => a - b)] as const,
+  periodicChecks: (params: SystemPeriodicCheckRequest) => ['systems', 'periodic-checks', params] as const,
+  expiringComponents: (params: SystemExpiringComponentRequest) => ['systems', 'expiring-components', params] as const,
+};
+
+export const useSystemPeriodicChecks = (params: SystemPeriodicCheckRequest) => {
+  return useQuery({
+    queryKey: SystemsQueryKeys.periodicChecks(params),
+    queryFn: async () => (await getSystemPeriodicChecks(params)).data.periodicChecks,
+  });
+};
+
+export const useExpiringSystemComponents = (params: SystemExpiringComponentRequest) => {
+  return useQuery({
+    queryKey: SystemsQueryKeys.expiringComponents(params),
+    queryFn: async () => (await getExpiringSystemComponents(params)).data.components,
+    enabled: !!params.toDate,
+  });
 };
 
 export const useSystems = (params: SystemSearchRequest) => {

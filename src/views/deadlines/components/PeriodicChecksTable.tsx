@@ -21,22 +21,22 @@ import DataTableHead from '~/components/Table/DataTableHead';
 import DataTableHeading from '~/components/Table/DataTableHeading';
 import DataTableRow from '~/components/Table/DataTableRow';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
-import { useTicketPeriodicChecks } from '~/proxies/aries-proxy/tickets';
+import { useSystemPeriodicChecks } from '~/proxies/aries-proxy/systems';
 import { RouteConfig } from '~/routes/routeConfig';
 import { getStringDateByUnixtimestamp } from '~/utils/datetime-utils';
 
 const MONTHS = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
 /**
- * Periodic checks of the year (impianto_abbonamenti_mesi), the rows the Delphi ticket list adds with its "controlli"
+ * Periodic checks of the year (impianto_abbonamenti_mesi), the rows the Delphi ticket list added with its "controlli"
  * checkbox. Read-only: they are executed with the reports.
  */
-const TicketPeriodicChecks: React.FC = () => {
+const PeriodicChecksTable: React.FC = () => {
   const [year, setYear] = useState(new Date().getFullYear());
   const [onlyPending, setOnlyPending] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [search] = useDebounce(searchText, 300);
-  const query = useTicketPeriodicChecks({ year, onlyPending, search: search || undefined });
+  const query = useSystemPeriodicChecks({ year, onlyPending, search: search || undefined });
   const checks = query.data ?? [];
 
   return (
@@ -151,4 +151,4 @@ const TicketPeriodicChecks: React.FC = () => {
   );
 };
 
-export default TicketPeriodicChecks;
+export default PeriodicChecksTable;
