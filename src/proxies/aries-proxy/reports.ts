@@ -9,6 +9,7 @@ import {
   getReportPdf,
   getReports,
   getReportsMetadata,
+  getReportStatuses,
   updateReport,
 } from './api/reports';
 
@@ -20,6 +21,14 @@ export const ReportQueryKeys = {
   metadata: (params: ReportSearchRequest) => ['Reports', 'metadata', params] as const,
   mobile: ['Reports', 'mobile'] as const,
   search: (params: ReportSearchRequest) => ['Reports', 'search', params] as const,
+  statuses: ['ReportStatuses'] as const,
+};
+
+export const useReportStatuses = () => {
+  return useQuery({
+    queryKey: ReportQueryKeys.statuses,
+    queryFn: async () => (await getReportStatuses()).data,
+  });
 };
 
 export const useReportsSearch = (params: ReportSearchRequest) => {

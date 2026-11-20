@@ -5,8 +5,13 @@ import {
   ReportMobileInterventionList,
   ReportSave,
   ReportSearchRequest,
+  ReportStatusList,
 } from '~/types/aries-proxy/reports';
 import { SearchMetadata } from '~/types/aries-proxy/shared';
+
+export const getReportStatuses = () => {
+  return ariesServicesClient.get<ReportStatusList>('report/status');
+};
 
 export const getReports = (req: ReportSearchRequest) => {
   return ariesServicesClient.get<ReportList>('report/new', { params: req });
