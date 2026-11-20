@@ -21,10 +21,13 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import PageContainer from '~/components/Layout/PageContainer';
+import ConfirmationModal from '~/components/Modals/ConfirmationModal';
+import { useModal } from '~/modals/Modal';
 import {
   useCreateReport,
   useCreateReportFromMobile,
   useReportById,
+  useReportStatuses,
   useUpdateReport,
 } from '~/proxies/aries-proxy/reports';
 import {
@@ -37,6 +40,7 @@ import {
 } from '~/types/aries-proxy/reports';
 import { RouteConfig } from '~/routes/routeConfig';
 import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
+import { INSTALLATION_WITHOUT_JOB_QUESTION, needsInstallationJobConfirmation } from './installationJobReminder';
 
 interface FormState {
   cost: string;
@@ -180,6 +184,8 @@ const ReportEditView = () => {
 
   const reportQuery = useReportById(parsedYear, parsedId);
   const report = reportQuery.data?.reports[0];
+  const reportStatusesQuery = useReportStatuses();
+  const modal = useModal();
   const createReport = useCreateReport();
   const createFromMobile = useCreateReportFromMobile();
   const updateReport = useUpdateReport();
@@ -271,6 +277,25 @@ const ReportEditView = () => {
     }
 
     const payload = buildSavePayload();
+
+    // The web has no job field: an existing link (made in Aries) comes with the report detail and is kept on save.
+    const askJobConfirmation = needsInstallationJobConfirmation({
+      interventionTypeId: payload.interventionTypeId,
+      statusId: payload.statusId,
+      statuses: reportStatusesQuery.data?.statuses,
+      jobLink: isEditMode ? report?.jobLink : null,
+    });
+    if (askJobConfirmation) {
+      const result = await modal.showModal({
+        component: ConfirmationModal,
+        props: {
+          title: 'Rapporto di installazione',
+          text: INSTALLATION_WITHOUT_JOB_QUESTION,
+        },
+      });
+      if (result.action !== 'YES') return;
+    }
+
     if (isEditMode) {
       const result = await updateReport.mutateAsync({ id: parsedId, year: parsedYear, data: payload });
       navigateToSavedReport(result.reports[0]);
