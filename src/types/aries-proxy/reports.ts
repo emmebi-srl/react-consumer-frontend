@@ -33,7 +33,34 @@ export interface Report {
   technicians?: ReportTechnician[] | null;
   laborRows?: ReportLaborRow[] | null;
   materials?: ReportMaterial[] | null;
+  /** Job lot linked to the report (`commessa_rapporto`). Detail only, missing when there is none. */
+  jobLink?: ReportJobLink | null;
 }
+
+export interface ReportJobLink {
+  jobId: number;
+  jobYear: number;
+  subJobId: number;
+  lotId: number;
+}
+
+export interface ReportStatus {
+  id: number;
+  name: string;
+  description?: string | null;
+  /** Raw Delphi color: convert it with DelphiColorChip / color-utils. */
+  color: string;
+  isBlocked: boolean;
+  /** `stato_rapporto.fatturato`: a report in this status counts as invoiced. */
+  isInvoiced: boolean;
+}
+
+export interface ReportStatusList {
+  statuses: ReportStatus[];
+}
+
+/** `tipo_intervento.Id_tipo` of INSTALLAZIONE. */
+export const INSTALLATION_INTERVENTION_TYPE_ID = 1;
 
 export interface ReportTechnician {
   highwayCost: number;
