@@ -335,6 +335,7 @@ Only opening the module is applied everywhere. The DDT and email pages read the 
 
 - The sidebar "Impostazioni" section holds the settings pages: "Azienda" (`RouteConfig.CompanySettings`, module Settings; it used to be in the user menu) and "Servizi" (`RouteConfig.ServiceSettings`, `settings/services`, admin only). Put new settings pages there.
 - Services (`src/views/settings/services`, Delphi `TFSettingsServicesConfig`): tab "Alert interni" (SMTP, services, recipients) and tab "Promemoria cliente" (SMTP + SMS host, reminders, placeholders). Each card saves on its own with an explicit "Salva" (Delphi saved on every field exit). In campaign delivery the schedule is hidden, except for the invoices statement (`CUSTOMER_INVOICES_STATEMENT_REMINDER_ID`, `showsSchedule`), and the email/SMS texts are not used.
+- Alert interval types come from the server (`allowedIntervalTypes` of each alert, fallback `ALERT_INTERVAL_TYPES`): "Anteprima estratti conto" (alert 6, the email with the statements the reminder 10 will send) also allows "Giorni prima" (N days before the statement day).
 
 ## Notes For Product Search/Detail Work
 

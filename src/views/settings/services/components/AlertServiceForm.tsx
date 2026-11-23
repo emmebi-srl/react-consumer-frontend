@@ -67,7 +67,7 @@ const AlertServiceForm: React.FC<{ service: ServiceAlertConfig }> = ({ service }
             control={form.control}
             typeName="intervalType"
             valueName="intervalValue"
-            intervalTypes={ALERT_INTERVAL_TYPES}
+            intervalTypes={service.allowedIntervalTypes?.length ? service.allowedIntervalTypes : ALERT_INTERVAL_TYPES}
           />
           <Grid size={{ xs: 12, sm: 6 }}>
             <Controller
