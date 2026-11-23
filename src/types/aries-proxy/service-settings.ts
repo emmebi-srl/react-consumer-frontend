@@ -50,6 +50,8 @@ export interface ServiceAlertConfig {
   lastExecutionDate: number;
   emailSubject: string;
   emailBody: string;
+  /** Interval types the server accepts for this alert (DaysBefore only for the invoices statement preview). */
+  allowedIntervalTypes?: ServiceIntervalType[];
 }
 
 export interface ServiceAlertConfigList {
