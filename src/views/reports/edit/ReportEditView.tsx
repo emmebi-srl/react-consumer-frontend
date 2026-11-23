@@ -30,6 +30,7 @@ import {
   useReportStatuses,
   useUpdateReport,
 } from '~/proxies/aries-proxy/reports';
+import { useSystemsByIds } from '~/proxies/aries-proxy/systems';
 import {
   Report,
   ReportFromMobile,
@@ -41,6 +42,14 @@ import {
 import { RouteConfig } from '~/routes/routeConfig';
 import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
 import { INSTALLATION_WITHOUT_JOB_QUESTION, needsInstallationJobConfirmation } from './installationJobReminder';
+import ReportOutputsFields from './components/ReportOutputsFields';
+import {
+  buildOutputTypeIds,
+  getReportOutputsState,
+  needsSystemWarrantyConfirmation,
+  ReportOutputsState,
+  SYSTEM_UNDER_WARRANTY_QUESTION,
+} from './reportOutputs';
 
 interface FormState {
   cost: string;
@@ -194,6 +203,10 @@ const ReportEditView = () => {
   const [technicians, setTechnicians] = useState<ReportTechnician[]>([]);
   const [laborRows, setLaborRows] = useState<ReportLaborRow[]>([]);
   const [materials, setMaterials] = useState<ReportMaterial[]>([]);
+  const [outputs, setOutputs] = useState<ReportOutputsState>(() => getReportOutputsState());
+  const [phoneAvailability, setPhoneAvailability] = useState(false);
+  const formSystemId = numericValue(form.systemId);
+  const systemsQuery = useSystemsByIds(!isEditMode && formSystemId ? [formSystemId] : []);
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -203,7 +216,12 @@ const ReportEditView = () => {
     setTechnicians(report.technicians ?? []);
     setLaborRows(report.laborRows ?? []);
     setMaterials(report.materials ?? []);
+    setOutputs(getReportOutputsState(report.outputTypeIds));
+    setPhoneAvailability(report.phoneAvailability ?? false);
   }, [isEditMode, report]);
+
+  // A backend without outputs in the detail would otherwise get them overwritten with "fuori garanzia" only.
+  const canSaveOutputs = !isEditMode || Array.isArray(report?.outputTypeIds);
 
   useEffect(() => {
     if (!isMobileMode) return;
@@ -236,6 +254,8 @@ const ReportEditView = () => {
     laborRows,
     materials,
     notesHighlights: form.notesHighlights,
+    outputTypeIds: canSaveOutputs ? buildOutputTypeIds(outputs) : undefined,
+    phoneAvailability: canSaveOutputs ? phoneAvailability : undefined,
     reportNumber: form.reportNumber,
     reportTypeId: 2,
     requestedBy: form.requestedBy,
@@ -276,7 +296,28 @@ const ReportEditView = () => {
       return;
     }
 
-    const payload = buildSavePayload();
+    let payload = buildSavePayload();
+
+    const system = formSystemId ? systemsQuery.data?.[formSystemId] : undefined;
+    const askSystemWarranty = needsSystemWarrantyConfirmation({
+      isNewReport: !isEditMode,
+      underWarranty: outputs.underWarranty,
+      warrantyDeadline: system?.warrantlyDeadline,
+    });
+    if (askSystemWarranty) {
+      const result = await modal.showModal({
+        component: ConfirmationModal,
+        props: {
+          title: 'Garanzia',
+          text: SYSTEM_UNDER_WARRANTY_QUESTION,
+        },
+      });
+      if (result.action === 'YES') {
+        const underWarrantyOutputs = { ...outputs, underWarranty: true };
+        setOutputs(underWarrantyOutputs);
+        payload = { ...payload, outputTypeIds: buildOutputTypeIds(underWarrantyOutputs) };
+      }
+    }
 
     // The web has no job field: an existing link (made in Aries) comes with the report detail and is kept on save.
     const askJobConfirmation = needsInstallationJobConfirmation({
@@ -540,6 +581,16 @@ const ReportEditView = () => {
 
         {!isMobileMode ? (
           <>
+            <Divider />
+            <Section title="Uscite">
+              <ReportOutputsFields
+                value={outputs}
+                onChange={setOutputs}
+                phoneAvailability={phoneAvailability}
+                onPhoneAvailabilityChange={setPhoneAvailability}
+              />
+            </Section>
+
             <Divider />
             <Section title="Relazione">
               <Grid container spacing={2}>
