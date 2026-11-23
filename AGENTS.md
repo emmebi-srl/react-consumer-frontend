@@ -306,6 +306,11 @@ When extending system subscription flows:
 - Free text replies are allowed by Meta only within 24 hours from the last message of the customer: show the reply box only when `canReply`, and the window end (`replyWindowEnd`) under it. The server checks the window too and answers 400 with the reason. A reply refused by Meta is not an HTTP error: it comes back as an outbound message with status `failed` and `error`; check it after sending.
 - Enter sends, Shift+Enter goes to a new line. Message type labels for media without text are in `whatsappMessageLabels.ts`, shared with the list.
 
+## Notes For Report Outputs
+
+- The report editor (`src/views/reports/edit`) has the "Uscite" section of the Delphi editor (`ReportOutputsFields`): warranty radio, output checkboxes, "Da reperibilità telefonica". The rules are in `reportOutputs.ts` (tested): always exactly one of 6/7, codes without a checkbox are kept as they are, and a new report on a system still under warranty asks "Impianto in garanzia, vuoi considerarlo tale?" like Delphi.
+- The outputs are sent only when the detail returned `outputTypeIds`, so an older backend can't overwrite them. "Da mobile" sends nothing: the server copies them from the mobile report.
+
 ## Module Permissions
 
 **Always do this**: every new page that belongs to an Aries module must be protected, in the same change that adds it. If the module has no `AriesModule` id yet, add it. If a page has no Delphi module, say so explicitly when you hand over the work instead of skipping silently.
