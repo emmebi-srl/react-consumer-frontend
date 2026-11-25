@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Delete, PictureAsPdf } from '@mui/icons-material';
 import { Alert, Button, Chip, CircularProgress, Stack } from '@mui/material';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import DetailPageHeader from '~/components/Layout/DetailPageHeader';
 import FormSaveBar from '~/components/Layout/FormSaveBar';
 import PageContainer from '~/components/Layout/PageContainer';
@@ -45,6 +45,16 @@ const DdtEditorView = () => {
   const year = params.year ? Number(params.year) : undefined;
   const id = params.ddtId ? Number(params.ddtId) : undefined;
   const isNew = !id;
+  // From the invoice editor ("Nessun DDT associato al rapporto"): customer and report to import on a new DDT.
+  const [searchParams] = useSearchParams();
+  const presetCustomerId = Number(searchParams.get('customerId')) || null;
+  const presetCustomerName = searchParams.get('customerName') ?? '';
+  const presetReportId = Number(searchParams.get('reportId')) || null;
+  const presetReportYear = Number(searchParams.get('reportYear')) || null;
+  const presetReport =
+    isNew && presetCustomerId && presetReportId && presetReportYear
+      ? { id: presetReportId, year: presetReportYear }
+      : undefined;
   const navigate = useNavigate();
   const modal = useModal();
   const snackbar = useSnackbar();
@@ -86,7 +96,7 @@ const DdtEditorView = () => {
       return fromDdt(ddt, causal?.defaultDepotId ?? '');
     }
     const causal = causals.find((item) => item.id === DEFAULT_CAUSAL_ID) ?? causals.at(0);
-    return newDdtValues({
+    const values = newDdtValues({
       causalId: causal?.id ?? '',
       defaultDepotId: causal?.defaultDepotId ?? '',
       deliveryCareId: caresData.deliveryCares.at(0)?.id ?? '',
@@ -94,7 +104,10 @@ const DdtEditorView = () => {
       aspects: aspectsData.defaultMask,
       printTransportTime: aspectsData.defaultPrintTransportTime,
     });
-  }, [isNew, ddt, causalsData, caresData, methodsData, aspectsData]);
+    return presetCustomerId
+      ? { ...values, recipient: { id: presetCustomerId, name: presetCustomerName || `Cliente ${presetCustomerId}` } }
+      : values;
+  }, [isNew, ddt, causalsData, caresData, methodsData, aspectsData, presetCustomerId, presetCustomerName]);
 
   useEffect(() => {
     if (initialValues) form.reset(initialValues);
@@ -260,7 +273,7 @@ const DdtEditorView = () => {
                 showTotals={!!permission?.canTotals}
               />
               <DdtTransportCard />
-              <DdtDocumentsCard isNew={isNew} />
+              <DdtDocumentsCard isNew={isNew} presetReport={presetReport} />
               {!isNew && ddt ? <DdtSignaturesCard ddt={ddt} canEdit={!!permission?.canEdit} /> : null}
             </>
           )}
