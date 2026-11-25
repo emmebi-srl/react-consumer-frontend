@@ -52,6 +52,9 @@ const EmailListView = asyncComponent(() => import('../views/emails/EmailListView
 const DdtListView = asyncComponent(() => import('../views/ddts/list/DdtListView'));
 const DdtEditorView = asyncComponent(() => import('../views/ddts/editor/DdtEditorView'));
 const DdtSettingsView = asyncComponent(() => import('../views/ddts/settings/DdtSettingsView'));
+const InvoiceListView = asyncComponent(() => import('../views/invoices/list/InvoiceListView'));
+const InvoiceEditorView = asyncComponent(() => import('../views/invoices/editor/InvoiceEditorView'));
+const InvoiceSettingsView = asyncComponent(() => import('../views/invoices/settings/InvoiceSettingsView'));
 const TicketListView = asyncComponent(() => import('../views/tickets/list/TicketListView'));
 const TicketEditorView = asyncComponent(() => import('../views/tickets/editor/TicketEditorView'));
 const DeadlinesView = asyncComponent(() => import('../views/deadlines/DeadlinesView'));
@@ -308,6 +311,38 @@ const routes: RouteObject[] = [
             element: (
               <ModuleGuard moduleId={AriesModule.Ddts}>
                 <DdtEditorView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.InvoiceList.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Invoices}>
+                <InvoiceListView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.InvoiceNew.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Invoices}>
+                <InvoiceEditorView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.InvoiceSettings.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Invoices}>
+                <InvoiceSettingsView />
+              </ModuleGuard>
+            ),
+          },
+          {
+            path: RouteConfig.InvoiceDetail.template,
+            element: (
+              <ModuleGuard moduleId={AriesModule.Invoices}>
+                <InvoiceEditorView />
               </ModuleGuard>
             ),
           },

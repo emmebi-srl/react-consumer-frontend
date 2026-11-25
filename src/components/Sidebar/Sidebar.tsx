@@ -30,6 +30,7 @@ import RequestQuoteOutlined from '@mui/icons-material/RequestQuoteOutlined';
 import AssignmentOutlined from '@mui/icons-material/AssignmentOutlined';
 import LocalShippingOutlined from '@mui/icons-material/LocalShippingOutlined';
 import ReceiptLongOutlined from '@mui/icons-material/ReceiptLongOutlined';
+import ReceiptOutlined from '@mui/icons-material/ReceiptOutlined';
 import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
 import MailOutlined from '@mui/icons-material/MailOutlined';
 import WhatsApp from '@mui/icons-material/WhatsApp';
@@ -118,6 +119,12 @@ const sections: SidebarSection[] = [
         path: RouteConfig.DdtList.buildLink(),
         icon: <LocalShippingOutlined />,
         moduleId: AriesModule.Ddts,
+      },
+      {
+        label: 'Fatture',
+        path: RouteConfig.InvoiceList.buildLink(),
+        icon: <ReceiptOutlined />,
+        moduleId: AriesModule.Invoices,
       },
       {
         label: 'Fatture Fornitori',

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Close, Download } from '@mui/icons-material';
 import {
   Button,
@@ -38,13 +38,15 @@ const documentLabel = (document: DdtDocument) =>
 
 interface Props {
   isNew: boolean;
+  /** Report to import as soon as the customer is set (new DDT opened from the invoice editor). */
+  presetReport?: { id: number; year: number };
 }
 
 /**
  * "Documenti" of the Delphi editor: reports (ddt_rapporto) and pick lists (lista_prelievo) of the customer.
  * Importing one adds its material to the rows, like TFDDTEditor.ImportReport and FillFormByWithdrawal.
  */
-const DdtDocumentsCard: React.FC<Props> = ({ isNew }) => {
+const DdtDocumentsCard: React.FC<Props> = ({ isNew, presetReport }) => {
   const snackbar = useSnackbar();
   const { control, getValues, setValue } = useFormContext<DdtFormValues>();
   const reportLinks = useFieldArray({ control, name: 'reportLinks', keyName: 'fieldKey' });
@@ -71,6 +73,16 @@ const DdtDocumentsCard: React.FC<Props> = ({ isNew }) => {
       ? !reportLinks.fields.some((link) => link.reportId === document.id && link.reportYear === document.year)
       : !pickLists.fields.some((list) => list.listId === document.id && list.year === document.year),
   );
+
+  // TFDDTEditor.ImportReport called by the invoice editor: once, when the preset customer is in the form.
+  const presetDone = useRef(false);
+  useEffect(() => {
+    if (!presetReport || presetDone.current || !isNew || !customerId) return;
+    presetDone.current = true;
+    void importDocument({ type: 'report', id: presetReport.id, year: presetReport.year });
+    // importDocument reads the form when called: only the preset and the customer matter here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetReport, isNew, customerId]);
 
   if (!isCustomer) return null;
 
