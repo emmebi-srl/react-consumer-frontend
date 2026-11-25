@@ -117,6 +117,7 @@ export interface PasskeyCeremony {
 export const AriesModule = {
   Customers: 1,
   Products: 2,
+  Invoices: 3,
   Reports: 4,
   Ddts: 6,
   Quotes: 9,
