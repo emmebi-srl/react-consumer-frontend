@@ -6,6 +6,9 @@ import {
   WhatsappConversationReply,
   WhatsappReceivedMessageList,
   WhatsappReceivedMessageSearchRequest,
+  WhatsappSentMessageList,
+  WhatsappSentMessageSearchRequest,
+  WhatsappSettings,
   WhatsappTemplateCreate,
   WhatsappTemplateList,
   WhatsappTemplateSyncResult,
@@ -20,6 +23,15 @@ export const getWhatsappReceivedMessagesMetadata = (req?: WhatsappReceivedMessag
   return ariesServicesClient.get<SearchMetadata>('whatsapp/received-messages/metadata', { params: req });
 };
 
+/** Messages we sent (campaign templates and operator replies), newest first. */
+export const getWhatsappSentMessages = (req?: WhatsappSentMessageSearchRequest) => {
+  return ariesServicesClient.get<WhatsappSentMessageList>('whatsapp/sent-messages', { params: req });
+};
+
+export const getWhatsappSentMessagesMetadata = (req?: WhatsappSentMessageSearchRequest) => {
+  return ariesServicesClient.get<SearchMetadata>('whatsapp/sent-messages/metadata', { params: req });
+};
+
 export const getWhatsappTemplates = () => {
   return ariesServicesClient.get<WhatsappTemplateList>('whatsapp/templates');
 };
@@ -32,6 +44,14 @@ export const createWhatsappTemplate = (data: WhatsappTemplateCreate) => {
 /** Reads the templates from WhatsApp Manager and updates the Aries list. */
 export const syncWhatsappTemplates = () => {
   return ariesServicesClient.post<WhatsappTemplateSyncResult>('whatsapp/templates/sync');
+};
+
+export const getWhatsappSettings = () => {
+  return ariesServicesClient.get<WhatsappSettings>('whatsapp/settings');
+};
+
+export const saveWhatsappSettings = (data: WhatsappSettings) => {
+  return ariesServicesClient.put<WhatsappSettings>('whatsapp/settings', data);
 };
 
 /** Messages and replies of one number (the phone is the conversation). */

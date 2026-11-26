@@ -301,10 +301,14 @@ When extending system subscription flows:
 
 ## Notes For WhatsApp Conversations
 
-- `RouteConfig.WhatsappMessageList` (`whatsapp/messages`) lists the messages written by the customers; a click on a row opens `WhatsappConversationModal` (`src/views/whatsapp/components`) for the sender phone (links to customer/campaign inside the row `stopPropagation`). The phone is digits only, as Meta sends it.
+- `RouteConfig.WhatsappMessageList` (`whatsapp/messages`) has two tabs (`ListTabs`, `?tab=sent`): "Ricevuti" (messages written by the customers) and "Inviati" (`WhatsappSentMessagesTable`, `useWhatsappSentMessages`: campaign templates and operator replies, key `kind` + `id`, status chip `WhatsappSentStatusChip`). "Aggiorna" invalidates `WhatsappQueryKeys.all`. In both tabs a click on a row opens `WhatsappConversationModal` (`src/views/whatsapp/components`) for the sender phone (links to customer/campaign inside the row `stopPropagation`). The phone is digits only, as Meta sends it.
 - The modal reads `GET whatsapp/conversations/{phone}` (`useWhatsappConversation`, refreshed every 15 seconds because new messages arrive through the Meta webhook) and replies with `useSendWhatsappReply`, which writes the returned conversation into the query cache.
 - Free text replies are allowed by Meta only within 24 hours from the last message of the customer: show the reply box only when `canReply`, and the window end (`replyWindowEnd`) under it. The server checks the window too and answers 400 with the reason. A reply refused by Meta is not an HTTP error: it comes back as an outbound message with status `failed` and `error`; check it after sending.
 - Enter sends, Shift+Enter goes to a new line. Message type labels for media without text are in `whatsappMessageLabels.ts`, shared with the list.
+- The list rows carry `senderPhone` as `+<digits>`: the modal strips it to digits itself.
+- The conversation also contains the campaign templates (`type === WhatsappTemplateMessageType`): shown with template name and campaign link, no text (not stored). Message keys are `direction-type-id` (`getMessageKey`): ids repeat across the three sources.
+- Outside the 24 hours the info box offers "Rispondi via email" (email module `canInsert`): `EmailComposeModal` with the first of `customerEmails` (contacts with that phone first, then the main contact) and the last customer message quoted.
+- "Impostazioni" in the list header opens `WhatsappSettingsModal` (`GET/PUT whatsapp/settings`): fallback recipients of the messages not linked to a campaign (or whose campaign has no notification addresses).
 
 ## Notes For Report Outputs
 
