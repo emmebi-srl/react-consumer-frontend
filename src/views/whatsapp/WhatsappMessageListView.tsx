@@ -1,4 +1,4 @@
-import { Refresh } from '@mui/icons-material';
+import { Refresh, Settings } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -13,11 +13,12 @@ import {
   Typography,
 } from '@mui/material';
 import { useMemo, useRef, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { TableComponents, TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import CollapsibleFilters, { AdditionalFilters, PrimaryFilters } from '~/components/Filters/CollapsibleFilters';
 import InlineSearchFilter from '~/components/Filters/InlineSearchFilter';
-import ListPageHeader from '~/components/Layout/ListPageHeader';
+import ListTabs from '~/components/Layout/ListTabs';
 import PageContainer from '~/components/Layout/PageContainer';
 import DataTable from '~/components/Table/DataTable';
 import DataTableBody from '~/components/Table/DataTableBody';
@@ -28,7 +29,11 @@ import DataTableRow from '~/components/Table/DataTableRow';
 import Metadata from '~/components/Table/Metadata';
 import ScrollToTopButton from '~/components/Table/ScrollToTopButton';
 import { MainLabel, SecondaryLabel } from '~/components/Table/TableLabels';
-import { useWhatsappReceivedMessages, useWhatsappReceivedMessagesMetadata } from '~/proxies/aries-proxy/whatsapp';
+import {
+  useWhatsappReceivedMessages,
+  useWhatsappReceivedMessagesMetadata,
+  WhatsappQueryKeys,
+} from '~/proxies/aries-proxy/whatsapp';
 import { RouteConfig } from '~/routes/routeConfig';
 import {
   WhatsappNotificationStatus,
@@ -38,6 +43,8 @@ import {
 import { getStringDateTimeByUnixtimestamp } from '~/utils/datetime-utils';
 import { useModal } from '~/modals/Modal';
 import WhatsappConversationModal from './components/WhatsappConversationModal';
+import WhatsappSentMessagesTable from './components/WhatsappSentMessagesTable';
+import WhatsappSettingsModal from './components/WhatsappSettingsModal';
 import { getWhatsappMessageText } from './whatsappMessageLabels';
 
 interface MessageFilters {
@@ -252,7 +259,7 @@ const MessageTableRowContent: React.FC<{ message: WhatsappReceivedMessage }> = (
 };
 
 /** Messages written by the customers on WhatsApp: replies to the campaigns and button presses. */
-const WhatsappMessageListView = () => {
+const ReceivedMessagesTable = () => {
   const [topReached, setTopReached] = useState(true);
   const [filters, setFilters] = useState<MessageFilters>(defaultFilters);
   const virtuoso = useRef<TableVirtuosoHandle>(null);
@@ -286,62 +293,94 @@ const WhatsappMessageListView = () => {
   );
 
   return (
+    <>
+      {messagesQuery.isError ? <Alert severity="error">Non sono riuscito a caricare i messaggi.</Alert> : null}
+
+      <ScrollToTopButton
+        onClick={() => virtuoso.current?.scrollToIndex({ index: 0, align: 'start', behavior: 'smooth' })}
+        visible={!topReached}
+      />
+      <DataTableContainer sx={{ minHeight: 480 }}>
+        <TableVirtuoso<WhatsappReceivedMessage, MessageTableContext>
+          ref={virtuoso}
+          context={tableContext}
+          atTopStateChange={setTopReached}
+          atTopThreshold={100}
+          overscan={{ main: 1000, reverse: 1000 }}
+          data={messages}
+          components={MessageTableComponents}
+          endReached={() => {
+            if (!messagesQuery.hasNextPage || messagesQuery.isFetching) {
+              return;
+            }
+
+            messagesQuery.fetchNextPage();
+          }}
+          fixedHeaderContent={() => (
+            <MessageTableHeading>
+              <MessageFiltersBar
+                filters={filters}
+                filteredCount={metadataQuery.data?.metadata.filteredCount ?? messages.length}
+                totalCount={metadataQuery.data?.metadata.totalCount ?? 0}
+                onReset={() => setFilters(defaultFilters)}
+                onUpdate={(name, value) => setFilters((current) => ({ ...current, [name]: value }))}
+              />
+            </MessageTableHeading>
+          )}
+          computeItemKey={(_index, message) => message.id}
+          itemContent={(_index, message) => <MessageTableRowContent message={message} />}
+        />
+      </DataTableContainer>
+    </>
+  );
+};
+
+const RECEIVED_TAB = 'received';
+const SENT_TAB = 'sent';
+
+const tabs = [
+  { key: RECEIVED_TAB, label: 'Ricevuti' },
+  { key: SENT_TAB, label: 'Inviati' },
+];
+
+/** WhatsApp messages: received from the customers, or sent by us (campaign templates and replies). */
+const WhatsappMessageListView = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get('tab') === SENT_TAB ? SENT_TAB : RECEIVED_TAB;
+  const modal = useModal();
+  const queryClient = useQueryClient();
+  const fetchingCount = useIsFetching({ queryKey: WhatsappQueryKeys.all });
+
+  return (
     <PageContainer>
       <Stack spacing={3} direction="column" sx={{ flexGrow: 1, minHeight: 0 }}>
-        <ListPageHeader
-          title="Messaggi WhatsApp ricevuti"
-          endActions={
-            <Button
-              variant="outlined"
-              startIcon={<Refresh />}
-              onClick={() => {
-                messagesQuery.refetch();
-                metadataQuery.refetch();
-              }}
-              disabled={messagesQuery.isFetching || metadataQuery.isFetching}
-            >
-              Aggiorna
-            </Button>
+        <ListTabs
+          tabs={tabs}
+          selectedTabKey={tab}
+          onSelect={(selected) =>
+            setSearchParams(selected.key === SENT_TAB ? { tab: SENT_TAB } : {}, { replace: true })
+          }
+          actions={
+            <>
+              <Button
+                variant="outlined"
+                startIcon={<Settings />}
+                onClick={() => void modal.showModal({ component: WhatsappSettingsModal, props: {} })}
+              >
+                Impostazioni
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<Refresh />}
+                onClick={() => void queryClient.invalidateQueries({ queryKey: WhatsappQueryKeys.all })}
+                disabled={fetchingCount > 0}
+              >
+                Aggiorna
+              </Button>
+            </>
           }
         />
-
-        {messagesQuery.isError ? <Alert severity="error">Non sono riuscito a caricare i messaggi.</Alert> : null}
-
-        <ScrollToTopButton
-          onClick={() => virtuoso.current?.scrollToIndex({ index: 0, align: 'start', behavior: 'smooth' })}
-          visible={!topReached}
-        />
-        <DataTableContainer sx={{ minHeight: 480 }}>
-          <TableVirtuoso<WhatsappReceivedMessage, MessageTableContext>
-            ref={virtuoso}
-            context={tableContext}
-            atTopStateChange={setTopReached}
-            atTopThreshold={100}
-            overscan={{ main: 1000, reverse: 1000 }}
-            data={messages}
-            components={MessageTableComponents}
-            endReached={() => {
-              if (!messagesQuery.hasNextPage || messagesQuery.isFetching) {
-                return;
-              }
-
-              messagesQuery.fetchNextPage();
-            }}
-            fixedHeaderContent={() => (
-              <MessageTableHeading>
-                <MessageFiltersBar
-                  filters={filters}
-                  filteredCount={metadataQuery.data?.metadata.filteredCount ?? messages.length}
-                  totalCount={metadataQuery.data?.metadata.totalCount ?? 0}
-                  onReset={() => setFilters(defaultFilters)}
-                  onUpdate={(name, value) => setFilters((current) => ({ ...current, [name]: value }))}
-                />
-              </MessageTableHeading>
-            )}
-            computeItemKey={(_index, message) => message.id}
-            itemContent={(_index, message) => <MessageTableRowContent message={message} />}
-          />
-        </DataTableContainer>
+        {tab === SENT_TAB ? <WhatsappSentMessagesTable /> : <ReceivedMessagesTable />}
       </Stack>
     </PageContainer>
   );
