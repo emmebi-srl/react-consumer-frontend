@@ -17,6 +17,7 @@ import {
   getInvoiceLookups,
   getInvoiceSettings,
   getInvoicePdf,
+  getSdICoopStatus,
   getInvoicesMetadata,
   getInvoicesTotals,
   promoteInvoice,
@@ -41,6 +42,7 @@ export const InvoiceQueryKeys = {
   editorDefaults: ['Invoices', 'editor-defaults'] as const,
   lookups: ['InvoiceLookups'] as const,
   settings: ['InvoiceSettings'] as const,
+  sdiCoopStatus: ['InvoiceSdICoopStatus'] as const,
   availableDocuments: (customerId: number) => ['InvoiceAvailableDocuments', customerId] as const,
   customerDefaults: (customerId: number, date: string) => ['InvoiceCustomerDefaults', customerId, date] as const,
   banks: (search: string, companyBanks: boolean) => ['InvoiceBanks', search, companyBanks] as const,
@@ -201,6 +203,14 @@ export const useInvoiceSettings = () => {
   return useQuery({
     queryKey: InvoiceQueryKeys.settings,
     queryFn: async () => (await getInvoiceSettings()).data,
+  });
+};
+
+/** SDICoop channel state for the invoice settings. */
+export const useSdICoopStatus = () => {
+  return useQuery({
+    queryKey: InvoiceQueryKeys.sdiCoopStatus,
+    queryFn: async () => (await getSdICoopStatus()).data,
   });
 };
 

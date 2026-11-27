@@ -347,6 +347,27 @@ export interface SignCertificate {
   isActive: boolean;
 }
 
+/** Public data of a SDICoop certificate. */
+export interface SdICoopCertificate {
+  subject: string;
+  issuer: string;
+  serialNumber: string;
+  validFrom: number;
+  validTo: number;
+  /** Negative when expired. */
+  daysToExpiry: number;
+}
+
+/** State of the SDICoop channel (SdICoopService), GET invoice/sdicoop-status. */
+export interface SdICoopStatus {
+  /** False for installations without a SDICoop channel: nothing to show. */
+  enabled: boolean;
+  serviceAvailable: boolean;
+  message?: string | null;
+  environment?: string | null;
+  clientCertificate?: SdICoopCertificate | null;
+}
+
 /** TFInvoiceSettings (fattura_configurazione, impostazioni_fattura "codcli", configurazione_loghi "FATTURA"). */
 export interface InvoiceSettings {
   firstColumnIsBrand: boolean;

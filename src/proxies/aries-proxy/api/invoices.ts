@@ -15,6 +15,7 @@ import {
   InvoiceSearchRequest,
   InvoiceSettings,
   InvoiceTotals,
+  SdICoopStatus,
 } from '~/types/aries-proxy/invoices';
 import { SearchMetadata } from '~/types/aries-proxy/shared';
 
@@ -106,6 +107,11 @@ export const getInvoiceSettings = () => {
 
 export const saveInvoiceSettings = (data: InvoiceSettings) => {
   return ariesServicesClient.put<InvoiceSettings>('invoice/settings', data);
+};
+
+/** SDICoop channel: is the service running and until when its certificate is valid. */
+export const getSdICoopStatus = () => {
+  return ariesServicesClient.get<SdICoopStatus>('invoice/sdicoop-status');
 };
 
 /** Courtesy PDF generated now (the "pdf" action returns the one archived by Delphi). */

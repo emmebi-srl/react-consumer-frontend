@@ -35,6 +35,7 @@ import {
 import { AriesModule } from '~/types/aries-proxy/users';
 import { getApiErrorMessage } from '~/utils/api-error-utils';
 import { getDateByUnixtimestamp } from '~/utils/datetime-utils';
+import SdICoopStatusCard from './components/SdICoopStatusCard';
 
 type Values = Omit<InvoiceSettings, 'certificates' | 'certificateSignId'> & { certificateSignId: number | '' };
 
@@ -367,6 +368,8 @@ const InvoiceSettingsView = () => {
                 </Stack>
               </CardContent>
             </Card>
+
+            <SdICoopStatusCard />
 
             <Card variant="outlined">
               <CardHeader title="Estratto conto" titleTypographyProps={{ variant: 'subtitle1' }} />
